@@ -1,0 +1,8 @@
+{
+  "S001": "Success",
+  "E001": "Invalid Request",
+  "E002": "Internal Server Error",
+  "E003": "Bad Request",
+  "E004": "Invalid Session",
+  "E005": "Data Not Found"
+}
