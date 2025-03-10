@@ -1,4 +1,4 @@
-package com.visitjakarta.backend.response;
+package com.wms.backend.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.io.ClassPathResource;
@@ -22,7 +22,7 @@ public class ResponseHelper {
             throw new RuntimeException(e);
         }
     }
-    public static ResponseEntity<Object> generateResponse(String flag, Object data ,HttpStatus status) {
+    public static ResponseEntity<Object> generateResponse(String flag, Object data , HttpStatus status) {
         Map<String, String> errorSchema = new HashMap<>();
         Map<String, Object> response = new HashMap<>();
         errorSchema.put("error_code", flag);
@@ -31,6 +31,4 @@ public class ResponseHelper {
         response.put("output_schema", data);
         return new ResponseEntity<Object>(response, status);
     }
-
-
 }

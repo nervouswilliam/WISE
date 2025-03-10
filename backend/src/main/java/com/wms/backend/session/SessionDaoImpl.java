@@ -1,4 +1,4 @@
-package com.visitjakarta.backend.session;
+package com.wms.backend.session;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,16 +20,5 @@ public class SessionDaoImpl {
         String sql = "select * from \"session\" where sessionId = ?";
         logger.info("SQL:"+sql);
         return jdbcTemplate.queryForObject(sql, new SessionMapper(), sessionId);
-
-//        return jdbcTemplate.queryForObject(sql, new Object[]{sessionId}, (rs, rowNum) ->
-//                new SessionModel(
-//                        rs.getString("sessionId"),
-//                        rs.getString("token"),
-//                        rs.getString("username"),
-//                        rs.getString("role"),
-//                        rs.getInt("created_time"),
-//                        rs.getInt("expired_time")
-//                )
-//        );
     }
 }

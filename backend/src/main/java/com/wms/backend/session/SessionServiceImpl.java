@@ -1,7 +1,7 @@
-package com.visitjakarta.backend.session;
+package com.wms.backend.session;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.visitjakarta.backend.response.ResponseHelper;
+import com.wms.backend.response.ResponseHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.sql.SQLException;
 
 @Service
-public class SessionService {
+public class SessionServiceImpl {
     @Autowired
     private SessionDaoImpl sessionDao;
     private final Logger logger = LogManager.getLogger();

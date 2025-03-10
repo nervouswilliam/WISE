@@ -1,4 +1,4 @@
-package com.visitjakarta.backend.session;
+package com.wms.backend.session;
 
 import org.springframework.jdbc.core.RowMapper;
 
