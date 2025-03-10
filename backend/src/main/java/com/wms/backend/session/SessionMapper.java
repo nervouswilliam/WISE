@@ -13,8 +13,8 @@ public class SessionMapper implements RowMapper<SessionModel> {
         model.setToken(rs.getString("token"));
         model.setUsername(rs.getString("username"));
         model.setRole(rs.getString("role"));
-        model.setCreatedTime(rs.getInt("created_time"));
-        model.setExpiredTime(rs.getInt("expired_time"));
+        model.setCreatedTime(rs.getLong("created_time"));
+        model.setExpiredTime(rs.getLong("expired_time"));
         return model;
     }
 }

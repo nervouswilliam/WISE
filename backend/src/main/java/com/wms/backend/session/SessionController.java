@@ -1,12 +1,14 @@
 package com.wms.backend.session;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.wms.backend.user.UserModel;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 
@@ -17,7 +19,20 @@ public class SessionController {
     private SessionServiceImpl sessionService;
 
     @GetMapping(value = "session-info/{sessionId}", produces = "application/json")
-    private ResponseEntity<Object> getSessionInfo(@PathVariable String sessionId) throws JsonProcessingException, SQLException {
+    public ResponseEntity<Object> getSessionInfo(@PathVariable String sessionId) throws JsonProcessingException, SQLException {
         return sessionService.getSessionInfo(sessionId);
     }
+
+    @PostMapping(value = "login", produces = "application/json")
+    public ResponseEntity<Object> login(@RequestBody UserModel user) throws SQLException {
+        return sessionService.login(user.getName(), user.getPassword());
+    }
+
+    @GetMapping(value = "who-am-i", produces = "application/json")
+    public ResponseEntity<Object> whoAmI(ServletRequest request) {
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        String authHeader = httpRequest.getHeader("Authorization");
+        return sessionService.whoAmI(authHeader, request);
+    }
+
 }

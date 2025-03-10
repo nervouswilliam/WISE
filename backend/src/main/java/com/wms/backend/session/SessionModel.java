@@ -8,6 +8,6 @@ public class SessionModel {
     private String token;
     private String username;
     private String role;
-    private int createdTime;
-    private int expiredTime;
+    private long createdTime;
+    private long expiredTime;
 }
