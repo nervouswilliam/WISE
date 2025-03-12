@@ -1,12 +1,10 @@
 package com.wms.backend.session;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.wms.backend.user.UserModel;
+import com.wms.backend.features.user.UserModel;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

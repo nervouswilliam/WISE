@@ -1,4 +1,4 @@
-package com.wms.backend.user;
+package com.wms.backend.features.user;
 
 import lombok.Data;
 
