@@ -35,4 +35,11 @@ public class SessionController {
         return sessionService.whoAmI(authHeader, request);
     }
 
+    @PostMapping(value = "logout", produces = "application/json")
+    public ResponseEntity<Object> logout(ServletRequest request) {
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        String authHeader = httpRequest.getHeader("Authorization");
+        return sessionService.logout(authHeader);
+    }
+
 }

@@ -28,6 +28,12 @@ public class SessionDaoImpl {
         return jdbcTemplate.queryForObject(sql, new SessionMapper(), sessionId);
     }
 
+    public String getSessionIdByUsername(String username) throws SQLException{
+        String sql = "select sessionid from \"session\" where username = ?";
+        logger.info("SQL: "+sql);
+        return jdbcTemplate.queryForObject(sql, String.class, username);
+    }
+
     public boolean checkUserSession(String username) throws SQLException{
         String sql = "select exists (select * from \"session\" s where s.username = ? limit 1)";
         logger.info("SQL: "+sql);

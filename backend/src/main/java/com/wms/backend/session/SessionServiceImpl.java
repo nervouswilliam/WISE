@@ -64,6 +64,10 @@ public class SessionServiceImpl {
             }
             long createdTime = System.currentTimeMillis();
             long expiredTime = createdTime + (15*60*1000);
+            if(sessionDao.checkUserSession(username)){
+                String sessionId = sessionDao.getSessionIdByUsername(username);
+                sessionDao.deleteSession(sessionId);
+            }
             String sessionId = sessionDao.generateSession(username, user.getRole(), token, createdTime, expiredTime);
             if(sessionId == null){
                 return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -118,5 +122,14 @@ public class SessionServiceImpl {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public ResponseEntity<Object> logout(String sessionId) {
+        try{
+            sessionDao.deleteSession(sessionId);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return ResponseHelper.generateResponse("S001", null, HttpStatus.OK);
     }
 }
