@@ -1,11 +1,13 @@
 package com.wms.backend.features.transactions;
 
+import com.wms.backend.features.products.ProductModel;
 import lombok.Data;
 
 @Data
-public class TransactionModel {
-    public String id;
-    public String transaction_type;
+public class TransactionModel extends ProductModel {
+    public String transaction_Id;
+    public int transaction_type_id;
     public int totalPrice;
     public int quantity;
+    public int price_per_unit;
 }

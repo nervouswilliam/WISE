@@ -1,6 +1,7 @@
 package com.wms.backend.features.products;
 
 import com.wms.backend.database.GenericDB;
+import com.wms.backend.features.transactions.TransactionModel;
 import com.wms.backend.general.CommonUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,11 +24,17 @@ public class ProductDaoImpl {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Map<String, Object>> getProductList(){
+    public List<Map<String, Object>> getProductList(String search, int page, int pageSize){
         try{
-            String sql = "SELECT * FROM \"products\"";
+            int offset = (page - 1) * pageSize;
+            String searchQuery = (search == null || search.isEmpty()) ? "" : "%" + search + "%";
+            String sql = "SELECT * FROM view_products\n" +
+                    "WHERE \n" +
+                    "    (COALESCE(?, '') = '' or id ILIKE ? OR name ILIKE ?)\n" +
+                    "ORDER BY id ASC\n" +
+                    "LIMIT ? OFFSET ?;";
             logger.info("SQL SELECT: {}", sql);
-            return jdbcTemplate.queryForList(sql);
+            return jdbcTemplate.queryForList(sql, searchQuery, searchQuery, searchQuery, pageSize, offset);
         } catch (Exception e){
             CommonUtils.printErrorLog("DAO", this.getClass(), e);
             return null;
@@ -88,6 +95,45 @@ public class ProductDaoImpl {
         } catch (Exception e){
             CommonUtils.printErrorLog("DAO", this.getClass(), e);
             return false;
+        }
+    }
+
+    public void refreshViewProductsTable(){
+        try{
+            String sql = "REFRESH MATERIALIZED VIEW view_products";
+            logger.info("SQL REFRESH: {}", sql);
+            jdbcTemplate.update(sql);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("DAO", this.getClass(), e);
+        }
+    }
+
+    public void updateProductStock(ProductModel model) {
+
+    }
+
+    public void updateProduct(ProductModel model) {
+        try{
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("name", model.getName());
+            map.put("price", model.getPrice());
+            map.put("stock", model.getStock());
+            map.put("image_url", model.getImage_url());
+            String whereClause = "id = '"+model.getId()+"'";
+            genericDB.update("products", map, whereClause);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("DAO", this.getClass(), e);
+        }
+    }
+
+    public void updateProductCategory(ProductModel model, int categoryId) {
+        try{
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("name", model.getCategory());
+            String whereClause = "id = "+categoryId;
+            genericDB.update("categories_product", map, whereClause);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("DAO", this.getClass(), e);
         }
     }
 }
