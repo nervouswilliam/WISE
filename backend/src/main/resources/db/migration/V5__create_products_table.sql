@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS products (
+    id VARCHAR(20) PRIMARY KEY,
+    name VARCHAR(20),
+    price DECIMAL(10,2) NOT NULL,
+    stock INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
