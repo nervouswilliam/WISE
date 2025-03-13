@@ -52,7 +52,7 @@ view_products: Optimized view for querying product data.
 
 Clone the repository:
 
-git clone https://github.com/nervouswilliam/wise.git
+git clone https://github.com/nervouswilliam/WISE.git
 cd warehouse-management
 
 Set up the database:
@@ -76,8 +76,10 @@ Start the backend server:
 Start the frontend:
 
 cd frontend
-npm install
-npm start
+flutter config --enable-web
+flutter devices
+flutter run -d chrome
+press r for hot restart
 
 📊 Future Enhancements
 
