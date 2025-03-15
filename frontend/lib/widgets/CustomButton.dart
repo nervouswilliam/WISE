@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 class CustomButton extends StatefulWidget{
   final Function()? onTap;
+  final String nameButton;
   const CustomButton({
     super.key,
-    required this.onTap
+    required this.onTap,
+    required this.nameButton
     });
 
   @override
@@ -14,26 +16,56 @@ class CustomButton extends StatefulWidget{
 class _CustomButtonState extends State<CustomButton> {
   @override
   Widget build(BuildContext context){
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: Container(
-        padding: const EdgeInsets.all(25),
-        margin: const EdgeInsets.symmetric(horizontal: 25),
-        decoration: BoxDecoration(
-          color: Color(0xFF7142B0),
+    // return GestureDetector(
+    //   onTap: widget.onTap,
+    //   child: Container(
+    //     padding: const EdgeInsets.all(25),
+    //     margin: const EdgeInsets.symmetric(horizontal: 25),
+    //     decoration: BoxDecoration(
+    //       color: Color(0xFF7142B0),
+    //       borderRadius: BorderRadius.circular(12),
+    //     ),
+    //     child: Center(
+    //       child: Text(
+    //         widget.nameButton,
+    //         style: TextStyle(
+    //           color: Colors.white,
+    //           fontWeight: FontWeight.bold,
+    //           fontSize: 21,
+    //           fontFamily: 'Baloo Chettan'
+    //         )
+    //       ),
+    //     )
+    //   ),
+    // );
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 25),
+      child: Material(
+        color: const Color(0xFF7142B0), // Background color
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: widget.onTap,
           borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Center(
-          child: Text(
-            "Login",
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 21,
-              fontFamily: 'Baloo Chettan'
-            )
+          splashColor: Colors.purple[900], // Ripple color
+          highlightColor: Colors.purple[700], // Pressed effect
+          child: Container(
+            padding: const EdgeInsets.all(25),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Text(
+                widget.nameButton,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 21,
+                  fontFamily: 'Baloo Chettan',
+                ),
+              ),
+            ),
           ),
-        )
+        ),
       ),
     );
   }

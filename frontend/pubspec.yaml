@@ -39,6 +39,7 @@ dependencies:
   shared_preferences: ^2.5.2
   flutter_secure_storage: ^9.2.4
   web: ^1.1.1
+  another_flushbar: ^1.12.30
 
 dev_dependencies:
   flutter_test:

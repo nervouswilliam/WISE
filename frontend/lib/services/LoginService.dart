@@ -11,7 +11,6 @@ class Loginservice {
                     '/auth/login',
                     body:{'name':name, 'password':password});
     print("response login service: $response");
-    // final response = await http.post(Uri.parse('http://192.168.68.123:8080/auth/login'), body:{'name': name, 'password':password});
     ResponseHelper responseHelper = ResponseHelper.decodeJson(response);
     String errorCode = responseHelper.getErrorCode();
 
