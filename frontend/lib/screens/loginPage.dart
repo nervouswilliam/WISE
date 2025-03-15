@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/services/LoginService.dart';
 import 'package:frontend/widgets/CustomButton.dart';
 import 'package:frontend/widgets/CustomTextField.dart';
+import 'package:frontend/widgets/NotificationHelper.dart';
 
 class LoginPage extends StatefulWidget{
-  LoginPage({super.key});
+  const LoginPage({super.key});
 
   
   @override
@@ -15,7 +17,27 @@ class _LoginPageState extends State<LoginPage> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
-  void LoginUser(){}
+  final Loginservice loginservice = Loginservice();
+  void LoginUser() async {
+    String username = usernameController.text.trim();
+    String password = passwordController.text.trim();
+
+    if (username.isEmpty || password.isEmpty) {
+      // Handle empty fields
+      NotificationHelper.showError(context, "Please enter username and password !");
+      return;
+    }
+
+    String? sessionId = await loginservice.loginUser(username, password);
+    
+    if (sessionId != null) {
+      NotificationHelper.showSuccess(context);
+      // Navigate to home page or dashboard here
+    } else {
+      NotificationHelper.showError(context, "Invalid Credentials");
+      // Show error message
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

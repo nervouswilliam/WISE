@@ -7,6 +7,7 @@ class CustomButton extends StatefulWidget{
     required this.onTap
     });
 
+  @override
   _CustomButtonState createState() => _CustomButtonState();
 }
 

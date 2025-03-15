@@ -12,6 +12,7 @@ class CustomTextField extends StatefulWidget{
     required this.obscureText,
     });
   
+  @override
   _CustomTextFileState createState() => _CustomTextFileState();
 }
 

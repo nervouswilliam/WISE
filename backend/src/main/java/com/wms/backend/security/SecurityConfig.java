@@ -13,10 +13,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // ✅ Allow all requests (remove auth requirement)
-                )
-                .csrf(AbstractHttpConfigurer::disable); // ✅ Disable CSRF for APIs
+//                .authorizeHttpRequests(auth -> auth
+//                        .anyRequest().permitAll() // ✅ Allow all requests (remove auth requirement)
+//                )
+//                .csrf(AbstractHttpConfigurer::disable); // ✅ Disable CSRF for APIs
+                .cors(cors -> cors.disable())
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 
         return http.build();
     }
