@@ -40,11 +40,20 @@ class _LoginPageState extends State<LoginPage> {
   }
   @override
   Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
+            SizedBox(
+              height: screenHeight * 0.25, // 25% of screen height
+              width: double.infinity, // Full width
+              child: Image.asset(
+                'assets/top_image_login.jpg', // Change to your image path
+                fit: BoxFit.cover, // Cover the space
+              ),
+            ),
             SizedBox(height: 50),
             Text(
               'Login',
