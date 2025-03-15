@@ -81,6 +81,15 @@ flutter devices
 flutter run -d chrome
 press r for hot restart
 
+to run DEV env:
+flutter run --dart-define=FLAVOR=dev
+
+to run UAT env:
+flutter run --dart-define=FLAVOR=uat
+
+to run PROD env:
+flutter run --dart-define=FLAVOR=prod
+
 📊 Future Enhancements
 
 Implement AI-based stock prediction.
