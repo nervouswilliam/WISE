@@ -9,5 +9,5 @@ public class UserModel {
     public String password;
     public String role;
     public String email;
-    public String image;
+    public String imageUrl;
 }

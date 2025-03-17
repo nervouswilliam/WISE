@@ -32,7 +32,7 @@ public class AuthFilter implements Filter {
         String authHeader = httpRequest.getHeader("Authorization");
         String requestURI = httpRequest.getRequestURI();
 
-        List<String> excludedPaths = List.of("/auth/login", "/user/sign-up", "/auth/logout", "auth/session-info");
+        List<String> excludedPaths = List.of("/auth/login", "/user/sign-up", "/auth/logout", "/auth/session-info", "/user/check-exist", "/api/upload-image");
 
         // Skip filtering for excluded paths
         if (excludedPaths.contains(requestURI)) {

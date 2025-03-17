@@ -1,6 +1,10 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:path/path.dart';
 
 class Apiconfig {
   static String get baseUrl {
@@ -125,40 +129,67 @@ class Apiconfig {
 
   
   // Multipart request for file uploads
-  static Future<dynamic> postMultipart(
-    String path, {
-    required Map<String, String> fields,
-    required Map<String, List<http.MultipartFile>> files,
-    Map<String, String>? headers,
-  }) async {
-    final url = getEndpoint(path);
-    
-    try {
-      final request = http.MultipartRequest('POST', Uri.parse(url));
-      
-      // Add headers
-      request.headers.addAll({..._defaultHeaders, ...?headers});
-      request.headers.remove('Content-Type'); // Let MultipartRequest set the correct content type
-      
-      // Add text fields
-      request.fields.addAll(fields);
-      
-      // Add files
-      files.forEach((fieldName, fileList) {
-        for (var file in fileList) {
-          request.files.add(file);
-        }
-      });
-      
-      // Send the request
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-      
-      return _handleResponse(response);
-    } catch (e) {
-      return _handleError(e);
-    }
+//   static Future<dynamic> postMultipart(
+//   String path, {
+//   required Map<String, String> fields,
+//   required File file, // Accepts a single image file
+//   Map<String, String>? headers,
+// }) async {
+//   final url = getEndpoint(path);
+
+//   try {
+//     var request = http.MultipartRequest('POST', Uri.parse(url));
+
+//     // Add headers
+//     request.headers.addAll({..._defaultHeaders, ...?headers});
+//     request.headers.remove('Content-Type'); // Let MultipartRequest handle it
+
+//     // Add text fields (if any)
+//     request.fields.addAll(fields);
+
+//     // Attach image file
+//     request.files.add(
+//       await http.MultipartFile.fromPath(
+//         'file', // This should match @RequestParam("file") in Spring Boot
+//         file.path,
+//         filename: basename(file.path),
+//       ),
+//     );
+
+//     // Send the request
+//     var streamedResponse = await request.send();
+//     var response = await http.Response.fromStream(streamedResponse);
+
+//     return _handleResponse(response);
+//   } catch (e) {
+//     return _handleError(e);
+//   }
+// }
+
+static Future<dynamic> postMultipart(String url, {Map<String, String>? fields, Uint8List? fileData, String? filename}) async {
+  var finalUrl = getEndpoint(url);
+  var request = http.MultipartRequest("POST", Uri.parse(finalUrl));
+
+  // Add fields if needed
+  if (fields != null) {
+    fields.forEach((key, value) {
+      request.fields[key] = value;
+    });
   }
+
+  // Convert Uint8List to MultipartFile
+  if (fileData != null && filename != null) {
+    request.files.add(http.MultipartFile.fromBytes(
+      'file', // Key name used in backend
+      fileData,
+      filename: filename,
+    ));
+  }
+
+  var streamedResponse = await request.send();
+  return await http.Response.fromStream(streamedResponse);
+}
+
   
   // PUT request implementation
   static Future<dynamic> put(

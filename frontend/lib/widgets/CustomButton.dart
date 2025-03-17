@@ -16,28 +16,6 @@ class CustomButton extends StatefulWidget{
 class _CustomButtonState extends State<CustomButton> {
   @override
   Widget build(BuildContext context){
-    // return GestureDetector(
-    //   onTap: widget.onTap,
-    //   child: Container(
-    //     padding: const EdgeInsets.all(25),
-    //     margin: const EdgeInsets.symmetric(horizontal: 25),
-    //     decoration: BoxDecoration(
-    //       color: Color(0xFF7142B0),
-    //       borderRadius: BorderRadius.circular(12),
-    //     ),
-    //     child: Center(
-    //       child: Text(
-    //         widget.nameButton,
-    //         style: TextStyle(
-    //           color: Colors.white,
-    //           fontWeight: FontWeight.bold,
-    //           fontSize: 21,
-    //           fontFamily: 'Baloo Chettan'
-    //         )
-    //       ),
-    //     )
-    //   ),
-    // );
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: Material(

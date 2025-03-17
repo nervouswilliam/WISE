@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/HomePage.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:frontend/screens/SignupPage.dart';
 import 'package:frontend/screens/loginPage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/home': (context) => HomePage(),
         '/login': (context) => LoginPage(),
+        '/register': (context) => SignupPage(),
       },
     );
   }
