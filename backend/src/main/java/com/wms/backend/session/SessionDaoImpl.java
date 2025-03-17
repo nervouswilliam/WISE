@@ -4,6 +4,7 @@ import com.wms.backend.database.GenericDB;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -25,7 +26,11 @@ public class SessionDaoImpl {
     public SessionModel getSession(String sessionId) throws SQLException {
         String sql = "select * from \"session\" where sessionid = ?";
         logger.info("SQL:"+sql);
-        return jdbcTemplate.queryForObject(sql, new SessionMapper(), sessionId);
+        try {
+            return jdbcTemplate.queryForObject(sql, new SessionMapper(), sessionId);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
     }
 
     public String getSessionIdByUsername(String username) throws SQLException{

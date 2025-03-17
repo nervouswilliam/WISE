@@ -88,6 +88,7 @@ public class SessionServiceImpl {
             model.setSessionId(sessionId);
             model.setUsername(claims.get("username").toString());
             model.setRole(claims.get("role").toString());
+            model.setImage(userDao.getUserImageUrl(model.getUsername()));
             request.setAttribute("username",model.getUsername());
             request.setAttribute("role", model.getRole());
             request.setAttribute("email", claims.get("email").toString());
@@ -101,6 +102,9 @@ public class SessionServiceImpl {
         try{
             logger.info("sessionId Validate Token: {}", sessionId);
             SessionModel model = sessionDao.getSession(sessionId);
+            if(model == null){
+                return false;
+            }
             long expiredTime = model.getExpiredTime();
             long refreshTime = expiredTime - (5*60*1000);
             long currentTime = System.currentTimeMillis();

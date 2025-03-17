@@ -28,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    String? sessionId = await loginservice.loginUser(username, password);
+    String? sessionId = await loginservice.loginUser(username, password, context);
     
     if (sessionId != null) {
       NotificationHelper.showSuccess(context);
@@ -61,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
                 color: Color(0xFF7142B0),
                 fontWeight: FontWeight.bold,
                 fontSize: 50,
-                fontFamily: 'Baloo Chettan'
+                fontFamily: 'BalooChettan'
               ),),
 
               SizedBox(height : 25),

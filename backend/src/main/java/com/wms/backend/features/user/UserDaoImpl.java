@@ -36,6 +36,12 @@ public class UserDaoImpl {
         });
     }
 
+    public String getUserImageUrl(String username) {
+        String sql = "select image from users where name = ?";
+        logger.info("SQL SELECT: {}", sql);
+        return jdbcTemplate.queryForObject(sql, String.class, username);
+    }
+
     public void insertUser(String username, String password, String role, String email) throws SQLException{
         try {
             HashMap<String, Object> data = new HashMap<>();

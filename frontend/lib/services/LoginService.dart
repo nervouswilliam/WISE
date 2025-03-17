@@ -1,11 +1,11 @@
+import 'package:flutter/widgets.dart';
 import 'package:frontend/services/APIConfig.dart';
 import 'package:frontend/session/SessionManager.dart';
 import 'package:frontend/widgets/ResponseHelper.dart';
-import 'package:http/http.dart' as http;
 
 
 class Loginservice {
-  Future<String?> loginUser(String name, String password) async {
+  Future<String?> loginUser(String name, String password, BuildContext context) async {
     print("masuk 1");
     final response = await Apiconfig.post(
                     '/auth/login',
@@ -18,6 +18,7 @@ class Loginservice {
       Map<String, dynamic> outputSchema = responseHelper.getOutputSchema();
       String sessionId = outputSchema["session-id"];
       SessionManager.saveSession(sessionId);
+      Navigator.pushNamed(context, '/home');
       return sessionId;
     }
     return null;
