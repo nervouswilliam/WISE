@@ -24,17 +24,6 @@ public class CloudinaryController {
     private CloudinaryService cloudinaryService;
 
     @PostMapping(value = "upload-image", consumes = "application/json", produces = "application/json")
-//    public ResponseEntity<Object> uploadImage(@RequestParam("file")MultipartFile image){
-//        try{
-//            String imageUrl =  cloudinaryService.uploadImage(image);
-//            HashMap<String, Object> map  = new HashMap<>();
-//            map.put("image", imageUrl);
-//            return ResponseHelper.generateResponse("S001", map, HttpStatus.OK);
-//        } catch (Exception e){
-//            CommonUtils.printErrorLog("CONTROLLER", this.getClass(), e);
-//            return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
     public ResponseEntity<Object> uploadImage(@RequestBody Map<String, String> requestBody) {
         try {
             String base64Image = requestBody.get("image");
@@ -42,9 +31,10 @@ public class CloudinaryController {
                 return ResponseEntity.badRequest().body("No image provided.");
             }
 
+            String fileFormat = cloudinaryService.detectImageFormat(base64Image);
             // Convert Base64 to File
             byte[] imageBytes = Base64.decodeBase64(base64Image);
-            File tempFile = File.createTempFile("upload_", ".jpg");
+            File tempFile = File.createTempFile("upload_", fileFormat);
             try (FileOutputStream fos = new FileOutputStream(tempFile)) {
                 fos.write(imageBytes);
             }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/session/SessionManager.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String username;
   final String role;
   final String profileImageUrl;
   final VoidCallback onNotificationPressed;
-  final VoidCallback onLogoutPressed;
 
   const CustomAppBar({
     super.key,
@@ -13,7 +13,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.role,
     required this.profileImageUrl,
     required this.onNotificationPressed,
-    required this.onLogoutPressed,
   });
 
   @override
@@ -66,12 +65,29 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
             IconButton(
               icon: const Icon(Icons.logout, color: Colors.white),
-              onPressed: onLogoutPressed,
+              onPressed: () => _logout(context),
             ),
           ],
         ),
       ],
     );
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    try {
+      await SessionManager.clearSession();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Logged out successfully")),
+      );
+
+      // 🔹 Navigate back to login and remove all previous routes
+      if (context.mounted) {
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+      }
+    } catch (e) {
+      print("❌ Logout failed: $e");
+    }
   }
 
   @override

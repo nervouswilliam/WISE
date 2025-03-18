@@ -42,10 +42,7 @@ class _HomePageState extends State<HomePage> {
               profileImageUrl: user!.profileImageUrl,
               onNotificationPressed: () {
                 print("Notification Clicked");
-              },
-              onLogoutPressed: () {
-                print("Logout Clicked");
-              },
+              }
             )
           : PreferredSize(
               preferredSize: const Size.fromHeight(kToolbarHeight),

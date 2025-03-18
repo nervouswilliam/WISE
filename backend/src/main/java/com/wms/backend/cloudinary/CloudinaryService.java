@@ -41,4 +41,12 @@ public class CloudinaryService {
             throw new RuntimeException("Failed to delete image", e);
         }
     }
+
+    String detectImageFormat(String base64Image) {
+        if (base64Image.startsWith("/9j/")) return ".jpg";  // JPEG
+        if (base64Image.startsWith("iVBOR")) return ".png"; // PNG
+        if (base64Image.startsWith("R0lG")) return ".gif";  // GIF
+        if (base64Image.startsWith("UklGR")) return ".webp"; // WEBP
+        return ".jpg"; // Default to JPG
+    }
 }

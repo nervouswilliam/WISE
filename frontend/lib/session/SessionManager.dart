@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart'; // Import for kIsWeb
+import 'package:frontend/services/APIConfig.dart';
+import 'package:frontend/widgets/ResponseHelper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web/web.dart' as web; // New import for Web Storage
 
@@ -25,11 +27,18 @@ class SessionManager {
 
   /// Delete session ID
   static Future<void> clearSession() async {
-    if (kIsWeb) {
-      web.window.sessionStorage.removeItem('sessionId'); // Web Storage
-    } else {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('sessionId'); // Mobile & Desktop Storage
-    }
+    String? sessionId  = await getSession();
+    final response = await Apiconfig.delete("/auth/logout", headers: {"Authorization": "$sessionId"});
+    ResponseHelper responseHelper = ResponseHelper.decodeJson(response);
+    String errorCode = responseHelper.getErrorCode();
+
+    if(errorCode == "S001"){
+      if (kIsWeb) {
+        web.window.sessionStorage.removeItem('sessionId'); // Web Storage
+      } else {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('sessionId'); // Mobile & Desktop Storage
+      }
+    }  
   }
 }
