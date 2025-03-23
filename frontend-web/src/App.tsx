@@ -10,6 +10,7 @@ import { NotificationProvider } from './routes/helper/NotificationProvider';
 import Product from './routes/Product/ProductPage';
 import Supplier from './routes/Supplier/SupplierPage';
 import Report from './routes/Report/ReportPage';
+import ProductDetailPage from './routes/Product/detail/ProductDetailPage';
 // import { Box } from '@mui/material';
 
 function App() {
@@ -35,6 +36,7 @@ function AppContent() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/product" element={<ProtectedRoute><Product /></ProtectedRoute>} />
+        <Route path="/product/detail" element={<ProtectedRoute><ProductDetailPage /></ProtectedRoute>} />
         <Route path="/supplier" element={<ProtectedRoute><Supplier /></ProtectedRoute>} />
         <Route path="/report" element={<ProtectedRoute><Report /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/login" replace />} />

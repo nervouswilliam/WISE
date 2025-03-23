@@ -7,7 +7,7 @@ interface ErrorSchema {
 }
 
 interface ApiResponse<T = unknown> {
-    output_schema?: T;
+    output_schema: T;
     error_schema: ErrorSchema;
 }
 

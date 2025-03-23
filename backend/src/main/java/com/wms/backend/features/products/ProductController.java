@@ -15,9 +15,9 @@ public class ProductController {
     private ProductServiceImpl productService;
 
     @GetMapping(value = "list", produces = "application/json")
-    public ResponseEntity<Object> getProductList(@RequestParam String search, @RequestParam int page) {
+    public ResponseEntity<Object> getProductList(@RequestParam(required = false) String search) {
         try{
-            return productService.getProductList(search, page);
+            return productService.getProduct();
         } catch (Exception e){
             CommonUtils.printErrorLog("CONTROLLER", this.getClass(), e);
             return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);

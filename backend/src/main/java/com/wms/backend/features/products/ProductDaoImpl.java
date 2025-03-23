@@ -24,21 +24,33 @@ public class ProductDaoImpl {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Map<String, Object>> getProductList(String search, int page, int pageSize){
+    public List<Map<String, Object>> getProductList(String search, int page, double pageSize){
         try{
-            int offset = (page - 1) * pageSize;
+            int offset = (int) Math.floor((page - 1) * pageSize);
             String searchQuery = (search == null || search.isEmpty()) ? "" : "%" + search + "%";
-            String sql = "SELECT * FROM view_products\n" +
+            String sql = "SELECT CEIL(COUNT(*) OVER () / ?) AS total_page, * FROM view_products\n" +
                     "WHERE \n" +
                     "    (COALESCE(?, '') = '' or id ILIKE ? OR name ILIKE ?)\n" +
                     "ORDER BY id ASC\n" +
                     "LIMIT ? OFFSET ?;";
             logger.info("SQL SELECT: {}", sql);
-            return jdbcTemplate.queryForList(sql, searchQuery, searchQuery, searchQuery, pageSize, offset);
+            return jdbcTemplate.queryForList(sql, pageSize, searchQuery, searchQuery, searchQuery, pageSize, offset);
         } catch (Exception e){
             CommonUtils.printErrorLog("DAO", this.getClass(), e);
             return null;
         }
+    }
+
+    public List<Map<String, Object>> getProduct(){
+        try{
+            String sql = "SELECT * FROM view_products";
+            logger.info("SQL SELECT: {}", sql);
+            return jdbcTemplate.queryForList(sql);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("DAO", this.getClass(), e);
+            return null;
+        }
+
     }
 
     public void insertProduct(ProductModel model) {
