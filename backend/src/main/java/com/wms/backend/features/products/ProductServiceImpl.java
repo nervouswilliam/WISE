@@ -1,5 +1,6 @@
 package com.wms.backend.features.products;
 
+import com.google.api.Http;
 import com.wms.backend.features.transactions.TransactionDaoImpl;
 import com.wms.backend.features.transactions.TransactionModel;
 import com.wms.backend.general.CommonUtils;
@@ -25,11 +26,52 @@ public class ProductServiceImpl {
     public ResponseEntity<Object> getProductList(String search, int page) {
         List<Map<String, Object>> productList;
         try{
-            productList = productDao.getProductList(search, page, 20);
+            productList = productDao.getProductList(search, page, 10.0);
             if(productList.isEmpty()){
                 return ResponseHelper.generateResponse("E005", null, HttpStatus.UNPROCESSABLE_ENTITY);
             }
             return ResponseHelper.generateResponse("S001", productList, HttpStatus.OK);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("SERVICE", this.getClass(), e);
+            return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<Object> getProduct() {
+        List<Map<String, Object>> productList;
+        try{
+            productList = productDao.getProduct();
+            if(productList.isEmpty()){
+                return ResponseHelper.generateResponse("E005", null, HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+            return ResponseHelper.generateResponse("S001", productList, HttpStatus.OK);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("SERVICE", this.getClass(), e);
+            return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<Object> getProductDetail(String id) {
+        try{
+            Map<String, Object> data = productDao.getProductDetail(id);
+            if(data == null){
+                return ResponseHelper.generateResponse("E005", null, HttpStatus.UNPROCESSABLE_ENTITY);
+            } else{
+                return ResponseHelper.generateResponse("S001", data, HttpStatus.OK);
+            }
+        } catch (Exception e){
+            CommonUtils.printErrorLog("SERVICE", this.getClass(), e);
+            return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<Object> getProductCategory(){
+        try{
+            List<Map<String, Object>> data = productDao.getProductCategories();
+            if(data.isEmpty()){
+                return ResponseHelper.generateResponse("E005", null, HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+            return ResponseHelper.generateResponse("S001", data, HttpStatus.OK);
         } catch (Exception e){
             CommonUtils.printErrorLog("SERVICE", this.getClass(), e);
             return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);

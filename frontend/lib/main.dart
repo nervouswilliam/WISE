@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/HomePage.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
@@ -6,9 +7,11 @@ import 'package:frontend/screens/loginPage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
-  usePathUrlStrategy();
+  if (kIsWeb) {
+    usePathUrlStrategy(); // ✅ Only run this on Web
+  }
   runApp(const MyApp());
 }
 

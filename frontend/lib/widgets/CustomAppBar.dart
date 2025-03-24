@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/session/SessionManager.dart';
+import 'package:frontend/widgets/NotificationHelper.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String username;
@@ -77,9 +78,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     try {
       await SessionManager.clearSession();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Logged out successfully")),
-      );
+      NotificationHelper.showSuccess(context);
 
       // 🔹 Navigate back to login and remove all previous routes
       if (context.mounted) {
