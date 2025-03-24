@@ -27,7 +27,7 @@ export default function SignUpPage() {
                 </div>
             </div>
         </div>
-        <div className="relative hidden bg-muted lg:flex justify-center items-center">
+        <div className="relative hidden lg:flex justify-center items-center">
             <img
             src={signupImage}
             alt="Image"
