@@ -25,6 +25,7 @@ export default function Header({ username, role, profilePic }: HeaderProps) {
     const errorCode = response?.error_schema.error_code;
     if(errorCode === "S001"){
       navigate("/login");
+      window.location.reload();
       showNotification("Logout Successful", "success")
     } else {
       showNotification(response?.error_schema.error_message || "Logout Failed", "error");
