@@ -50,6 +50,20 @@ public class ProductServiceImpl {
         }
     }
 
+    public ResponseEntity<Object> getProductDetail(String id) {
+        try{
+            Map<String, Object> data = productDao.getProductDetail(id);
+            if(data == null){
+                return ResponseHelper.generateResponse("E005", null, HttpStatus.UNPROCESSABLE_ENTITY);
+            } else{
+                return ResponseHelper.generateResponse("S001", data, HttpStatus.OK);
+            }
+        } catch (Exception e){
+            CommonUtils.printErrorLog("SERVICE", this.getClass(), e);
+            return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @Transactional // rollback if there is error
     public ResponseEntity<Object> insertProduct(TransactionModel model) {
         try{

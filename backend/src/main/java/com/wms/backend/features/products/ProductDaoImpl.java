@@ -53,6 +53,17 @@ public class ProductDaoImpl {
 
     }
 
+    public Map<String, Object> getProductDetail(String id) {
+        try{
+            String sql = "SELECT * FROM view_products where id=?";
+            logger.info("SQL SELECT: {}", sql);
+            return jdbcTemplate.queryForMap(sql, id);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("DAO", this.getClass(), e);
+            return null;
+        }
+    }
+
     public void insertProduct(ProductModel model) {
         try{
             HashMap <String, Object> map = new HashMap<>();

@@ -22,6 +22,7 @@ export type Product = {
   price: number,
   stock: number,
   category_name: string,
+  image: string;
 }
 
 function ActionCell({ product }: { product: Product }) {
@@ -42,7 +43,7 @@ function ActionCell({ product }: { product: Product }) {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => navigate("product/detail")}>
+                onClick={() => navigate(`/product/${product.id}`)}>
                     View Product
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -100,7 +101,7 @@ export const ProductColumn: ColumnDef<Product>[] = [
     },
     cell: ({ row }) => {
       const price = parseFloat(row.getValue("price"))
-      const formatted = new Intl.NumberFormat("en-US", {
+      const formatted = new Intl.NumberFormat("id-ID", {
         style: "currency",
         currency: "IDR",
       }).format(price)

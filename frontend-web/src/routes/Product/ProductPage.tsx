@@ -791,11 +791,12 @@ async function getData(): Promise<Product[]> {
       console.error("Error Fetching Products");
       return [
         {
-          id: "PT001",
-          name: "XBOX Controller",
-          price: 750000.00,
-          stock: 150,
-          category_name: "utility",
+          id: "Error",
+          name: "Error",
+          price: 0.00,
+          stock: 0,
+          category_name: "Error",
+          image:"null"
         },
         // ...
       ]

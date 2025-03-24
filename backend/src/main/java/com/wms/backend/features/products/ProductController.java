@@ -1,5 +1,6 @@
 package com.wms.backend.features.products;
 
+import com.google.api.Http;
 import com.wms.backend.features.transactions.TransactionModel;
 import com.wms.backend.general.CommonUtils;
 import com.wms.backend.response.ResponseHelper;
@@ -18,6 +19,16 @@ public class ProductController {
     public ResponseEntity<Object> getProductList(@RequestParam(required = false) String search) {
         try{
             return productService.getProduct();
+        } catch (Exception e){
+            CommonUtils.printErrorLog("CONTROLLER", this.getClass(), e);
+            return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = "information/{id}", produces = "application/json")
+    public ResponseEntity<Object> getProductDetail(@PathVariable String id) {
+        try{
+            return productService.getProductDetail(id);
         } catch (Exception e){
             CommonUtils.printErrorLog("CONTROLLER", this.getClass(), e);
             return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
