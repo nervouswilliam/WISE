@@ -1,5 +1,6 @@
 package com.wms.backend.features.products;
 
+import com.google.api.Http;
 import com.wms.backend.features.transactions.TransactionDaoImpl;
 import com.wms.backend.features.transactions.TransactionModel;
 import com.wms.backend.general.CommonUtils;
@@ -58,6 +59,19 @@ public class ProductServiceImpl {
             } else{
                 return ResponseHelper.generateResponse("S001", data, HttpStatus.OK);
             }
+        } catch (Exception e){
+            CommonUtils.printErrorLog("SERVICE", this.getClass(), e);
+            return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<Object> getProductCategory(){
+        try{
+            List<Map<String, Object>> data = productDao.getProductCategories();
+            if(data.isEmpty()){
+                return ResponseHelper.generateResponse("E005", null, HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+            return ResponseHelper.generateResponse("S001", data, HttpStatus.OK);
         } catch (Exception e){
             CommonUtils.printErrorLog("SERVICE", this.getClass(), e);
             return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);

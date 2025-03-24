@@ -796,7 +796,7 @@ async function getData(): Promise<Product[]> {
           price: 0.00,
           stock: 0,
           category_name: "Error",
-          image:"null"
+          image_url:"null"
         },
         // ...
       ]

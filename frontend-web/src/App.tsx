@@ -12,6 +12,7 @@ import Supplier from './routes/Supplier/SupplierPage';
 import Report from './routes/Report/ReportPage';
 import ProductDetailPage from './routes/Product/detail/ProductDetailPage';
 import NotFoundPage from './routes/NotFoundPage';
+import { ProductEditPage } from './routes/Product/Edit/ProductEditPage';
 // import { Box } from '@mui/material';
 
 function App() {
@@ -38,6 +39,7 @@ function AppContent() {
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/product" element={<ProtectedRoute><Product /></ProtectedRoute>} />
         <Route path="/product/:id" element={<ProtectedRoute><ProductDetailPage /></ProtectedRoute>} />
+        <Route path="/product/edit/:id" element={<ProtectedRoute><ProductEditPage /></ProtectedRoute>} />
         <Route path="/supplier" element={<ProtectedRoute><Supplier /></ProtectedRoute>} />
         <Route path="/report" element={<ProtectedRoute><Report /></ProtectedRoute>} />
         <Route path="*" element={<NotFoundPage/>} />

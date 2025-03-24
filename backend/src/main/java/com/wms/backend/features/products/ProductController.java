@@ -35,6 +35,16 @@ public class ProductController {
         }
     }
 
+    @GetMapping(value = "category", produces = "application/json")
+    public ResponseEntity<Object> getProductCategories(){
+        try{
+            return productService.getProductCategory();
+        } catch (Exception e){
+            CommonUtils.printErrorLog("CONTROLLER", this.getClass(), e);
+            return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping(value = "information", produces = "application/json")
     public ResponseEntity<Object> insertProduct(@RequestBody TransactionModel model){
         try{

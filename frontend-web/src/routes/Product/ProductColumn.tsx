@@ -22,7 +22,7 @@ export type Product = {
   price: number,
   stock: number,
   category_name: string,
-  image: string;
+  image_url: string;
 }
 
 function ActionCell({ product }: { product: Product }) {

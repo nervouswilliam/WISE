@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -118,6 +119,17 @@ public class ProductDaoImpl {
         } catch (Exception e){
             CommonUtils.printErrorLog("DAO", this.getClass(), e);
             return false;
+        }
+    }
+
+    public List<Map<String, Object>> getProductCategories(){
+        try{
+            String sql = "select * from categories";
+            logger.info("SQL SELECT: {}", sql);
+            return jdbcTemplate.queryForList(sql);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("DAO", this.getClass(), e);
+            return null;
         }
     }
 

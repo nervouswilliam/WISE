@@ -1,6 +1,6 @@
 import { apiService } from "@/routes/api";
 import { Product } from "../ProductColumn";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 export default function ProductDetailPage() {
@@ -8,6 +8,7 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
   useEffect(() => {
     async function fetchProduct() {
       try{
@@ -55,7 +56,7 @@ export default function ProductDetailPage() {
         {/* Left side - Product Image */}
         <div className="md:w-1/2 relative">
           <img 
-            src={product?.image} 
+            src={product?.image_url} 
             alt={product?.name} 
             className="w-full h-auto rounded-lg"
           />
@@ -87,7 +88,7 @@ export default function ProductDetailPage() {
                 <div className="text-gray-500 mb-2">STOCK</div>
                     {product?.stock}
             </div>
-            <button className="!text-white !bg-[#7142B0] bg-orange-500 text-white font-medium px-8 py-4 rounded-full mt-4 md:mt-0">
+            <button className="!text-white !bg-[#7142B0] bg-orange-500 text-white font-medium px-8 py-4 rounded-full mt-4 md:mt-0" onClick={() => navigate(`/product/edit/${id}`)}>
             EDIT
             </button>
         </div>
