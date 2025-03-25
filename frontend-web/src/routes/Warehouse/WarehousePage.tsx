@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
 async function getData(): Promise<transactions[]> {
-  // Fetch data from your API here.
   try{
     const response = await apiService.get<transactions[]>("transactions/list");
     const errorCode = response?.error_schema.error_code;
@@ -24,7 +23,6 @@ async function getData(): Promise<transactions[]> {
 }
 
 export default function WarehousePage() {
-  // const data = await getData()
   const [data, setData] = useState<transactions[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -46,7 +44,7 @@ export default function WarehousePage() {
   }, []); // Empty dependency array means this only runs once on mount
 
   if (loading) {
-    return <div>Loading products...</div>;
+    return <div>Loading Transactions...</div>;
   }
 
   return (
@@ -64,10 +62,16 @@ export default function WarehousePage() {
       >
         Warehouse
       </Typography>
-      <Button className="!text-white !bg-[#7142B0]" onClick={() => navigate("/product/add")}>
-        <Plus className="w-5 h-5" />
-            Add Products
-      </Button>
+      <div className="flex space-x-4">
+        <Button className="!text-white !bg-[#7142B0]" onClick={() => navigate("/product/add")}>
+            <Plus className="w-5 h-5" />
+                Add New Product
+        </Button>
+        <Button className="!text-white !bg-[#7142B0]" onClick={() => navigate("/product/add-stock")}>
+            <Plus className="w-5 h-5" />
+                Add Stock
+        </Button>
+      </div>
       <div className="container mx-auto py-10">
         {data.length === 0 ? (
             <p className="text-center text-gray-500 mt-2">No transactions available.</p>

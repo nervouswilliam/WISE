@@ -15,6 +15,7 @@ import NotFoundPage from './routes/NotFoundPage';
 import { ProductEditPage } from './routes/Product/Edit/ProductEditPage';
 import SignUpPage from './routes/Signup/SignupPage';
 import WarehousePage from './routes/Warehouse/WarehousePage';
+import { ProductAddPage } from './routes/Product/add/ProductAddPage';
 // import { Box } from '@mui/material';
 
 function App() {
@@ -42,6 +43,7 @@ function AppContent() {
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/product" element={<ProtectedRoute><Product /></ProtectedRoute>} />
         <Route path="/product/:id" element={<ProtectedRoute><ProductDetailPage /></ProtectedRoute>} />
+        <Route path="/product/add" element={<ProtectedRoute><ProductAddPage /></ProtectedRoute>} />
         <Route path="/product/edit/:id" element={<ProtectedRoute><ProductEditPage /></ProtectedRoute>} />
         <Route path="/supplier" element={<ProtectedRoute><Supplier /></ProtectedRoute>} />
         <Route path="/report" element={<ProtectedRoute><Report /></ProtectedRoute>} />
