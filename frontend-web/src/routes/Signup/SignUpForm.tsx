@@ -2,10 +2,11 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Camera } from "lucide-react";
+import { Camera, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { apiService } from "../api";
 import { useNavigate } from "react-router-dom";
+import { useNotification } from "../helper/NotificationProvider";
 
 export function SignUpForm({
   className,
@@ -18,6 +19,8 @@ export function SignUpForm({
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState({name: '', email: '', password: '', confirmPassword: ''});
+  const {showNotification} = useNotification();
+  const [isLoading, setIsLoading] = useState(false);
 
   // Extract initials from the name
   const getInitials = (fullName: string):string => {
@@ -73,6 +76,7 @@ export function SignUpForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     if(validate()){
       const response = await apiService.post<{"imageUrl": string}>("api/upload-image", {'image':imageBackend});
       const errorCodeImage = response.error_schema.error_code;
@@ -81,7 +85,9 @@ export function SignUpForm({
         const response1 = await apiService.post("user/sign-up", {'name': name, 'email': email, 'password': password, 'role': 'user', 'imageUrl': output})
         const errorCode = response1.error_schema.error_code;
         if(errorCode === "S001"){
+            setIsLoading(false);
             navigate("/login");
+            showNotification("Register Successful", "success");
         }
       }
     }
@@ -140,8 +146,16 @@ export function SignUpForm({
           <Label htmlFor="confirmPassword">Confirm Password</Label>
           <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
         </div>
-        <Button type="submit" className="w-full !text-white !bg-[#7142B0]">
-          Register
+        <Button type="submit" className="w-full !text-white !bg-[#7142B0]" disabled={isLoading}>
+          {isLoading?(
+            <>
+              <Loader2 className="animate-spin" />
+              Please wait
+            </>
+          ):(
+            "Register"
+          )
+          }
         </Button>
       </div>
       <div className="text-center text-sm">
