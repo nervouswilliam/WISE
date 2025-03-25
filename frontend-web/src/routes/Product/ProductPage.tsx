@@ -771,7 +771,7 @@
 
 
 import { Product, ProductColumn } from "./ProductColumn"
-import { ProductTable } from "../helper/TableHelper"
+import { TableHelper } from "../helper/TableHelper"
 import { apiService } from "../api"
 import { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
@@ -789,17 +789,18 @@ async function getData(): Promise<Product[]> {
     return [];
   } catch {
       console.error("Error Fetching Products");
-      return [
-        {
-          id: "Error",
-          name: "Error",
-          price: 0.00,
-          stock: 0,
-          category_name: "Error",
-          image_url:"null"
-        },
-        // ...
-      ]
+      // return [
+      //   {
+      //     id: "Error",
+      //     name: "Error",
+      //     price: 0.00,
+      //     stock: 0,
+      //     category_name: "Error",
+      //     image_url:"null"
+      //   },
+      //   // ...
+      // ]
+      return [];
   }
 }
 
@@ -844,8 +845,15 @@ export default function ProductPage() {
       >
         Produk
       </Typography>
+      {/* <div className="container mx-auto py-10">
+        <TableHelper columns={ProductColumn} data={data} />
+      </div> */}
       <div className="container mx-auto py-10">
-        <ProductTable columns={ProductColumn} data={data} />
+        {data.length === 0 ? (
+            <p className="text-center text-gray-500 mt-2">No products available.</p>
+        ) : (
+            <TableHelper columns={ProductColumn} data={data} />
+        )}
       </div>
     </div>
   )
