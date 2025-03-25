@@ -13,6 +13,7 @@ import Report from './routes/Report/ReportPage';
 import ProductDetailPage from './routes/Product/detail/ProductDetailPage';
 import NotFoundPage from './routes/NotFoundPage';
 import { ProductEditPage } from './routes/Product/Edit/ProductEditPage';
+import SignUpPage from './routes/Signup/SignupPage';
 // import { Box } from '@mui/material';
 
 function App() {
@@ -36,6 +37,7 @@ function AppContent() {
 
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<SignUpPage />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/product" element={<ProtectedRoute><Product /></ProtectedRoute>} />
         <Route path="/product/:id" element={<ProtectedRoute><ProductDetailPage /></ProtectedRoute>} />

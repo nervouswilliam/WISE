@@ -4,7 +4,7 @@ import warehouseImg from '../../assets/warehouseImage.png';
 import { apiService } from '../api';
 import { AuthContext } from '../../context/AuthContext';
 import { User } from '../../models/User';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 // import { useNotification } from '../helper/NotificationProvider';
 
 export default function Login() {
@@ -105,6 +105,12 @@ export default function Login() {
                   <Button type="submit" variant="contained" fullWidth sx={{ mt: 2, backgroundColor:"#7142B0" }}>
                     Login
                   </Button>
+                  <Typography>
+                    Don't Have an Account?{" "}
+                    <Link to="/register" style={{ color: "#7142B0" }}>
+                      Sign Up
+                    </Link>
+                  </Typography>
                 </form>
               </CardContent>
             </Grid>
