@@ -776,16 +776,21 @@ import { apiService } from "../api"
 import { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
 import { useNavigate } from "react-router";
+import { useNotification } from "../helper/NotificationProvider";
+import { handleLogout } from "../components/Header";
 
 async function getData(): Promise<Product[]> {
-  // Fetch data from your API here.
+  const navigate = useNavigate();
+  const {showNotification} = useNotification();
   try{
     const response = await apiService.get<Product[]>("products/list");
     const errorCode = response?.error_schema.error_code;
     const outputSchema = response.output_schema;
     if(errorCode === "S001"){
       return outputSchema;
-    }
+    } else if(errorCode === "E006"){
+      handleLogout(navigate, showNotification);
+  }
     return [];
   } catch {
       console.error("Error Fetching Products");

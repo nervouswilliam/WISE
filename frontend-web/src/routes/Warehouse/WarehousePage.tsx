@@ -6,20 +6,26 @@ import { Typography } from "@mui/material";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { useNotification } from "../helper/NotificationProvider";
+import { handleLogout } from "../components/Header";
 
 async function getData(): Promise<transactions[]> {
-  try{
-    const response = await apiService.get<transactions[]>("transactions/list");
-    const errorCode = response?.error_schema.error_code;
-    const outputSchema = response.output_schema;
-    if(errorCode === "S001"){
-      return outputSchema;
+    const navigate = useNavigate();
+    const {showNotification} = useNotification();
+    try{
+        const response = await apiService.get<transactions[]>("transactions/list");
+        const errorCode = response?.error_schema.error_code;
+        const outputSchema = response.output_schema;
+        if(errorCode === "S001"){
+        return outputSchema;
+        } else if(errorCode === "E006"){
+            handleLogout(navigate, showNotification);
+        }
+        return [];
+    } catch {
+        console.error("Error Fetching Transactions");
+        return [];
     }
-    return [];
-  } catch {
-    console.error("Error Fetching Transactions");
-    return [];
-  }
 }
 
 export default function WarehousePage() {

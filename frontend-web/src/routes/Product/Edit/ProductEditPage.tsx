@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { apiService } from "@/routes/api"
 import { useEffect } from "react"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { Product } from "../ProductColumn"
 import { useState } from "react";
 import { Category } from "../Categories"
@@ -24,6 +24,8 @@ import { Category } from "../Categories"
     CommandItem,
     CommandList,
   } from "@/components/ui/command"
+import { useNotification } from "@/routes/helper/NotificationProvider"
+import { handleLogout } from "@/routes/components/Header"
 
 export function ProductEditPage() {
     const {id} = useParams();
@@ -32,6 +34,8 @@ export function ProductEditPage() {
     const [error, setError] = useState<string | null>(null);
     const [search, setSearch] = useState("");
     const [image, setImage] = useState<string | null>(null);
+    const navigate = useNavigate();
+    const {showNotification} = useNotification();
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -53,7 +57,9 @@ export function ProductEditPage() {
             const outputData = response?.output_schema;
             if(errorCode === "S001"){
                 setProduct(outputData); 
-            }
+            } else if(errorCode === "E006"){
+              handleLogout(navigate, showNotification);
+          }
           } catch (error) {
             setError("Failed to fetch data");
             console.error("Error fetching project data:", error);
@@ -69,7 +75,9 @@ export function ProductEditPage() {
             const outputData = response?.output_schema;
             if(errorCode === "S001"){
                 setCategory(outputData); 
-            }
+            } else if(errorCode === "E006"){
+              handleLogout(navigate, showNotification);
+          }
           } catch (error) {
             setError("Failed to fetch data");
             console.error("Error fetching project data:", error);

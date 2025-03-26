@@ -7,25 +7,39 @@ import { Category } from "../Categories";
 import { Button } from "@/components/ui/button";
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { X } from "lucide-react";
+import { Product } from "../ProductColumn";
+import { transactions } from "@/routes/Warehouse/TransactionColumn";
+import { handleLogout } from "@/routes/components/Header";
+import { useNavigate } from "react-router-dom";
+import { useNotification } from "@/routes/helper/NotificationProvider";
 
 export function ProductAddPage() {
     const [image, setImage] = useState<string | null>(null);
+    const [imageBackend, setImageBackend] = useState<string | ArrayBuffer | null>(null);
     const [search, setSearch] = useState("");
     const [categories, setCategory] = useState<Category[]>([]);
+    const [newCategory, setNewCategory] = useState("");
     const [error, setError] = useState<string | null>(null);
+    const [productId, setProductId] = useState("");
+    const [name, setName] = useState("");
+    const [price, setPrice] = useState("");
+    const [stock, setStock] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
+    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
         if (file) {
           const reader = new FileReader();
-          reader.readAsDataURL(file); // Convert file to Base64
-          reader.onload = () => {
-            if (typeof reader.result === "string") {
-              setImage(reader.result); // Store Base64 string
-            }
+          reader.onloadend = () => {
+            // setImage(reader.result as string);
+            const base64String = reader.result as string;
+            const cleanBase64String = base64String.split(",")[1]
+            setImage(base64String);
+            setImageBackend(cleanBase64String);
           };
+          reader.readAsDataURL(file);
         }
-      };
+    };
 
     const handleRemoveImage = () => {
         setImage(null); // Reset image preview
@@ -48,7 +62,35 @@ export function ProductAddPage() {
         fetchProjectCategory();
     }, []);
 
-      return (
+    const handleSubmit = async (e:React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        const navigate = useNavigate();
+        const {showNotification} = useNotification();
+        const responseImageUrl = await apiService.post<{"imageUrl": string}>("api/upload-image", {'image':imageBackend});
+        const errorCodeImage = responseImageUrl.error_schema.error_code;
+        let output = "";
+        if(errorCodeImage === "S001"){
+            output = responseImageUrl.output_schema.imageUrl;
+        }
+        const responseProduct = await apiService.post<Product>("product/information", {
+                                                                                    'id': productId, 
+                                                                                    'name': name, 
+                                                                                    'price': price, 
+                                                                                    'stock':stock, 
+                                                                                    'category_name': newCategory, 
+                                                                                    'image_url': output
+                                                                                }
+                                                        );
+        const errorCodeProduct = responseProduct.error_schema.error_code;
+        if(errorCodeProduct === "S001"){
+            const ResponseTransaction = await apiService.post<transactions>("transaction/information", {})
+        } else if(errorCodeProduct === "E006"){
+            handleLogout(navigate, showNotification);
+        }
+    }
+
+    return (
         <Card >
             <CardHeader>
                 <CardTitle>Add Product</CardTitle>
@@ -74,20 +116,27 @@ export function ProductAddPage() {
                                 </button>
                                 </div>
                             )}
-                            <Input id="image" className="!w-full" type="file" onChange={handleFileChange}/>
+                            <Input id="image" className="!w-full" type="file" onChange={handleImageChange}/>
+                            <Label htmlFor="ProductId">Product Id</Label>
+                            <Input id="productId" placeholder="Product Id" onChange={(e) => setProductId(e.target.value)} required/>
                             <Label htmlFor="name">Name</Label>
-                            <Input id="name" placeholder="Name of your Product"/>
+                            <Input id="name" placeholder="Name of your Product" onChange={(e) => setName(e.target.value)} required/>
                             <Label htmlFor="price">Price</Label>
                             <p className="!text-red-500 text-left">*Tolong Masukan Angka saja</p>
-                            <Input id="price" placeholder="Price of your Product"/>
+                            <Input id="price" placeholder="Price of your Product" onChange={(e) => setPrice(e.target.value)} required/>
                             <Label htmlFor="stock">Stock</Label>
-                            <Input id="stock" placeholder="Stock"/>
+                            <Input id="stock" placeholder="Stock" onChange={(e) => setStock(e.target.value)} required/>
                         </div>
                         <div className="flex flex-col space-y-1.5">
                             <Label htmlFor="category">Category</Label>
                         </div>
                         <Command className="rounded-lg border shadow-md md:min-w-[450px]">
-                        <CommandInput placeholder="Category" onValueChange={(value) => setSearch(value)}/>
+                        <CommandInput placeholder="Category" onValueChange={(value) => 
+                                                                                    {
+                                                                                        setSearch(value);
+                                                                                        setNewCategory(value);
+                                                                                    }
+                                                                                }/>
                         <CommandList>
                             <CommandGroup heading="Suggestions">
                                 {
@@ -108,5 +157,5 @@ export function ProductAddPage() {
                 <Button className="!text-white !bg-[#7142B0]">Save</Button>
             </CardFooter>
         </Card>
-      );
+    );
 }

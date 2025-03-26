@@ -7,6 +7,7 @@ import { useState } from "react";
 import { apiService } from "../api";
 import { useNavigate } from "react-router-dom";
 import { useNotification } from "../helper/NotificationProvider";
+import { handleLogout } from "../components/Header";
 
 export function SignUpForm({
   className,
@@ -88,7 +89,9 @@ export function SignUpForm({
             setIsLoading(false);
             navigate("/login");
             showNotification("Register Successful", "success");
-        }
+        } else if(errorCode === "E006"){
+          handleLogout(navigate, showNotification);
+      }
       }
     }
     

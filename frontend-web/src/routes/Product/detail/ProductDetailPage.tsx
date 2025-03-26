@@ -2,6 +2,8 @@ import { apiService } from "@/routes/api";
 import { Product } from "../ProductColumn";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { handleLogout } from "@/routes/components/Header";
+import { useNotification } from "@/routes/helper/NotificationProvider";
 
 export default function ProductDetailPage() {
   const {id} = useParams();
@@ -9,6 +11,7 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const {showNotification} = useNotification();
   useEffect(() => {
     async function fetchProduct() {
       try{
@@ -17,7 +20,9 @@ export default function ProductDetailPage() {
         const outputSchema = response.output_schema;
         if(errorCode === "S001"){
           setProduct(outputSchema);
-        }
+        } else if(errorCode === "E006"){
+          handleLogout(navigate, showNotification);
+      }
       } catch {
         setError("Failed to fetch data");
       } finally{

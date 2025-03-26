@@ -14,23 +14,23 @@ interface HeaderProps {
   profilePic: string;
 }
 
+export const handleLogout = async (navigate: Function, showNotification: Function) => {
+  sessionStorage.removeItem("token");
+  localStorage.removeItem("user");
+  const response = await apiService.delete("auth/logout");
+  const errorCode = response?.error_schema.error_code;
+  if(errorCode === "S001"){
+    navigate("/login");
+    window.location.reload();
+    showNotification("Logout Successful", "success")
+  } else {
+    showNotification(response?.error_schema.error_message || "Logout Failed", "error");
+  }
+}
 export default function Header({ username, role, profilePic }: HeaderProps) {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const {showNotification} = useNotification();
-  const handleLogout = async () => {
-    sessionStorage.removeItem("token");
-    localStorage.removeItem("user");
-    const response = await apiService.delete("auth/logout");
-    const errorCode = response?.error_schema.error_code;
-    if(errorCode === "S001"){
-      navigate("/login");
-      window.location.reload();
-      showNotification("Logout Successful", "success")
-    } else {
-      showNotification(response?.error_schema.error_message || "Logout Failed", "error");
-    }
-  }
 
   return (
     <>
@@ -83,7 +83,7 @@ export default function Header({ username, role, profilePic }: HeaderProps) {
             </IconButton>
 
             {/* Logout */}
-            <IconButton color="inherit" onClick={handleLogout}>
+            <IconButton color="inherit" onClick={() => handleLogout(navigate, showNotification)}>
               <LogoutIcon />
             </IconButton>
           </Box>

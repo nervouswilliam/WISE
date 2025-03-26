@@ -108,19 +108,20 @@ public class SessionServiceImpl {
             long expiredTime = model.getExpiredTime();
             long refreshTime = expiredTime - (5*60*1000);
             long currentTime = System.currentTimeMillis();
-            if(currentTime > refreshTime){
+            if(refreshTime > currentTime){
                 //refresh token
                 Claims claims = jwtUtils.parseJWT(model.getToken());
                 String newToken = jwtUtils.generateToken(claims);
                 long newExpiredTime = currentTime + (15*60*1000);
                 sessionDao.updateSession(claims.get("username").toString(), claims.get("role").toString(), newToken, currentTime, newExpiredTime);
+                return true;
             }
             else if(currentTime > expiredTime){
                 //delete session
                 sessionDao.deleteSession(sessionId);
                 return false;
             }
-            return true;
+            return false;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
