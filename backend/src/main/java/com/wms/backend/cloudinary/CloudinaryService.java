@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -16,6 +17,7 @@ public class CloudinaryService {
     @Autowired
     private Cloudinary cloudinary;
 
+    @Transactional
     public String uploadImage(File file) {
         try {
             // Read file bytes properly

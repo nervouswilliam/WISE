@@ -776,12 +776,13 @@ import { apiService } from "../api"
 import { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
 import { useNavigate } from "react-router";
-import { useNotification } from "../helper/NotificationProvider";
+import { NotificationContextType, useNotification } from "../helper/NotificationProvider";
 import { handleLogout } from "../components/Header";
 
-async function getData(): Promise<Product[]> {
-  const navigate = useNavigate();
-  const {showNotification} = useNotification();
+async function getData(
+  navigate: ReturnType<typeof useNavigate>,
+  showNotification: NotificationContextType["showNotification"]
+): Promise<Product[]> {
   try{
     const response = await apiService.get<Product[]>("products/list");
     const errorCode = response?.error_schema.error_code;
@@ -814,10 +815,11 @@ export default function ProductPage() {
   const [data, setData] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const {showNotification} = useNotification();
 
   useEffect(() => {
     setLoading(true);
-    getData()
+    getData(navigate, showNotification)
       .then(products => {
         setData(products);
       })

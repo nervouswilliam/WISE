@@ -14,7 +14,8 @@ export type transactions = {
     price_per_unit: number,
     quantity: number,
     total_price: number,
-    transaction_type: "sale" | "restock" | "adjustment" | "procurement"
+    transaction_type: "sale" | "restock" | "adjustment" | "procurement",
+    reason: string;
 }
 
 function ActionCell({ transaction }: { transaction: transactions }) {

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import NotificationHelper from "./NotificationHelper";
 
-interface NotificationContextType {
+export interface NotificationContextType {
   showNotification: (message: string, type: "success" | "error") => void;
 }
 

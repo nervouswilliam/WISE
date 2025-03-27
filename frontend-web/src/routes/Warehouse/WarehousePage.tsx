@@ -6,12 +6,13 @@ import { Typography } from "@mui/material";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useNotification } from "../helper/NotificationProvider";
+import { NotificationContextType, useNotification } from "../helper/NotificationProvider";
 import { handleLogout } from "../components/Header";
 
-async function getData(): Promise<transactions[]> {
-    const navigate = useNavigate();
-    const {showNotification} = useNotification();
+async function getData(
+    navigate: ReturnType<typeof useNavigate>,
+    showNotification: NotificationContextType["showNotification"]
+): Promise<transactions[]> {
     try{
         const response = await apiService.get<transactions[]>("transactions/list");
         const errorCode = response?.error_schema.error_code;
@@ -32,10 +33,11 @@ export default function WarehousePage() {
   const [data, setData] = useState<transactions[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const {showNotification} = useNotification();
 
   useEffect(() => {
     setLoading(true);
-    getData()
+    getData(navigate, showNotification)
       .then(transaction => {
         setData(transaction);
       })

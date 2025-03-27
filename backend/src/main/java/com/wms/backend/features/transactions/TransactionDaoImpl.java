@@ -27,17 +27,29 @@ public class TransactionDaoImpl {
     public void insertProductTransaction(TransactionModel model) {
         try{
             HashMap<String, Object> map = new HashMap<>();
-            model.setTransaction_Id(String.valueOf(UUID.randomUUID()));
-            map.put("id", model.getTransaction_Id());
-            map.put("transaction_type_id", model.getTransaction_type_id());
+            model.setTransactionId(String.valueOf(UUID.randomUUID()));
+            map.put("id", model.getTransactionId());
+            System.out.println("transaction type: "+model.getTransactionTypeId());
+            map.put("transaction_type_id", model.getTransactionTypeId());
             map.put("product_id", model.getId());
             map.put("price_per_unit", model.getPrice());
             map.put("quantity", model.getStock());
+            map.put("reason", model.getReason());
             genericDB.insert("transactions", map);
         } catch (Exception e){
             CommonUtils.printErrorLog("DAO", this.getClass(), e);
         }
     }
+
+//    public void insertTransactionType(TransactionModel model) {
+//        try{
+//            HashMap<String, Object> map = new HashMap<>();
+//            map.put("id", model.getTransaction_type_id());
+//            genericDB.insert("type_transaction", map);
+//        } catch (Exception e){
+//            CommonUtils.printErrorLog("DAO", this.getClass(), e);
+//        }
+//    }
 
     public void refreshViewTransactionTable(){
         try{

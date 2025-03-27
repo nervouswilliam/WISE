@@ -88,8 +88,6 @@ public class ProductServiceImpl {
             int productId = productDao.getCategoriesId(model.getCategory());
             productDao.insertProductCategories(model, productId);
             productDao.refreshViewProductsTable();
-            transactionDao.insertProductTransaction(model);
-            transactionDao.refreshViewTransactionTable();
             return ResponseHelper.generateResponse("S001", null, HttpStatus.OK);
         } catch (Exception e){
             CommonUtils.printErrorLog("SERVICE", this.getClass(), e);
