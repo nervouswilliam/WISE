@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { handleLogout } from "@/routes/components/Header";
 import { useNotification } from "@/routes/helper/NotificationProvider";
+import { Button } from "@/components/ui/button";
 
 export default function ProductDetailPage() {
   const {id} = useParams();
@@ -25,6 +26,7 @@ export default function ProductDetailPage() {
       }
       } catch {
         setError("Failed to fetch data");
+        handleLogout(navigate, showNotification);
       } finally{
         setLoading(false);
       }
@@ -33,27 +35,6 @@ export default function ProductDetailPage() {
   }, [id]);
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-red-600">{error}</p>;
-  // This would come from your API
-  // const product = {
-  //   id: "ch07",
-  //   name: "CH07 Shell Chair",
-  //   quantity: 150,
-  //   color: "White",
-  //   price: 599.00,
-  //   totalPrice: 1198.00,
-  //   reviews: 8,
-  //   rating: 4,
-  //   image: "https://res.cloudinary.com/dmq8stjkq/image/upload/v1742232165/loskck9ivu3ixlmkx88m.jpg",
-  //   description: "The Shell Chair is a modern classic designed with exceptional craftsmanship and attention to detail.",
-  //   details: {
-  //     size: "29.4\" H x 35.8\" W x 32.7\" D",
-  //     seatHeight: "14.5\"",
-  //     materials: "Plywood, Oak Veneer, Semi-Aniline Italian Leather",
-  //     color: "Cream Leather",
-  //     weight: "40 lbs"
-  //   },
-  //   isNewCollection: true
-  // };
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8">
@@ -93,9 +74,12 @@ export default function ProductDetailPage() {
                 <div className="text-gray-500 mb-2">STOCK</div>
                     {product?.stock}
             </div>
-            <button className="!text-white !bg-[#7142B0] bg-orange-500 text-white font-medium px-8 py-4 rounded-full mt-4 md:mt-0" onClick={() => navigate(`/product/edit/${id}`)}>
-            EDIT
-            </button>
+            <div className="flex justify-center gap-4">
+              <Button className="!text-white !bg-[#1100FF]" onClick={() => navigate(-1)}>Back</Button>
+              <Button className="!text-white !bg-[#7142B0] bg-orange-500 text-white font-medium px-8 py-4 rounded-full mt-4 md:mt-0" onClick={() => navigate(`/product/edit/${id}`)}>
+              EDIT
+              </Button>
+            </div>
         </div>
       </div>
     </div>

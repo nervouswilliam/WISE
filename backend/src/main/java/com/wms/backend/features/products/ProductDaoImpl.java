@@ -6,6 +6,7 @@ import com.wms.backend.general.CommonUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
@@ -73,6 +74,7 @@ public class ProductDaoImpl {
             map.put("price", model.getPrice());
             map.put("stock", model.getStock());
             map.put("image_url", model.getImage_url());
+            map.put("public_id", model.getPublic_id());
             genericDB.insert("products", map);
         } catch (Exception e){
             CommonUtils.printErrorLog("DAO", this.getClass(), e);
@@ -111,6 +113,17 @@ public class ProductDaoImpl {
         return 0;
     }
 
+    public int checkProductCategoryExist(String productId) {
+        try{
+            String sql = "select category_id from \"categories_product\" where product_id = ?";
+            logger.info("SQL SELECT: {}", sql);
+            return jdbcTemplate.queryForObject(sql, Integer.class, productId);
+        } catch (EmptyResultDataAccessException e){
+            CommonUtils.printErrorLog("DAO", this.getClass(), e);
+        }
+        return 0;
+    }
+
     public boolean checkCategoriesExist(String name) {
         try{
             String sql = "select exists (select * from \"categories\" where name = ? LIMIT 1)";
@@ -141,10 +154,6 @@ public class ProductDaoImpl {
         } catch (Exception e){
             CommonUtils.printErrorLog("DAO", this.getClass(), e);
         }
-    }
-
-    public void updateProductStock(ProductModel model) {
-
     }
 
     public void updateProduct(ProductModel model) {

@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -18,7 +19,7 @@ public class CloudinaryService {
     private Cloudinary cloudinary;
 
     @Transactional
-    public String uploadImage(File file) {
+    public HashMap<String, String> uploadImage(File file) {
         try {
             // Read file bytes properly
             byte[] fileBytes = Files.readAllBytes(file.toPath());
@@ -26,15 +27,23 @@ public class CloudinaryService {
             // Upload to Cloudinary
             Map uploadResult = cloudinary.uploader().upload(fileBytes, ObjectUtils.emptyMap());
 
+            String publicId = uploadResult.get("public_id").toString();
+            String url = uploadResult.get("secure_url").toString();
+
             // Delete temporary file after upload
             file.delete();
 
-            return uploadResult.get("secure_url").toString(); // Returns the image URL
+            HashMap<String, String> map = new HashMap<>();
+            map.put("imageUrl", url);
+            map.put("publicId", publicId);
+
+            return map; // Returns the image URL
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload image", e);
         }
     }
 
+    @Transactional
     public String deleteImage(String publicId) {
         try {
             Map result = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());

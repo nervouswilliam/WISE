@@ -26,7 +26,7 @@ export function ProductAddPage() {
     const [stock, setStock] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
-        const {showNotification} = useNotification();
+    const {showNotification} = useNotification();
 
     const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -70,11 +70,12 @@ export function ProductAddPage() {
         e.preventDefault();
         setIsLoading(true);
         
-        const responseImageUrl = await apiService.post<{"imageUrl": string}>("api/upload-image", {'image':imageBackend});
+        const responseImageUrl = await apiService.post<{"imageUrl": string, "publicId":string}>("api/upload-image", {'image':imageBackend});
         const errorCodeImage = responseImageUrl.error_schema.error_code;
-        let output = "";
+        let output:Record<string, any> = {};
         if(errorCodeImage === "S001"){
-            output = responseImageUrl.output_schema.imageUrl;
+            output["imageUrl"] = responseImageUrl.output_schema.imageUrl;
+            output["publicId"] = responseImageUrl.output_schema.publicId;
         }
         const responseProduct = await apiService.post<Product>("products/information", {
                                                                                     'id': productId, 
@@ -82,7 +83,8 @@ export function ProductAddPage() {
                                                                                     'price': price, 
                                                                                     'stock':stock, 
                                                                                     'category': newCategory, 
-                                                                                    'image_url': output
+                                                                                    'image_url': output["imageUrl"],
+                                                                                    'public_id': output["publicId"]
                                                                                 }
                                                         );
         const errorCodeProduct = responseProduct.error_schema.error_code;
@@ -168,7 +170,7 @@ export function ProductAddPage() {
                         </div>
                 </CardContent>
                 <CardFooter className="flex justify-between">
-                    <Button className="!text-white !bg-[#1100FF]">Cancel</Button>
+                    <Button className="!text-white !bg-[#1100FF]" onClick={() => navigate(-1)}>Cancel</Button>
                     <Button className="!text-white !bg-[#7142B0]" disabled={isLoading}>
                     {isLoading?(
                         <>

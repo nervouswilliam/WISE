@@ -105,4 +105,28 @@ public class ProductServiceImpl {
             return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Transactional // rollback if there is error
+    public ResponseEntity<Object> updateProduct(ProductModel model) {
+        try{
+            productDao.updateProduct(model);
+            if(!productDao.checkCategoriesExist(model.getCategory())){
+                productDao.insertCategory(model);
+            }
+            int existingCategoryId = productDao.getCategoriesId(model.getCategory());
+            int categoryId = productDao.checkProductCategoryExist(model.getId());
+            if(categoryId == 0){
+                productDao.insertProductCategories(model, categoryId);
+            } else {
+                if(categoryId != existingCategoryId){
+                    productDao.insertProductCategories(model, categoryId);
+                }
+            }
+            productDao.refreshViewProductsTable();
+            return ResponseHelper.generateResponse("S001", null, HttpStatus.OK);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("SERVICE", this.getClass(), e);
+            return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

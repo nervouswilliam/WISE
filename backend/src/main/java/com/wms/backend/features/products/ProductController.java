@@ -64,4 +64,14 @@ public class ProductController {
             return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PutMapping(value = "information", produces = "application/json")
+    public ResponseEntity<Object> updateProductInformation(@RequestBody ProductModel model) {
+        try{
+            return productService.updateProduct(model);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("CONTROLLER", this.getClass(), e);
+            return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

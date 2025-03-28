@@ -23,6 +23,7 @@ export type Product = {
   stock: number,
   category_name: string,
   image_url: string;
+  public_id: string;
 }
 
 function ActionCell({ product }: { product: Product }) {

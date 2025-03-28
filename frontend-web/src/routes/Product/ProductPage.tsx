@@ -795,17 +795,7 @@ async function getData(
     return [];
   } catch {
       console.error("Error Fetching Products");
-      // return [
-      //   {
-      //     id: "Error",
-      //     name: "Error",
-      //     price: 0.00,
-      //     stock: 0,
-      //     category_name: "Error",
-      //     image_url:"null"
-      //   },
-      //   // ...
-      // ]
+      handleLogout(navigate, showNotification);
       return [];
   }
 }
