@@ -11,6 +11,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Repository
@@ -22,6 +24,17 @@ public class TransactionDaoImpl {
 
     public TransactionDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+    }
+
+    public List<Map<String, Object>> getTransactionList(){
+        try {
+            String sql = "SELECT * FROM view_transaction";
+            logger.info("SQL SELECT: {}", sql);
+            return jdbcTemplate.queryForList(sql);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("DAO", this.getClass(), e);
+            return null;
+        }
     }
 
     public void insertProductTransaction(TransactionModel model) {

@@ -8,14 +8,15 @@ import { ArrowUpDown, CheckCircle2Icon, LoaderIcon, MoreHorizontal, Package, Ref
 import { useNavigate } from "react-router-dom";
 
 export type transactions = {
-    id: string,
+    transaction_id: string,
+    created_at: string;
     product_id: string,
     product_name: string,
     price_per_unit: number,
     quantity: number,
     total_price: number,
-    transaction_type: "sale" | "restock" | "adjustment" | "procurement",
-    reason: string;
+    transaction_type: string,
+    reason?: string;
 }
 
 function ActionCell({ transaction }: { transaction: transactions }) {
@@ -28,20 +29,20 @@ function ActionCell({ transaction }: { transaction: transactions }) {
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="bg-white shadow-md border rounded-md">
               <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(transaction.id)}
+                onClick={() => navigator.clipboard.writeText(transaction.product_id)}
               >
                 Copy Product ID
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => navigate(`/transaction/${transaction.id}`)}>
+                onClick={() => navigate(`/transaction/${transaction.transaction_id}`)}>
                     View Transaction
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => navigate(`/product/${transaction.id}`)}>
+                onClick={() => navigate(`/product/${transaction.product_id}`)}>
                     View Product
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -64,7 +65,7 @@ const getTransactionIcon = (type: string) => {
 
 export const TransactionColumns : ColumnDef<transactions>[] = [
     {
-        accessorKey: "id",
+        accessorKey: "transaction_id",
         header: ({ column }) => {
             return (
               <Button
@@ -127,7 +128,7 @@ export const TransactionColumns : ColumnDef<transactions>[] = [
             )
         },
         cell: ({ row }) => {
-          const price = parseFloat(row.getValue("price"))
+          const price = parseFloat(row.getValue("price_per_unit"))
           const formatted = new Intl.NumberFormat("id-ID", {
             style: "currency",
             currency: "IDR",
@@ -168,7 +169,7 @@ export const TransactionColumns : ColumnDef<transactions>[] = [
             )
         },
         cell: ({ row }) => {
-          const price = parseFloat(row.getValue("price"))
+          const price = parseFloat(row.getValue("total_price"))
           const formatted = new Intl.NumberFormat("id-ID", {
             style: "currency",
             currency: "IDR",
@@ -186,6 +187,7 @@ export const TransactionColumns : ColumnDef<transactions>[] = [
               className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3"
             >
               {getTransactionIcon(row.original.transaction_type)}
+              <span>{row.original.transaction_type}</span>
             </Badge>
           ),
     },

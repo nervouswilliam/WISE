@@ -14,7 +14,7 @@ async function getData(
     showNotification: NotificationContextType["showNotification"]
 ): Promise<transactions[]> {
     try{
-        const response = await apiService.get<transactions[]>("transactions/list");
+        const response = await apiService.get<transactions[]>("transaction/list");
         const errorCode = response?.error_schema.error_code;
         const outputSchema = response.output_schema;
         if(errorCode === "S001"){
@@ -25,6 +25,7 @@ async function getData(
         return [];
     } catch {
         console.error("Error Fetching Transactions");
+        handleLogout(navigate, showNotification);
         return [];
     }
 }
