@@ -51,6 +51,20 @@ public class ProductServiceImpl {
         }
     }
 
+    public ResponseEntity<Object> searchProduct(String parameter) {
+        List<Map<String, Object>> productList;
+        try{
+            productList = productDao.searchProduct(parameter);
+            if(productList.isEmpty()){
+                return ResponseHelper.generateResponse("E005", null, HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+            return ResponseHelper.generateResponse("S001", productList, HttpStatus.OK);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("SERVICE", this.getClass(), e);
+            return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public ResponseEntity<Object> getProductDetail(String id) {
         try{
             Map<String, Object> data = productDao.getProductDetail(id);
@@ -88,8 +102,6 @@ public class ProductServiceImpl {
             int productId = productDao.getCategoriesId(model.getCategory());
             productDao.insertProductCategories(model, productId);
             productDao.refreshViewProductsTable();
-            transactionDao.insertProductTransaction(model);
-            transactionDao.refreshViewTransactionTable();
             return ResponseHelper.generateResponse("S001", null, HttpStatus.OK);
         } catch (Exception e){
             CommonUtils.printErrorLog("SERVICE", this.getClass(), e);
@@ -101,6 +113,30 @@ public class ProductServiceImpl {
     public ResponseEntity<Object> updateProductStock(ProductModel model) {
         try{
             productDao.updateProduct(model);
+            return ResponseHelper.generateResponse("S001", null, HttpStatus.OK);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("SERVICE", this.getClass(), e);
+            return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Transactional // rollback if there is error
+    public ResponseEntity<Object> updateProduct(ProductModel model) {
+        try{
+            productDao.updateProduct(model);
+            if(!productDao.checkCategoriesExist(model.getCategory())){
+                productDao.insertCategory(model);
+            }
+            int existingCategoryId = productDao.getCategoriesId(model.getCategory());
+            int categoryId = productDao.checkProductCategoryExist(model.getId());
+            if(categoryId == 0){
+                productDao.insertProductCategories(model, categoryId);
+            } else {
+                if(categoryId != existingCategoryId){
+                    productDao.insertProductCategories(model, categoryId);
+                }
+            }
+            productDao.refreshViewProductsTable();
             return ResponseHelper.generateResponse("S001", null, HttpStatus.OK);
         } catch (Exception e){
             CommonUtils.printErrorLog("SERVICE", this.getClass(), e);

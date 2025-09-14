@@ -10,4 +10,5 @@ public class ProductModel {
     public int stock;
     public String category;
     public String image_url;
+    public String public_id;
 }

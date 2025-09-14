@@ -1,0 +1,1 @@
+ALTER TABLE products ADD COLUMN public_id VARCHAR(50);

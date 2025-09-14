@@ -56,6 +56,8 @@ public class SessionServiceImpl {
                 claims.put("username", user.getName());
                 claims.put("role", user.getRole());
                 claims.put("email", user.getEmail());
+                claims.put("countryCode", user.getCountryCode());
+                claims.put("phoneNumber", user.getPhoneNumber());
                 token = jwtUtils.generateToken(claims);
             } else {
                 return ResponseHelper.generateResponse("E006", null, HttpStatus.UNAUTHORIZED);
@@ -89,6 +91,9 @@ public class SessionServiceImpl {
             model.setUsername(claims.get("username").toString());
             model.setRole(claims.get("role").toString());
             model.setImage(userDao.getUserImageUrl(model.getUsername()));
+            model.setEmail(claims.get("email").toString());
+            model.setCountryCode(claims.get("countryCode").toString());
+            model.setPhoneNumber(claims.get("phoneNumber").toString());
             request.setAttribute("username",model.getUsername());
             request.setAttribute("role", model.getRole());
             request.setAttribute("email", claims.get("email").toString());
@@ -108,19 +113,20 @@ public class SessionServiceImpl {
             long expiredTime = model.getExpiredTime();
             long refreshTime = expiredTime - (5*60*1000);
             long currentTime = System.currentTimeMillis();
-            if(currentTime > refreshTime){
+            if(refreshTime > currentTime){
                 //refresh token
                 Claims claims = jwtUtils.parseJWT(model.getToken());
                 String newToken = jwtUtils.generateToken(claims);
                 long newExpiredTime = currentTime + (15*60*1000);
                 sessionDao.updateSession(claims.get("username").toString(), claims.get("role").toString(), newToken, currentTime, newExpiredTime);
+                return true;
             }
             else if(currentTime > expiredTime){
                 //delete session
                 sessionDao.deleteSession(sessionId);
                 return false;
             }
-            return true;
+            return false;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

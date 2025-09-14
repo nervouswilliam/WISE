@@ -40,15 +40,64 @@ public class CloudinaryController {
             }
 
             // Upload to Cloudinary
-            String imageUrl = cloudinaryService.uploadImage(tempFile);
+            HashMap<String, String> map = cloudinaryService.uploadImage(tempFile);
+            if(tempFile.exists()) {
+                Files.delete(tempFile.toPath()); // Clean up temp file
+            }
+            return ResponseHelper.generateResponse("S001", map, HttpStatus.OK);
+        } catch (Exception e) {
+            CommonUtils.printErrorLog("CONTROLLER", this.getClass(), e);
+            return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping(value = "update-image", produces = "application/json")
+    public ResponseEntity<Object> updateImage(@RequestBody Map<String, String> requestBody){
+        try{
+            String base64Image = requestBody.get("image");
+            if (base64Image == null || base64Image.isEmpty()) {
+                return ResponseEntity.badRequest().body("No image provided.");
+            }
+
+            String fileFormat = cloudinaryService.detectImageFormat(base64Image);
+            // Convert Base64 to File
+            byte[] imageBytes = Base64.decodeBase64(base64Image);
+            File tempFile = File.createTempFile("upload_", fileFormat);
+            try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                fos.write(imageBytes);
+            }
+
+            // Upload to Cloudinary
+            HashMap<String, String> map = cloudinaryService.uploadImage(tempFile);
             if(tempFile.exists()) {
                 Files.delete(tempFile.toPath()); // Clean up temp file
             }
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("imageUrl", imageUrl);
-            return ResponseHelper.generateResponse("S001", response, HttpStatus.OK);
-        } catch (Exception e) {
+            String publicId = requestBody.get("public_id");
+            String result = cloudinaryService.deleteImage(publicId);
+            System.out.println("result: "+result);
+            if("ok".equals(result) || "not found".equals(result)){
+                return ResponseHelper.generateResponse("S001", map, HttpStatus.OK);
+            } else {
+                return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (Exception e){
+            CommonUtils.printErrorLog("CONTROLLER", this.getClass(), e);
+            return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping(value = "delete-image", produces = "application/json")
+    public ResponseEntity<Object> deleteImage(@RequestBody Map<String, String> requestBody){
+        try{
+            String publicId = requestBody.get("publicId");
+            String result = cloudinaryService.deleteImage(publicId);
+            if("ok".equals(result)){
+                return ResponseHelper.generateResponse("S001", null, HttpStatus.OK);
+            } else {
+                return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (Exception e){
             CommonUtils.printErrorLog("CONTROLLER", this.getClass(), e);
             return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
         }

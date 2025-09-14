@@ -19,7 +19,7 @@ public class UserController {
     @PostMapping(value = "sign-up", produces = "application/json")
     public ResponseEntity<Object> signup(@RequestBody UserModel user) throws SQLException{
         try{
-            return userService.insertUser(user.getName(), user.getPassword(), user.getRole(), user.getEmail(), user.getImageUrl());
+            return userService.insertUser(user.getName(), user.getPassword(), user.getEmail(), user.getImageUrl(), user.getCountryCode(), user.getPhoneNumber());
         } catch (Exception e){
             e.printStackTrace();
             return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);

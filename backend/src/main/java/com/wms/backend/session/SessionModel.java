@@ -9,6 +9,9 @@ public class SessionModel {
     private String username;
     private String role;
     private String image;
+    private String email;
+    private String countryCode;
+    private String phoneNumber;
     private long createdTime;
     private long expiredTime;
 }

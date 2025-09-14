@@ -5,9 +5,10 @@ import lombok.Data;
 
 @Data
 public class TransactionModel extends ProductModel {
-    public String transaction_Id;
-    public int transaction_type_id;
+    public String transactionId;
+    public int transactionTypeId;
     public int totalPrice;
     public int quantity;
     public int price_per_unit;
+    public String reason;
 }
