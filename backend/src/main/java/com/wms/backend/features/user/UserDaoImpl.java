@@ -38,6 +38,8 @@ public class UserDaoImpl {
             user.setRole(rs.getString("role"));
             user.setPassword(rs.getString("password"));
             user.setEmail(rs.getString("email"));
+            user.setCountryCode(rs.getString("country_code"));
+            user.setPhoneNumber(rs.getString("phone_number"));
             return user;
         });
     }
@@ -48,7 +50,7 @@ public class UserDaoImpl {
         return jdbcTemplate.queryForObject(sql, String.class, username);
     }
 
-    public void insertUser(String username, String password, String role, String email, String imageUrl) throws SQLException{
+    public void insertUser(String username, String password, String email, String imageUrl, String countryCode, String phoneNumber) throws SQLException{
         try {
             HashMap<String, Object> data = new HashMap<>();
             data.put("name", username);
@@ -56,6 +58,8 @@ public class UserDaoImpl {
             data.put("role", "user");
             data.put("email", email);
             data.put("image", imageUrl);
+            data.put("country_code", countryCode);
+            data.put("phone_number", phoneNumber);
             logger.info("image: {}", imageUrl);
             genericDB.insert("users", data);
         } catch (Exception e){

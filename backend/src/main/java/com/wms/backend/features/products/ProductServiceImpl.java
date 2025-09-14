@@ -51,6 +51,20 @@ public class ProductServiceImpl {
         }
     }
 
+    public ResponseEntity<Object> searchProduct(String parameter) {
+        List<Map<String, Object>> productList;
+        try{
+            productList = productDao.searchProduct(parameter);
+            if(productList.isEmpty()){
+                return ResponseHelper.generateResponse("E005", null, HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+            return ResponseHelper.generateResponse("S001", productList, HttpStatus.OK);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("SERVICE", this.getClass(), e);
+            return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public ResponseEntity<Object> getProductDetail(String id) {
         try{
             Map<String, Object> data = productDao.getProductDetail(id);

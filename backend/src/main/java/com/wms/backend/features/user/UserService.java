@@ -17,11 +17,11 @@ public class UserService {
     @Autowired
     private UserDaoImpl userDao;
 
-    public ResponseEntity<Object> insertUser(String username, String password, String role, String email, String imageUrl) throws SQLException{
+    public ResponseEntity<Object> insertUser(String username, String password, String email, String imageUrl, String countryCode, String phoneNumber) throws SQLException{
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         try{
             String hashedPassword = encoder.encode(password);
-            userDao.insertUser(username, hashedPassword, role, email, imageUrl);
+            userDao.insertUser(username, hashedPassword, email, imageUrl, countryCode, phoneNumber);
             return ResponseHelper.generateResponse("S001", null, HttpStatus.OK);
         } catch (Exception e){
             e.printStackTrace();

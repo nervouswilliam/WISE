@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,13 +18,21 @@ public class TransactionServiceImpl {
     @Autowired
     private TransactionDaoImpl transactionDao;
 
-    public ResponseEntity<Object> getTransactionList(){
-        List< Map<String, Object>> transactionList;
+    public ResponseEntity<Object> getTransactionList(String period){
+        List< Map<String, Object>> transactionList = new ArrayList<>();
         try{
-            transactionList = transactionDao.getTransactionList();
-            if(transactionList.isEmpty()){
-                return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            transactionList = switch (period.toLowerCase()) {
+                case "daily" -> transactionDao.getTransactionListDaily();
+                case "weekly" -> transactionDao.getTransactionListWeekly();
+                case "monthly" -> transactionDao.getTransactionListMonthly();
+                case "quarterly" -> transactionDao.getTransactionListQuarterly();
+                case "yearly" -> transactionDao.getTransactionListYearly();
+                case "all" -> transactionDao.getTransactionList();
+                default -> transactionList;
+            };
+//            if(transactionList.isEmpty()){
+//                return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
+//            }
             return ResponseHelper.generateResponse("S001", transactionList, HttpStatus.OK);
         } catch (Exception e){
             CommonUtils.printErrorLog("SERVICE", this.getClass(), e);
