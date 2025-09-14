@@ -37,6 +37,70 @@ public class TransactionDaoImpl {
         }
     }
 
+    public List<Map<String, Object>> getTransactionListDaily(){
+        try {
+            String sql = "SELECT * FROM view_transaction WHERE DATE(created_at) = CURRENT_DATE";
+            logger.info("SQL SELECT: {}", sql);
+            return jdbcTemplate.queryForList(sql);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("DAO", this.getClass(), e);
+            return null;
+        }
+    }
+
+    public List<Map<String, Object>> getTransactionListWeekly(){
+        try {
+            String sql = "SELECT * FROM view_transaction WHERE created_at >= (CURRENT_DATE - interval '7 days');";
+            logger.info("SQL SELECT: {}", sql);
+            return jdbcTemplate.queryForList(sql);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("DAO", this.getClass(), e);
+            return null;
+        }
+    }
+
+    public List<Map<String, Object>> getTransactionListMonthly(){
+        try {
+            String sql = "SELECT *\n" +
+                    "FROM view_transaction\n" +
+                    "WHERE created_at >= DATE_TRUNC('month', CURRENT_DATE)\n" +
+                    "AND created_at < (DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month');";
+            logger.info("SQL SELECT: {}", sql);
+            return jdbcTemplate.queryForList(sql);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("DAO", this.getClass(), e);
+            return null;
+        }
+    }
+
+    public List<Map<String, Object>> getTransactionListQuarterly(){
+        try {
+            String sql = "SELECT *\n" +
+                    "FROM view_transaction\n" +
+                    "WHERE created_at >= DATE_TRUNC('quarter', CURRENT_DATE)\n" +
+                    "AND created_at < (DATE_TRUNC('quarter', CURRENT_DATE) + INTERVAL '3 months');";
+            logger.info("SQL SELECT: {}", sql);
+            return jdbcTemplate.queryForList(sql);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("DAO", this.getClass(), e);
+            return null;
+        }
+    }
+
+    public List<Map<String, Object>> getTransactionListYearly(){
+        try {
+            String sql = "SELECT *\n" +
+                    "FROM view_transaction\n" +
+                    "WHERE created_at >= DATE_TRUNC('year', CURRENT_DATE)\n" +
+                    "AND created_at < (DATE_TRUNC('year', CURRENT_DATE) + INTERVAL '1 year');";
+            logger.info("SQL SELECT: {}", sql);
+            return jdbcTemplate.queryForList(sql);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("DAO", this.getClass(), e);
+            return null;
+        }
+    }
+
     public void insertProductTransaction(TransactionModel model) {
         try{
             HashMap<String, Object> map = new HashMap<>();

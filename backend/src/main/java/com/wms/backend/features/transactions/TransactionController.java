@@ -14,9 +14,9 @@ public class TransactionController {
     private TransactionServiceImpl transactionService;
 
     @GetMapping(value = "list", produces = "application/json")
-    public ResponseEntity<Object> getTransactionList() {
+    public ResponseEntity<Object> getTransactionList(@RequestParam String period) {
         try{
-            return transactionService.getTransactionList();
+            return transactionService.getTransactionList(period);
         } catch (Exception e){
             CommonUtils.printErrorLog("CONTROLLER", this.getClass(), e);
             return ResponseHelper.generateResponse("E002", null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -26,6 +26,7 @@ public class TransactionController {
     @PostMapping(value = "information", produces = "application/json")
     public ResponseEntity<Object> insertTransaction(@RequestBody TransactionModel model) {
         try{
+            System.out.println(model.getTransactionTypeId());
             return transactionService.insertTransaction(model);
         } catch (Exception e){
             CommonUtils.printErrorLog("CONTROLLER", this.getClass(), e);

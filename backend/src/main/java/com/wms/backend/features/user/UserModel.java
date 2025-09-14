@@ -10,4 +10,6 @@ public class UserModel {
     public String role;
     public String email;
     public String imageUrl;
+    public String countryCode;
+    public String phoneNumber;
 }

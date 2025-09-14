@@ -55,6 +55,18 @@ public class ProductDaoImpl {
 
     }
 
+    public List<Map<String, Object>> searchProduct(String parameter){
+        try{
+            String sql = "SELECT * FROM view_products where LOWER(name) LIKE LOWER('%"+parameter+"%')";
+            logger.info("SQL SELECT: {}", sql);
+            return jdbcTemplate.queryForList(sql);
+        } catch (Exception e){
+            CommonUtils.printErrorLog("DAO", this.getClass(), e);
+            return null;
+        }
+
+    }
+
     public Map<String, Object> getProductDetail(String id) {
         try{
             String sql = "SELECT * FROM view_products where id=?";

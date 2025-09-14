@@ -56,6 +56,8 @@ public class SessionServiceImpl {
                 claims.put("username", user.getName());
                 claims.put("role", user.getRole());
                 claims.put("email", user.getEmail());
+                claims.put("countryCode", user.getCountryCode());
+                claims.put("phoneNumber", user.getPhoneNumber());
                 token = jwtUtils.generateToken(claims);
             } else {
                 return ResponseHelper.generateResponse("E006", null, HttpStatus.UNAUTHORIZED);
@@ -89,6 +91,9 @@ public class SessionServiceImpl {
             model.setUsername(claims.get("username").toString());
             model.setRole(claims.get("role").toString());
             model.setImage(userDao.getUserImageUrl(model.getUsername()));
+            model.setEmail(claims.get("email").toString());
+            model.setCountryCode(claims.get("countryCode").toString());
+            model.setPhoneNumber(claims.get("phoneNumber").toString());
             request.setAttribute("username",model.getUsername());
             request.setAttribute("role", model.getRole());
             request.setAttribute("email", claims.get("email").toString());
