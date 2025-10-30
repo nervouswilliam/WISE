@@ -31,7 +31,7 @@ function SettingsPage() {
             try {
                 setLoading(true);
                 const response = await authService.whoami();
-                setUser(response.output_schema);
+                setUser(response.identities?.[0]?.identity_data);
             } catch (err) {
                 console.error("Failed to fetch user:", err);
                 setError("Failed to load user data. Please try again.");

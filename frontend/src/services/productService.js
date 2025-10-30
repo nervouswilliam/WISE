@@ -1,4 +1,5 @@
 import axios from "axios";
+import { supabase } from '../supabaseClient';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const getProductList = async() => {
@@ -51,19 +52,39 @@ const getProductsCategory = async () =>{
     return response.data;
 }
 
-const addImageUrl = async (base64String) => {
-    const response = await axios.post(
-        `${BASE_URL}/api/upload-image`, // Your backend endpoint
-        { image: base64String }, // The request body with the 'image' key
-        {
-            headers: {
-                "Authorization": localStorage.getItem("token"),
-                "Content-Type": "application/json" // Explicitly set to JSON
-            }
-        }
-    );
-    return response.data
-}
+// const addImageUrl = async (base64String) => {
+//     const response = await axios.post(
+//         `${BASE_URL}/api/upload-image`, // Your backend endpoint
+//         { image: base64String }, // The request body with the 'image' key
+//         {
+//             headers: {
+//                 "Authorization": localStorage.getItem("token"),
+//                 "Content-Type": "application/json" // Explicitly set to JSON
+//             }
+//         }
+//     );
+//     return response.data
+// }
+
+
+const addImageUrl = async (file) => {
+    const fileName = `${Date.now()}-${file.name}`;
+
+    const { data, error } = await supabase.storage
+    .from("profile_picture")
+    .upload(fileName, file);
+
+    if (error) {
+    console.error("Upload failed:", error);
+    throw error;
+    }
+
+    // ✅ Use the render endpoint instead of object/public
+    const imageUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/render/image/public/profile_picture/${fileName}`;
+
+    return imageUrl;
+};
+
 
 const addProductDetail = async(productData) => {
     const response = await axios.post(

@@ -47,7 +47,7 @@ export default function Layout({ children }) {
     const fetchUser = async () => {
       try{
         const data = await authService.whoami()
-        setUser(data.output_schema)
+        setUser(data.identities?.[0]?.identity_data)
       } catch(err){
         console.error("Failed to fetch user:", err)
       }
@@ -186,9 +186,9 @@ export default function Layout({ children }) {
           </Typography>
 
           {/* Profile info */}
-          <Avatar alt={user?.username} src={user?.image} sx={{ mr: 2 }} />
+          <Avatar alt={user?.name} src={user?.imageUrl} sx={{ mr: 2 }} />
           <Typography variant="body1" sx={{ mr: 2 }}>
-            {user?.username}
+            {user?.name}
           </Typography>
           <Button color="inherit" onClick={handleLogout}><LogoutIcon/>Logout</Button>
         </Toolbar>

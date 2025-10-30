@@ -24,7 +24,7 @@ function App() {
     const checkAuth = async () => {
       try {
         const data = await authService.whoami()
-        setUser(data.output_schema)
+        setUser(data.identities?.[0]?.identity_data)
         const valid = data !== null
         setIsAuthenticated(valid);
       } catch (err) {

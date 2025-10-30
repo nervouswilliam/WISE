@@ -2,28 +2,64 @@
 import axios from "axios";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const login = async (name, password) => {
-  const response = await axios.post(`${BASE_URL}/auth/login`, { name, password });
-  const sessionId = response.data.output_schema["session-id"]
-  console.log(sessionId)
-  return sessionId;
-};
+// import { createClient } from '@supabase/supabase-js'
 
-const signup = async (formData) => {
-  const response = await axios.post(`${BASE_URL}/user/sign-up`, formData)
-  return response.data;
+// const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+// const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+// const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+import { supabase } from '../supabaseClient';
+
+// const login = async (name, password) => {
+//   const response = await axios.post(`${BASE_URL}/auth/login`, { name, password });
+//   const sessionId = response.data.output_schema["session-id"]
+//   console.log(sessionId)
+//   return sessionId;
+// };
+
+const login = async (email, password) => {
+  const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (error) throw error
+    return data.session.access_token
 }
 
+// const signup = async (formData) => {
+//   const response = await axios.post(`${BASE_URL}/user/sign-up`, formData)
+//   return response.data;
+// }
+
+
+const signup = async (formData) => {
+  const { email, password, name, phoneNumber, imageUrl } = formData;
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        name,
+        phoneNumber,
+        imageUrl, // custom metadata
+      },
+    },
+  });
+
+  if (error) throw error;
+  return data.user;
+};
+
 const whoami = async() => {
-  const response = await axios.get(
-    `${BASE_URL}/auth/who-am-i`,
-    {
-      headers:{
-        "Authorization": localStorage.getItem("token")
-      }
-    })
-    console.log(response.data)
-    return response.data;
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error) throw error;
+  return user;
 }
 
 async function validateToken() {

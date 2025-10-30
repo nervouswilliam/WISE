@@ -55,47 +55,65 @@ function SignupPage() {
         }));
     };
 
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         const file = e.target.files[0];
-        if (file) {
-            handleImageUpload(file);
+        if (!file) return;
+
+        setUploadingImage(true);
+        try {
+            const imageUrl = await productService.addImageUrl(file);
+            setFormData((prev) => ({ ...prev, imageUrl }));
+            alert("Image uploaded successfully!");
+        } catch (err) {
+            console.error("Upload failed:", err);
+            setError("Image upload failed. Please try again.");
+        } finally {
+            setUploadingImage(false);
         }
     };
 
-    const handleImageUpload = (file) => {
-        if (!file) return;
 
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
+    // const handleFileChange = (e) => {
+    //     const file = e.target.files[0];
+    //     if (file) {
+    //         handleImageUpload(file);
+    //     }
+    // };
 
-        reader.onloadstart = () => setUploadingImage(true);
+    // const handleImageUpload = (file) => {
+    //     if (!file) return;
 
-        reader.onload = async () => {
-            const base64StringWithPrefix = reader.result;
-            const base64String = base64StringWithPrefix.split(',')[1];
-            try {
-                const response = await productService.addImageUrl(base64String);
-                const newImageUrl = response.output_schema["imageUrl"];
+    //     const reader = new FileReader();
+    //     reader.readAsDataURL(file);
 
-                setFormData(prevFormData => ({
-                    ...prevFormData,
-                    imageUrl: newImageUrl,
-                }));
-                setError(null);
-                alert("Image uploaded successfully!");
-            } catch (err) {
-                console.error("Image upload failed:", err);
-                setError("Image upload failed. Please try again.");
-            } finally {
-                setUploadingImage(false);
-            }
-        };
+    //     reader.onloadstart = () => setUploadingImage(true);
 
-        reader.onerror = () => {
-            setUploadingImage(false);
-            setError("An error occurred while reading the file.");
-        };
-    };
+    //     reader.onload = async () => {
+    //         const base64StringWithPrefix = reader.result;
+    //         const base64String = base64StringWithPrefix.split(',')[1];
+    //         try {
+    //             const response = await productService.addImageUrl(base64String);
+    //             const newImageUrl = response.output_schema["imageUrl"];
+
+    //             setFormData(prevFormData => ({
+    //                 ...prevFormData,
+    //                 imageUrl: newImageUrl,
+    //             }));
+    //             setError(null);
+    //             alert("Image uploaded successfully!");
+    //         } catch (err) {
+    //             console.error("Image upload failed:", err);
+    //             setError("Image upload failed. Please try again.");
+    //         } finally {
+    //             setUploadingImage(false);
+    //         }
+    //     };
+
+    //     reader.onerror = () => {
+    //         setUploadingImage(false);
+    //         setError("An error occurred while reading the file.");
+    //     };
+    // };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -116,7 +134,7 @@ function SignupPage() {
             navigate('/login');
         } catch (err) {
             console.error('Signup failed:', err);
-            setError('Signup failed. Please check your information and try again.');
+            setError(err.message);
         }
     };
 

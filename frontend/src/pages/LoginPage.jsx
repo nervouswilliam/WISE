@@ -14,14 +14,14 @@ import {
 import authService from "../services/authService";
 
 function LoginPage() {
-  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await authService.login(name, password);
+      const data = await authService.login(email, password);
       console.log(data)
       localStorage.setItem("token", data);
       localStorage.setItem("isAuthenticated", "true");
@@ -75,12 +75,12 @@ function LoginPage() {
                 margin="normal"
                 required
                 fullWidth
-                id="name"
-                label="Username"
-                name="name"
-                autoComplete="name"
+                id="email"
+                label="Email"
+                name="email"
+                autoComplete="email"
                 autoFocus
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
               />
               <TextField
                 margin="normal"
