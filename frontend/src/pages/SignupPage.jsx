@@ -123,10 +123,10 @@ function SignupPage() {
             return;
         }
         
-        if (!formData.imageUrl) {
-            setError("Please upload a profile picture.");
-            return;
-        }
+        // if (!formData.imageUrl) {
+        //     setError("Please upload a profile picture.");
+        //     return;
+        // }
 
         try {
             await authService.signup(formData);

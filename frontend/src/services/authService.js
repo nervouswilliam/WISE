@@ -34,7 +34,7 @@ const login = async (email, password) => {
 
 
 const signup = async (formData) => {
-  const { email, password, name, phoneNumber, imageUrl } = formData;
+  const { email, password, name, countryCode, phoneNumber, imageUrl } = formData;
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -42,6 +42,7 @@ const signup = async (formData) => {
     options: {
       data: {
         name,
+        countryCode,
         phoneNumber,
         imageUrl, // custom metadata
       },

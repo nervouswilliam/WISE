@@ -68,21 +68,36 @@ const getProductsCategory = async () =>{
 
 
 const addImageUrl = async (file) => {
-    const fileName = `${Date.now()}-${file.name}`;
+    // const fileName = `${Date.now()}-${file.name}`;
+
+    // const { data, error } = await supabase.storage
+    // .from("profile_picture")
+    // .upload(fileName, file);
+
+    // if (error) {
+    // console.error("Upload failed:", error);
+    // throw error;
+    // }
+
+    // // ✅ Use the render endpoint instead of object/public
+    // const imageUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/render/image/public/profile_picture/${fileName}`;
+
+    // return imageUrl;
+
+    const fileName = `${Date.now()}_${file.name}`;
 
     const { data, error } = await supabase.storage
-    .from("profile_picture")
+    .from('profile_picture') // 👈 must match your bucket name
     .upload(fileName, file);
 
-    if (error) {
-    console.error("Upload failed:", error);
-    throw error;
-    }
+    if (error) throw error;
 
-    // ✅ Use the render endpoint instead of object/public
-    const imageUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/render/image/public/profile_picture/${fileName}`;
+    // Get public URL (only works if bucket is public)
+    const { data: { publicUrl } } = supabase.storage
+    .from('profile_picture')
+    .getPublicUrl(fileName);
 
-    return imageUrl;
+    return publicUrl;
 };
 
 
