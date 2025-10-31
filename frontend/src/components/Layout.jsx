@@ -47,7 +47,7 @@ export default function Layout({ children }) {
     const fetchUser = async () => {
       try{
         const data = await authService.whoami()
-        setUser(data.identities?.[0]?.identity_data)
+        setUser(data.user_metadata)
       } catch(err){
         console.error("Failed to fetch user:", err)
       }

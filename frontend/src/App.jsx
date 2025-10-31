@@ -25,7 +25,7 @@ function App() {
     const checkAuth = async () => {
       try {
         const data = await authService.whoami()
-        const metadata  = data.identities?.[0]?.identity_data;
+        const metadata  = data.user_metadata;
         const user_id = data.id;
         setUser({ ...metadata, id: user_id });
         const valid = data !== null
@@ -59,7 +59,7 @@ function App() {
       <Route path="/sales" element={isAuthenticated ? (<Layout user={user}><SalesPage/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/report" element={isAuthenticated ? (<Layout user={user}><ReportPage/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/supplier" element={isAuthenticated ? (<Layout user={user}><SupplierPage/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/settings" element={isAuthenticated ? (<Layout user={user}><SettingsPage/></Layout>) : <Navigate to="/login" replace/>} />
+      <Route path="/settings" element={isAuthenticated ? (<Layout user={user}><SettingsPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
 
       {/* Fallback 404 */}
       <Route path="*" element={<h1>404 - Page Not Found</h1>} />

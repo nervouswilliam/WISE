@@ -77,22 +77,39 @@ async function validateToken() {
   }
 }
 
+// const logout = async () => {
+//   console.log(localStorage.getItem("token"))
+//   const response = await axios.delete(
+//     `${BASE_URL}/auth/logout`,
+//     {
+//       headers:{
+//         "Authorization": localStorage.getItem("token")
+//       }
+//     }
+//   );
+//   localStorage.removeItem("token");
+//   localStorage.removeItem("isAuthenticated");
+// };
+
 const logout = async () => {
-  console.log(localStorage.getItem("token"))
-  const response = await axios.delete(
-    `${BASE_URL}/auth/logout`,
-    {
-      headers:{
-        "Authorization": localStorage.getItem("token")
-      }
-    }
-  );
-  localStorage.removeItem("token");
-  localStorage.removeItem("isAuthenticated");
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    console.error('Error signing out:', error.message);
+  } else {
+    console.log('Signed out successfully');
+  }
+
 };
 
 const updateUser = async(user) =>{
+    console.log("Updating user with data:", user);
+    const { data, error } = await supabase.auth.updateUser({
+      data:{...user}
+    });
 
+    if (error) throw error;
+    return data;
 }
 
 export default {
