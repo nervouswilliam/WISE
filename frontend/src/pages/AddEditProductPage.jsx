@@ -17,6 +17,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import productService from '../services/productService'; 
 import transactionService from '../services/transactionService';
+import { supabase } from '../supabaseClient';
 
 function AddEditProductPage() {
     const { id } = useParams();
@@ -48,7 +49,7 @@ function AddEditProductPage() {
         const fetchProductData = async () => {
             if (isEditMode) {
                 setTransaction({
-                    transaction_type_id: 3,
+                    transaction_type_id: 2,
                 })
                 try {
                     setLoading(true);
@@ -68,7 +69,7 @@ function AddEditProductPage() {
             } else {
                 setLoading(false);
                 setTransaction({
-                    transaction_type_id: 4,
+                    transaction_type_id: 3,
                 })
             }
         };
@@ -79,7 +80,7 @@ function AddEditProductPage() {
         const fetchCategories = async () => {
             try {
                 const data = await productService.getProductsCategory();
-                setCategories(data.output_schema);
+                setCategories(data);
             } catch (err) {
                 console.error("Error fetching categories:", err);
             }
@@ -105,36 +106,22 @@ function AddEditProductPage() {
     const handleImageUpload = async (file) => {
         if (!file) return;
     
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
+        setUploadingImage(true);
         
-        reader.onloadstart = () => {
-            setUploadingImage(true);
-        };
-        
-        reader.onload = async () => {
-            const base64StringWithPrefix = reader.result;
-            const base64String = base64StringWithPrefix.split(',')[1];
+        try {
+            const response = await productService.addImageUrl(file, 'product-images', 'productImage_' + Date.now());
             
-            try {
-                const response = await productService.addImageUrl(base64String);
-                
-                const newImageUrl = response.output_schema["imageUrl"];
-                const cacheBustedUrl = `${newImageUrl}?t=${new Date().getTime()}`;
-                setProduct(prevProduct => ({ ...prevProduct, imageUrl: cacheBustedUrl }));
-                alert("Image uploaded successfully!");
-            } catch (error) {
-                console.error("Image upload failed:", error);
-                alert("Image upload failed. Please try again.");
-            } finally {
-                setUploadingImage(false);
-            }
-        };
-        
-        reader.onerror = () => {
+            // const newImageUrl = response.output_schema["imageUrl"];
+            // const cacheBustedUrl = `${newImageUrl}?t=${new Date().getTime()}`;
+            const imageUrl = response;
+            setProduct(prevProduct => ({ ...prevProduct, imageUrl }));
+            alert("Image uploaded successfully!");
+        } catch (error) {
+            console.error("Image upload failed:", error);
+            alert("Image upload failed. Please try again.");
+        } finally {
             setUploadingImage(false);
-            alert("An error occurred while reading the file.");
-        };
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -153,27 +140,30 @@ function AddEditProductPage() {
                 selling_price: parseInt(product.selling_price, 10),
                 stock: parseInt(product.stock, 10),
                 image_url: product.imageUrl,
+                user_id: (await supabase.auth.getUser()).data.user.id,
             };
 
             const transactionData = {
-                transactionTypeId: transaction.transaction_type_id,
-                id: product.id,
-                price: parseInt(product.price, 10),
-                stock: parseInt(product.stock, 10),
+                transaction_type_id: transaction.transaction_type_id,
+                product_id: product.id,
+                price_per_unit: parseInt(product.price, 10),
+                quantity: parseInt(product.stock, 10),
                 reason: transaction.reason,
+                user_id: (await supabase.auth.getUser()).data.user.id,
             }
 
             const existingCategory = categories.find(cat => cat.name === product.category);
-            // if (!existingCategory) {
-            //     const newCategoryResponse = await productService.addCategory({ name: product.category });
-            //     submissionData.category = newCategoryResponse.name;
-            // }
+            if (!existingCategory) {
+                await productService.addProductCategory(product.category, submissionData.id);
+            }
             
             if (isEditMode) {
-                await productService.editProductDetail(submissionData.id, submissionData, submissionData.category);
+                await productService.editProductDetail(submissionData.id, submissionData);
+                // await productService.addProductCategory(product.category, submissionData.id);
                 await transactionService.addTransaction(transactionData);
             } else {
-                await productService.addProductDetail(submissionData, submissionData.category);
+                await productService.addProductDetail(submissionData);
+                // await productService.addProductCategory(product.category, submissionData.id);
                 await transactionService.addTransaction(transactionData);
             }
             alert(`Product ${isEditMode ? 'updated' : 'added'} successfully!`);

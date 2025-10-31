@@ -12,7 +12,7 @@ function WarehousePage(){
     const handleGetProductList = async () => {
         try{
             const data = await productService.getProductList()
-            setProduct(data.output_schema)
+            setProduct(data)
         } catch(err){
             console.error("Error fetching product data: ", err)
         }

@@ -1,18 +1,30 @@
 import axios from "axios";
-import { supabase } from '../supabaseClient';
+import { supabase } from '../supabaseClient.js';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+// const getProductList = async() => {
+//     const response = await axios.get(
+//         `${BASE_URL}/products/list`,
+//         {
+//             headers:{
+//                 "Authorization": localStorage.getItem("token")
+//             }
+//         }
+//     );
+//     console.log(response.data)
+//     return response.data;
+// }
+
 const getProductList = async() => {
-    const response = await axios.get(
-        `${BASE_URL}/products/list`,
-        {
-            headers:{
-                "Authorization": localStorage.getItem("token")
-            }
-        }
-    );
-    console.log(response.data)
-    return response.data;
+    const { data, error } = await supabase
+    .from('view_products')
+    .select()
+
+    if (error) {
+        console.error('Error fetching data:', error)
+        return
+    }
+    return data;
 }
 
 const searchProduct = async(parameter) => {
@@ -28,28 +40,54 @@ const searchProduct = async(parameter) => {
     return response.data;
 }
 
+    // const getProductDetail = async (id) => {
+    //     const response = await axios.get(
+    //         `${BASE_URL}/products/information/${id}`,
+    //         {
+    //             headers:{
+    //                 "Authorization": localStorage.getItem("token")
+    //             }
+    //         }
+    //     );
+    //     return response.data;
+    // }
+
 const getProductDetail = async (id) => {
-    const response = await axios.get(
-        `${BASE_URL}/products/information/${id}`,
-        {
-            headers:{
-                "Authorization": localStorage.getItem("token")
-            }
-        }
-    );
-    return response.data;
+    const { data, error } = await supabase
+    .from('view_products')
+    .select()
+    .eq('id', id)
+    .single();
+
+    if (error) {
+        console.error('Error fetching data:', error);
+        return;
+    }
+    return data;
 }
 
+// const getProductsCategory = async () =>{
+//     const response = await axios.get(
+//         `${BASE_URL}/products/category`,
+//         {
+//             headers:{
+//                 "Authorization": localStorage.getItem("token")
+//             }
+//         }
+//     );
+//     return response.data;
+// }
+
 const getProductsCategory = async () =>{
-    const response = await axios.get(
-        `${BASE_URL}/products/category`,
-        {
-            headers:{
-                "Authorization": localStorage.getItem("token")
-            }
-        }
-    );
-    return response.data;
+    const { data, error } = await supabase
+    .from('categories')
+    .select()
+
+    if (error) {
+        console.error('Error fetching data:', error)
+        return
+    }
+    return data;
 }
 
 // const addImageUrl = async (base64String) => {
@@ -67,38 +105,109 @@ const getProductsCategory = async () =>{
 // }
 
 
-const addImageUrl = async (file) => {
-    // const fileName = `${Date.now()}-${file.name}`;
+// const addImageUrl = async (file) => {
+//     // const fileName = `${Date.now()}-${file.name}`;
 
-    // const { data, error } = await supabase.storage
-    // .from("profile_picture")
-    // .upload(fileName, file);
+//     // const { data, error } = await supabase.storage
+//     // .from("profile_picture")
+//     // .upload(fileName, file);
 
-    // if (error) {
-    // console.error("Upload failed:", error);
-    // throw error;
-    // }
+//     // if (error) {
+//     // console.error("Upload failed:", error);
+//     // throw error;
+//     // }
 
-    // // ✅ Use the render endpoint instead of object/public
-    // const imageUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/render/image/public/profile_picture/${fileName}`;
+//     // // ✅ Use the render endpoint instead of object/public
+//     // const imageUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/render/image/public/profile_picture/${fileName}`;
 
-    // return imageUrl;
+//     // return imageUrl;
 
-    const fileName = `${Date.now()}_${file.name}`;
+//     const fileName = `${Date.now()}_${file.name}`;
 
-    const { data, error } = await supabase.storage
-    .from('profile_picture') // 👈 must match your bucket name
-    .upload(fileName, file);
+//     const { data, error } = await supabase.storage
+//     .from('profile_picture') // 👈 must match your bucket name
+//     .upload(fileName, file);
 
-    if (error) throw error;
+//     if (error) throw error;
 
-    // Get public URL (only works if bucket is public)
-    const { data: { publicUrl } } = supabase.storage
-    .from('profile_picture')
-    .getPublicUrl(fileName);
+//     // Get public URL (only works if bucket is public)
+//     const { data: { publicUrl } } = supabase.storage
+//     .from('profile_picture')
+//     .getPublicUrl(fileName);
 
-    return publicUrl;
+//     return publicUrl;
+// };
+
+// const addImageUrl = async (file, bucketName, fileName = null) => {
+//   // Ensure 'file' is a proper File object
+//   if (!file || !(file instanceof File)) {
+//     console.error("No file provided or invalid file object");
+//     return null;
+//   }
+
+//   // Determine file extension
+//   const ext = file.name.split('.').pop();
+//   const finalFileName = fileName ? `${fileName}.${ext}` : file.name;
+//   const filePath = `${finalFileName}`;
+
+//   // Upload to Supabase Storage
+//   const { data, error } = await supabase.storage
+//     .from(bucketName)
+//     .upload(filePath, file, { cacheControl: '3600', upsert: true });
+
+//   if (error) {
+//     console.error("Error uploading file:", error);
+//     return null;
+//   }
+
+//   // Get public URL
+//   const { publicUrl, error: urlError } = supabase.storage
+//     .from(bucketName)
+//     .getPublicUrl(filePath);
+
+//   if (urlError) {
+//     console.error("Error getting public URL:", urlError);
+//     return null;
+//   }
+
+//   return publicUrl.publicUrl;
+// };
+
+const addImageUrl = async (file, bucketName, fileName = null) => {
+  if (!file || !(file instanceof File)) {
+    console.error("No file provided or invalid file object");
+    return null;
+  }
+
+  const ext = file.name.split('.').pop();
+  const finalFileName = fileName ? `${fileName}.${ext}` : file.name;
+  const filePath = `${finalFileName}`;
+
+  // Upload to Supabase Storage
+  const { data: uploadData, error: uploadError } = await supabase.storage
+    .from(bucketName)
+    .upload(filePath, file, { cacheControl: '3600', upsert: true });
+
+  if (uploadError) {
+    console.error("Error uploading file:", uploadError);
+    return null;
+  }
+
+  // Get public URL
+  const { data: urlData, error: urlError } = supabase.storage
+    .from(bucketName)
+    .getPublicUrl(filePath);
+
+  if (urlError) {
+    console.error("Error getting public URL:", urlError);
+    return null;
+  }
+
+  return urlData.publicUrl; // ✅ this is the actual URL string
 };
+
+
+
 
 
 // const addProductDetail = async(productData) => {
@@ -114,7 +223,7 @@ const addImageUrl = async (file) => {
 //     );
 // }
 
-const addProductDetail = async(productData, category) => {
+const addProductDetail = async(productData) => {
     const { data, error } = await supabase
         .from('products')
         .insert([productData]) 
@@ -125,22 +234,33 @@ const addProductDetail = async(productData, category) => {
         throw error;
     }
 
-    if (category) {
-        const { data: categoryData, error: categoryError } = await supabase
-            .from('categories')
-            .insert([{ name: category }])
-            .select();
-
-        if (categoryError) {
-            console.error("Error inserting category:", categoryError);
-            throw categoryError;
-        }
-    }
-
     if (error) {
         console.error("Error inserting product:", error);
         throw error;
     }
+}
+
+const addProductCategory = async(category, productId) => {
+    const { data: categoryData, error: categoryError } = await supabase
+            .from('categories')
+            .insert([{ name: category, user_id: (await supabase.auth.getUser()).data.user.id }])
+            .select();
+
+    if (categoryError) {
+        console.error("Error inserting category:", categoryError);
+        throw categoryError;
+    }
+
+    const category_id = categoryData[0].id;
+    const { error: categoryProduct } = await supabase
+            .from('categories_product')
+            .insert([{ product_id: productId, category_id: category_id, user_id: (await supabase.auth.getUser()).data.user.id }])
+            .select();
+    if (categoryProduct) {
+        console.error("Error inserting category Product:", categoryProduct);
+        throw categoryProduct;
+    }
+    return categoryData;
 }
 
 const editProductDetail = async (id, productData) => {
@@ -179,4 +299,5 @@ export default {
     addProductDetail,
     editProductDetail,
     deleteProduct,
+    addProductCategory
 }

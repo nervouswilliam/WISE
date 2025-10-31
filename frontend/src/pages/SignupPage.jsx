@@ -61,7 +61,7 @@ function SignupPage() {
 
         setUploadingImage(true);
         try {
-            const imageUrl = await productService.addImageUrl(file);
+            const imageUrl = await productService.addImageUrl(file, 'profile_picture', 'profilePic_' + Date.now());
             setFormData((prev) => ({ ...prev, imageUrl }));
             alert("Image uploaded successfully!");
         } catch (err) {

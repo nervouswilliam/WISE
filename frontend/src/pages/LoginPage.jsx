@@ -134,6 +134,7 @@ import {
   IconButton,
 } from "@mui/material";
 import { MailOutline, LockOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
+import authService from "../services/authService";
 
 const PRIMARY_COLOR = '#6f42c1'; // Purple
 const ACCENT_COLOR = '#f3f4f6'; // Light Gray
