@@ -41,11 +41,13 @@ const getProductList = async(user_id) => {
 //     return response.data;
 // }
 
-const searchProduct = async(parameter) => {
+const searchProduct = async(user, parameter) => {
     const { data, error } = await supabase
     .from('view_products')
     .select()
-    .ilike('name', `%${parameter}%`);
+    .ilike('name', `%${parameter}%`)
+    .eq('user_id', user.id);
+
 
     if (error) {
         console.error('Error fetching data:', error);

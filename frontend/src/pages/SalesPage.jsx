@@ -24,7 +24,7 @@ function SalesPage({user}) {
         const handleSearch = async () => {
             if (searchQuery.length > 0) {
                 try {
-                    const response = await productService.searchProduct(searchQuery);
+                    const response = await productService.searchProduct(user, searchQuery);
                     setSearchResults(response);
                 } catch (error) {
                     console.error("Error fetching search results:", error);
@@ -33,6 +33,7 @@ function SalesPage({user}) {
             } else {
                 setSearchResults([]);
             }
+            setSearchResults([]);
         };
 
         const timeoutId = setTimeout(() => {
