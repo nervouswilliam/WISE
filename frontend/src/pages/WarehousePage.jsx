@@ -5,13 +5,15 @@ import productService from "../services/productService";
 import { useNavigate } from "react-router-dom";
 import AddIcon from '@mui/icons-material/Add';
 import Add from "@mui/icons-material/Add";
+import { supabase } from "../supabaseClient";
 
-function WarehousePage(){
+function WarehousePage({ user }) {
     const [product, setProduct] = useState([])
     const navigate = useNavigate()
+    const user_id = user.id;
     const handleGetProductList = async () => {
         try{
-            const data = await productService.getProductList()
+            const data = await productService.getProductList(user_id)
             setProduct(data)
         } catch(err){
             console.error("Error fetching product data: ", err)

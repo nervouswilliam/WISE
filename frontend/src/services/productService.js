@@ -15,10 +15,11 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 //     return response.data;
 // }
 
-const getProductList = async() => {
+const getProductList = async(user_id) => {
     const { data, error } = await supabase
     .from('view_products')
     .select()
+    .eq('user_id', user_id);
 
     if (error) {
         console.error('Error fetching data:', error)

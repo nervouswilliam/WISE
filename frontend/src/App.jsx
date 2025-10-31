@@ -25,7 +25,9 @@ function App() {
     const checkAuth = async () => {
       try {
         const data = await authService.whoami()
-        setUser(data.identities?.[0]?.identity_data)
+        const metadata  = data.identities?.[0]?.identity_data;
+        const user_id = data.id;
+        setUser({ ...metadata, id: user_id });
         const valid = data !== null
         setIsAuthenticated(valid);
       } catch (err) {
@@ -50,7 +52,7 @@ function App() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/dashboard" element={isAuthenticated ? (<Layout user={user}><Dashboard user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/statistic" element={isAuthenticated ? (<Layout user={user}><StatisticPage/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/warehouse" element={isAuthenticated ? (<Layout user={user}><WarehousePage/></Layout>) : <Navigate to="/login" replace/>} />
+      <Route path="/warehouse" element={isAuthenticated ? (<Layout user={user}><WarehousePage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/product/:id" element={isAuthenticated ? (<Layout user={user}><ProductDetailPage/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/product/add" element={isAuthenticated ? (<Layout user={user}><AddEditProductPage/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/product/edit/:id" element={isAuthenticated ? (<Layout user={user}><AddEditProductPage/></Layout>) : <Navigate to="/login" replace/>} />
