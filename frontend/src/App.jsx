@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
 
+import LandingPage from './pages/LandingPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import SignupPage from './pages/SignupPage.jsx';
 import Dashboard from './pages/Dashboard.jsx';
@@ -41,9 +42,10 @@ function App() {
   return (
     <Routes>
       {/* Default redirect to login if not authenticated */}
-      <Route path="/" element={<Navigate to="/login" />} />
+      <Route path="/" element={<Navigate to="/landingPage" />} />
 
       {/* Pages */}
+      <Route path="/landingPage" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/dashboard" element={isAuthenticated ? (<Layout user={user}><Dashboard user = {user}/></Layout>) : <Navigate to="/login" replace/>} />

@@ -13,17 +13,29 @@ const getTransactionsByPeriod = async(period) => {
     return response.data
 }
 
+// const addTransaction = async(transactionData) => {
+//     const response = await axios.post(
+//         `${BASE_URL}/transaction/information`, 
+//         transactionData, 
+//         {
+//             headers: {
+//                 "Authorization": localStorage.getItem("token"),
+//                 "Content-Type": "application/json"
+//             }
+//         }
+//     );
+// }
+
 const addTransaction = async(transactionData) => {
-    const response = await axios.post(
-        `${BASE_URL}/transaction/information`, 
-        transactionData, 
-        {
-            headers: {
-                "Authorization": localStorage.getItem("token"),
-                "Content-Type": "application/json"
-            }
-        }
-    );
+    const { data, error } = await supabase
+        .from('transactions') 
+        .insert([transactionData]) 
+        .select(); 
+
+    if (error) {
+        console.error("Error inserting transaction:", error);
+        throw error;
+    }
 }
 export default {
     getTransactionsByPeriod,

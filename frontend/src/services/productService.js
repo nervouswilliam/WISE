@@ -101,17 +101,46 @@ const addImageUrl = async (file) => {
 };
 
 
-const addProductDetail = async(productData) => {
-    const response = await axios.post(
-        `${BASE_URL}/products/information`, 
-        productData, 
-        {
-            headers: {
-                "Authorization": localStorage.getItem("token"),
-                "Content-Type": "application/json"
-            }
+// const addProductDetail = async(productData) => {
+//     const response = await axios.post(
+//         `${BASE_URL}/products/information`, 
+//         productData, 
+//         {
+//             headers: {
+//                 "Authorization": localStorage.getItem("token"),
+//                 "Content-Type": "application/json"
+//             }
+//         }
+//     );
+// }
+
+const addProductDetail = async(productData, category) => {
+    const { data, error } = await supabase
+        .from('products')
+        .insert([productData]) 
+        .select(); 
+
+    if (error) {
+        console.error("Error inserting product:", error);
+        throw error;
+    }
+
+    if (category) {
+        const { data: categoryData, error: categoryError } = await supabase
+            .from('categories')
+            .insert([{ name: category }])
+            .select();
+
+        if (categoryError) {
+            console.error("Error inserting category:", categoryError);
+            throw categoryError;
         }
-    );
+    }
+
+    if (error) {
+        console.error("Error inserting product:", error);
+        throw error;
+    }
 }
 
 const editProductDetail = async (id, productData) => {

@@ -26,6 +26,7 @@ function AddEditProductPage() {
         id: '',
         name: '',
         price: 0,
+        selling_price: 0,
         stock: 0,
         category: '',
         imageUrl: '',
@@ -149,8 +150,8 @@ function AddEditProductPage() {
                 id: product.id,
                 name: product.name,
                 price: parseInt(product.price, 10),
+                selling_price: parseInt(product.selling_price, 10),
                 stock: parseInt(product.stock, 10),
-                category: product.category,
                 image_url: product.imageUrl,
             };
 
@@ -169,10 +170,10 @@ function AddEditProductPage() {
             // }
             
             if (isEditMode) {
-                await productService.editProductDetail(submissionData.id, submissionData);
+                await productService.editProductDetail(submissionData.id, submissionData, submissionData.category);
                 await transactionService.addTransaction(transactionData);
             } else {
-                await productService.addProductDetail(submissionData);
+                await productService.addProductDetail(submissionData, submissionData.category);
                 await transactionService.addTransaction(transactionData);
             }
             alert(`Product ${isEditMode ? 'updated' : 'added'} successfully!`);
@@ -285,6 +286,18 @@ function AddEditProductPage() {
                             name="price"
                             type="number"
                             value={product.price}
+                            onChange={handleChange}
+                            required
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            label="Selling Price"
+                            name="selling_price"
+                            type="number"
+                            value={product.selling_price}
                             onChange={handleChange}
                             required
                         />
