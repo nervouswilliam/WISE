@@ -324,7 +324,7 @@ function LoginPage() {
               <Typography variant="body2" color="text.secondary" mr={1}>
                 Don't have an account?
               </Typography>
-              <Link href="/signup" onClick={(e) => { e.preventDefault(); console.log('Navigate to signup'); }} color={PRIMARY_COLOR} underline="hover" fontWeight="medium">
+              <Link href="/signup" color="#6f42c1" underline="hover">
                 Sign up
               </Link>
             </Box>
