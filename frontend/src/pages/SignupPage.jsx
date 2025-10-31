@@ -61,6 +61,7 @@ function SignupPage() {
 
         setUploadingImage(true);
         try {
+            console.log(file);
             const imageUrl = await productService.addImageUrl(file, 'profile_picture', 'profilePic_' + Date.now());
             setFormData((prev) => ({ ...prev, imageUrl }));
             alert("Image uploaded successfully!");
@@ -166,7 +167,7 @@ function SignupPage() {
                     Create an Account
                 </Typography>
 
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                {/* <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                     <Avatar
                         src={formData.imageUrl}
                         sx={{ width: 100, height: 100 }}
@@ -180,7 +181,7 @@ function SignupPage() {
                         {uploadingImage ? 'Uploading...' : 'Upload Profile Picture'}
                         <VisuallyHiddenInput type="file" accept="image/*" onChange={handleFileChange} />
                     </Button>
-                </Box>
+                </Box> */}
                 {error && <Alert severity="error">{error}</Alert>}
 
                 <TextField
