@@ -7,7 +7,7 @@ import PaymentOptions from '../components/Sales/PaymentOptions';
 import SearchResultsList from '../components/Sales/SearchResultsList';
 import productService from '../services/productService';
 
-function SalesPage() {
+function SalesPage({user}) {
     const [cartItems, setCartItems] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -25,7 +25,7 @@ function SalesPage() {
             if (searchQuery.length > 0) {
                 try {
                     const response = await productService.searchProduct(searchQuery);
-                    setSearchResults(response.output_schema);
+                    setSearchResults(response);
                 } catch (error) {
                     console.error("Error fetching search results:", error);
                     setSearchResults([]);
@@ -59,11 +59,11 @@ function SalesPage() {
         if (existingItem) {
             setCartItems(cartItems.map(item =>
                 item.id === product.id
-                    ? { ...item, qty: item.qty + 1, subtotal: (item.qty + 1) * item.price }
+                    ? { ...item, qty: item.qty + 1, subtotal: (item.qty + 1) * item.selling_price }
                     : item
             ));
         } else {
-            setCartItems([...cartItems, { ...product, qty: 1, subtotal: product.price }]);
+            setCartItems([...cartItems, { ...product, qty: 1, subtotal: product.selling_price }]);
         }
     };
     
@@ -89,7 +89,7 @@ function SalesPage() {
                         <SalesSummary totals={totals} />
                     </Box>
                     <Box>
-                        <PaymentOptions />
+                        <PaymentOptions user={user}cartItems={cartItems} totals={totals} />
                     </Box>
                 </Box>
             </Box>

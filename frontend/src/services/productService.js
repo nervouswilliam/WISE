@@ -28,17 +28,30 @@ const getProductList = async(user_id) => {
     return data;
 }
 
+// const searchProduct = async(parameter) => {
+//     const response = await axios.get(
+//         `${BASE_URL}/products/list?search=${parameter}`,
+//         {
+//             headers:{
+//                 "Authorization": localStorage.getItem("token")
+//             }
+//         }
+//     );
+//     console.log(response.data)
+//     return response.data;
+// }
+
 const searchProduct = async(parameter) => {
-    const response = await axios.get(
-        `${BASE_URL}/products/list?search=${parameter}`,
-        {
-            headers:{
-                "Authorization": localStorage.getItem("token")
-            }
-        }
-    );
-    console.log(response.data)
-    return response.data;
+    const { data, error } = await supabase
+    .from('view_products')
+    .select()
+    .ilike('name', `%${parameter}%`);
+
+    if (error) {
+        console.error('Error fetching data:', error);
+        return;
+    }
+    return data;
 }
 
     // const getProductDetail = async (id) => {

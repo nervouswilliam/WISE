@@ -56,8 +56,8 @@ function App() {
       <Route path="/product/:id" element={isAuthenticated ? (<Layout user={user}><ProductDetailPage/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/product/add" element={isAuthenticated ? (<Layout user={user}><AddEditProductPage/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/product/edit/:id" element={isAuthenticated ? (<Layout user={user}><AddEditProductPage/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/sales" element={isAuthenticated ? (<Layout user={user}><SalesPage/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/report" element={isAuthenticated ? (<Layout user={user}><ReportPage/></Layout>) : <Navigate to="/login" replace/>} />
+      <Route path="/sales" element={isAuthenticated ? (<Layout user={user}><SalesPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
+      <Route path="/report" element={isAuthenticated ? (<Layout user={user}><ReportPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/supplier" element={isAuthenticated ? (<Layout user={user}><SupplierPage/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/settings" element={isAuthenticated ? (<Layout user={user}><SettingsPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
 

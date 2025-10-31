@@ -81,7 +81,7 @@ function CartTable({ cartItems, onRemoveItem }) {
                                             </Typography>
                                         </Box>
                                     </TableCell>
-                                    <TableCell>{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price.toFixed(2))}</TableCell>
+                                    <TableCell>{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.selling_price.toFixed(2))}</TableCell>
                                     <TableCell>{item.qty}</TableCell>
                                     <TableCell>{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.subtotal.toFixed(2))}</TableCell>
                                     <TableCell>

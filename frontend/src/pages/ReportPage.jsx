@@ -15,7 +15,7 @@ import {
 import DynamicTable from '../components/DynamicTable';
 import transactionService from '../services/transactionService';
 
-function ReportPage() {
+function ReportPage({user}) {
     const [period, setPeriod] = useState('all');
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -41,7 +41,7 @@ function ReportPage() {
         const fetchTransactions = async () => {
             try {
                 setLoading(true);
-                const response = await transactionService.getTransactionsByPeriod(period);
+                const response = await transactionService.getTransactionsByPeriod(user, period);
                 const fetchedTransactions = response.output_schema || response;
     
                 const formattedTransactions = fetchedTransactions.map(transaction => {

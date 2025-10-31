@@ -20,7 +20,7 @@ function SearchResultsList({ products, onAddToCart }) {
                     >
                         <ListItemText
                             primary={product.name}
-                            secondary={`Stock: ${product.stock} | Price: $${product.price}`}
+                            secondary={`Stock: ${product.stock} | Price: ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(product.selling_price.toFixed(2))}`}
                         />
                     </ListItem>
                 ))}
