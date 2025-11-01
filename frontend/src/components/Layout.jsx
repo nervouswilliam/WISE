@@ -155,6 +155,9 @@ export default function Layout({ children }) {
     "/product/edit/:id": "Edit Product",
     "product/:id": "View Product Detail",
     "/sales": "Point of Sale",
+    "/supplier/add": "Add Supplier",
+    "/supplier/edit/:id": "Edit Supplier",
+    "/supplier/:id": "Supplier Detail",
   };
 
   const title = pageTitles[location.pathname];
