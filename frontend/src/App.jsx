@@ -17,6 +17,7 @@ import SupplierPage from './pages/SupplierPage.jsx';
 import AddEditSupplierPage from './pages/AddEditSupplierPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import SupplierDetailPage from './pages/SupplierDetailPage.jsx';
+import AddProductStockPage from './pages/AddProductStockPage.jsx';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null = checking
@@ -30,6 +31,7 @@ function App() {
         const metadata  = data.user_metadata;
         const user_id = data.id;
         setUser({ ...metadata, id: user_id });
+        console.log("Authenticated user:", user);
         const valid = data !== null
         setIsAuthenticated(valid);
       } catch (err) {
@@ -55,9 +57,10 @@ function App() {
       <Route path="/dashboard" element={isAuthenticated ? (<Layout user={user}><Dashboard user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/statistic" element={isAuthenticated ? (<Layout user={user}><StatisticPage/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/warehouse" element={isAuthenticated ? (<Layout user={user}><WarehousePage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/product/:id" element={isAuthenticated ? (<Layout user={user}><ProductDetailPage/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/product/add" element={isAuthenticated ? (<Layout user={user}><AddEditProductPage/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/product/edit/:id" element={isAuthenticated ? (<Layout user={user}><AddEditProductPage/></Layout>) : <Navigate to="/login" replace/>} />
+      <Route path="/product/:id" element={isAuthenticated ? (<Layout user={user}><ProductDetailPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
+      <Route path="/product/add" element={isAuthenticated ? (<Layout user={user}><AddEditProductPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
+      <Route path="/product/stock-add/:id" element={isAuthenticated ? (<Layout user={user}><AddProductStockPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
+      <Route path="/product/edit/:id" element={isAuthenticated ? (<Layout user={user}><AddEditProductPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/sales" element={isAuthenticated ? (<Layout user={user}><SalesPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/report" element={isAuthenticated ? (<Layout user={user}><ReportPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/supplier" element={isAuthenticated ? (<Layout user={user}><SupplierPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />

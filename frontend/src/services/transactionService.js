@@ -90,6 +90,7 @@ const addTransaction = async(transactionData) => {
         console.error("Error inserting transaction:", error);
         throw error;
     }
+    return data;
 }
 
 const addPaymentTransaction = async(paymentData, totalAmount, currentTransactionId) => {

@@ -68,11 +68,12 @@ const searchProduct = async(user, parameter) => {
     //     return response.data;
     // }
 
-const getProductDetail = async (id) => {
+const getProductDetail = async (id, user) => {
     const { data, error } = await supabase
     .from('view_products')
     .select()
     .eq('id', id)
+    .eq('user_id', user.id)
     .single();
 
     if (error) {
@@ -94,10 +95,11 @@ const getProductDetail = async (id) => {
 //     return response.data;
 // }
 
-const getProductsCategory = async () =>{
+const getProductsCategory = async (user) =>{
     const { data, error } = await supabase
     .from('categories')
     .select()
+    .eq('user_id', user.id);
 
     if (error) {
         console.error('Error fetching data:', error)
@@ -279,20 +281,36 @@ const addProductCategory = async(category, productId) => {
     return categoryData;
 }
 
+// const editProductDetail = async (id, productData) => {
+//     const response = await axios.put(
+//         `${BASE_URL}/products/information`,
+//         {
+//             ...productData,
+//             id: id
+//         },
+//         {
+//             headers:{
+//                 "Authorization": localStorage.getItem("token")
+//             }
+//         }
+//     );
+//     return response.data;
+// }
+
 const editProductDetail = async (id, productData) => {
-    const response = await axios.put(
-        `${BASE_URL}/products/information`,
-        {
-            ...productData,
-            id: id
-        },
-        {
-            headers:{
-                "Authorization": localStorage.getItem("token")
-            }
-        }
-    );
-    return response.data;
+    const { data, error } = await supabase
+        .from('products')
+        .update(productData)
+        .eq('id', id)
+        .eq('user_id', productData.user_id)
+        .select();
+
+    if (error) {
+        console.error("Error updating product:", error);
+        throw error;
+    }
+
+    return data;
 }
 
 const deleteProduct = async (id) => {

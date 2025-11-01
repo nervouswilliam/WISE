@@ -18,8 +18,9 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
-function ProductDetailPage() {
+function ProductDetailPage({user}) {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -38,7 +39,7 @@ function ProductDetailPage() {
                 setError(null);
                 // Assume productService.getProductDetail returns the product object directly
                 // or data.output_schema if it's consistent with your other APIs
-                const response = await productService.getProductDetail(id);
+                const response = await productService.getProductDetail(id, user);
                 setProduct(response.output_schema || response); // Adjust based on your API structure
             } catch (err) {
                 console.error("Error fetching product detail:", err);
@@ -157,22 +158,34 @@ function ProductDetailPage() {
                         </Typography>
 
                         <Button
-                            variant="contained"
-                            startIcon={<EditIcon />}
-                            sx={{ mt: 3, p: 1.5, backgroundColor: "#6f42c1" }}
-                            disabled={product.stock === 0}
-                            onClick={() => navigate(`/product/edit/${product.id}`)}
+                        variant="contained"
+                        startIcon={<AddCircleOutlineIcon />}
+                        sx={{ mt: 3, p: 1.5, backgroundColor: "#6f42c1" }}
+                        disabled={product.stock === 0}
+                        onClick={() => navigate(`/product/stock-add/${product.id}`)}
                         >
-                            Edit
+                        Add Stock
                         </Button>
+
                         <Button
-                            variant="contained"
-                            startIcon={<DeleteForeverIcon />}
-                            sx={{ ml: 2, mt: 3, p: 1.5, backgroundColor: "Red" }}
-                            onClick={handleOpenDialog}
+                        variant="contained"
+                        startIcon={<EditIcon />}
+                        sx={{ ml: 2, mt: 3, p: 1.5, backgroundColor: "#6f42c1" }}
+                        disabled={product.stock === 0}
+                        onClick={() => navigate(`/product/edit/${product.id}`)}
                         >
-                            Delete
+                        Edit
                         </Button>
+
+                        <Button
+                        variant="contained"
+                        startIcon={<DeleteForeverIcon />}
+                        sx={{ ml: 2, mt: 3, p: 1.5, backgroundColor: "red" }}
+                        onClick={handleOpenDialog}
+                        >
+                        Delete
+                        </Button>
+
 
                         <Dialog
                             open={open}

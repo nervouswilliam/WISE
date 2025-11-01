@@ -90,19 +90,6 @@ function ReportPage({user}) {
         { field: 'created_at', label: 'Date' },
     ];
 
-    const actions = (row) => (
-        <Button 
-            variant="contained" 
-            size="small"
-            sx={{
-                backgroundColor:"#6f42c1"
-            }}
-            onClick={() => console.log('View details for', row.transaction_id)}
-        >
-            View
-        </Button>
-    );
-
     if (loading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -144,7 +131,6 @@ function ReportPage({user}) {
             <DynamicTable
                 columns={columns}
                 rows={transactions}
-                actions={actions}
             />
         </Container>
     );

@@ -11,6 +11,7 @@ function WarehousePage({ user }) {
     const [product, setProduct] = useState([])
     const navigate = useNavigate()
     const user_id = user.id;
+    console.log("User ID in WarehousePage:", user);
     const handleGetProductList = async () => {
         try{
             const data = await productService.getProductList(user_id)
