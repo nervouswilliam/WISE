@@ -118,7 +118,7 @@ function StatisticPage() {
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Box sx={{ width: '100%', height: isMobile ? 250 : 350 }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width={450} height={250}>
                   <LineChart data={salesTrend}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" fontSize={isMobile ? 10 : 12} />
@@ -146,7 +146,7 @@ function StatisticPage() {
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Box sx={{ width: '100%', height: isMobile ? 250 : 350 }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width={450} height={250}>
                   <BarChart
                     data={topProducts}
                     layout="vertical"
