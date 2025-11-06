@@ -88,9 +88,6 @@ function SupplierDetailPage({ user }) {
                 >
                     Back
                 </Button>
-                <Typography variant="h4">
-                    Supplier Details
-                </Typography>
             </Box>
 
             <Box sx={{ p: 3, border: '1px solid', borderColor: 'grey.300', borderRadius: 2, boxShadow: 1 }}>

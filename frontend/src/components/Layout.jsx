@@ -160,7 +160,20 @@ export default function Layout({ children }) {
     "/supplier/:id": "Supplier Detail",
   };
 
-  const title = pageTitles[location.pathname];
+  const getPageTitle = (path) => {
+    // Direct match
+    if (pageTitles[path]) return pageTitles[path];
+
+    // Dynamic routes (pattern matching)
+    if (path.startsWith("/product/edit/")) return "Edit Product";
+    if (path.startsWith("/product/")) return "Product Detail";
+    if (path.startsWith("/supplier/edit/")) return "Edit Supplier";
+    if (path.startsWith("/supplier/")) return "Supplier Detail";
+
+    return "Wisely";
+  };
+
+  const title = getPageTitle(location.pathname);
 
   return (
     <Box sx={{ display: "flex" }}>
