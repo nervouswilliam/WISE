@@ -413,7 +413,7 @@ function DashboardPage({ user }) {
                 <Card sx={{ height: '100%', boxShadow: 3 }}>
                     <CardContent>
                         <Typography variant="h6" gutterBottom>Sales Over Time</Typography>
-                        <ResponsiveContainer width="100%" height={250}>
+                        <ResponsiveContainer width={450} height={250}>
                             <LineChart data={salesData}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="date" />
@@ -429,7 +429,7 @@ function DashboardPage({ user }) {
                 <Card sx={{ height: '100%', boxShadow: 3 }}>
                     <CardContent>
                         <Typography variant="h6" gutterBottom>Top-Selling Products</Typography>
-                        <ResponsiveContainer width="100%" height={250}>
+                        <ResponsiveContainer width={450} height={250}>
                             <BarChart data={topProductsData}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="name" />
@@ -498,7 +498,7 @@ function DashboardPage({ user }) {
                                 productName: t.product_name,
                                 quantity: t.quantity,
                                 // Formatting total using the helper function
-                                total: formatCurrency(t.total_price * t.quantity),
+                                total: formatCurrency(t.total_price),
                                 TransactionType: t.transaction_type,
                                 date: new Date(t.created_at).toLocaleDateString('id-ID')
                             }))}

@@ -107,20 +107,6 @@ function StatisticPage() {
         px: { xs: 1.5, sm: 2, md: 4 }, 
       }}
     >
-      <Typography
-        variant={isMobile ? 'h5' : 'h4'}
-        gutterBottom
-        fontWeight="bold"
-        color="#6f42c1"
-      >
-        Business Statistics 📈
-      </Typography>
-      <Typography
-        variant="body2"
-        sx={{ mb: { xs: 2, md: 3 }, color: 'text.secondary' }}
-      >
-        Track your sales performance, top products, and inventory insights below.
-      </Typography>
 
       <Grid container spacing={isMobile ? 2 : 3}>
         {/* 1. Sales Trend (Line Chart) */}
