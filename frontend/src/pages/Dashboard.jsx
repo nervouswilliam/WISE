@@ -257,6 +257,7 @@ import productService from '../services/productService';
 import supplierService from '../services/supplierService';
 import transactionService from '../services/transactionService';
 import { useNavigate } from "react-router-dom";
+import { supabase } from '../supabaseClient';
 
 // --- Custom/Helper Components for better presentation ---
 
@@ -289,6 +290,7 @@ function DashboardPage({ user }) {
   const [salesData, setSalesData] = useState([]);
   const [topProductsData, setTopProductsData] = useState([]);
   const [recentTransactions, setRecentTransactions] = useState([]);
+  const [lowStockItems, setLowStockItems] = useState([]);
   const navigate = useNavigate();
   
   const handleClick = (row) => {
@@ -321,7 +323,7 @@ function DashboardPage({ user }) {
         setSalesToday(todaySales);
 
         // Sales Chart Data (aggregated by date)
-        const salesByDate = transactions.reduce((acc, t) => {
+        const salesByDate = transactions.filter(t => t.transaction_type === 'sale').reduce((acc, t) => {
             const dateStr = new Date(t.created_at).toLocaleDateString();
             const total = t.total_amount;
             acc[dateStr] = (acc[dateStr] || 0) + total;
@@ -350,6 +352,25 @@ function DashboardPage({ user }) {
 
     fetchDashboardData();
   }, [user]);
+
+  useEffect(() => {
+  const fetchLowStock = async () => {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('user_id', user.id)
+
+    if (error){
+      console.error("Error fetching low stock items:", error);
+    } else {
+      const lowStock = data.filter(p => p.stock <= p.low_stock);
+      setLowStockItems(lowStock);
+    }
+  };
+
+  fetchLowStock();
+}, [user]);
+
 
   const handleAddProduct = () => {
     navigate("/product/add");
@@ -400,7 +421,7 @@ function DashboardPage({ user }) {
                 <KpiCard title="Sales Today" value={formatCurrency(salesToday)} color="#ff9800" />
             </Grid>
             <Grid item xs={12} sm={6} lg={3}>
-                <KpiCard title="Low Stock Items" value={lowStock} color="#f44336" />
+                <KpiCard title="Low Stock Items" value={lowStockItems.length} color="#f44336" />
             </Grid>
         </Grid>
 

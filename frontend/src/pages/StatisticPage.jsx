@@ -28,8 +28,10 @@ import {
   Bar,
 } from 'recharts';
 import { useTheme } from '@mui/material/styles';
+import transactionService from '../services/transactionService';
+import productService from '../services/productService';
 
-function StatisticPage() {
+function StatisticPage({ user }) {
   const [loading, setLoading] = useState(true);
   const [salesTrend, setSalesTrend] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
@@ -44,24 +46,35 @@ function StatisticPage() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      setTimeout(() => {
-        setSalesTrend([
-          { date: 'Oct 25', sales: 420 },
-          { date: 'Oct 26', sales: 390 },
-          { date: 'Oct 27', sales: 580 },
-          { date: 'Oct 28', sales: 610 },
-          { date: 'Oct 29', sales: 550 },
-          { date: 'Oct 30', sales: 730 },
-          { date: 'Oct 31', sales: 800 },
-        ]);
+      setTimeout(async () => {
+//         setSalesTrend([
+//           { date: 'Oct 25', sales: 420 },
+//           { date: 'Oct 26', sales: 390 },
+//           { date: 'Oct 27', sales: 580 },
+//           { date: 'Oct 28', sales: 610 },
+//           { date: 'Oct 29', sales: 550 },
+//           { date: 'Oct 30', sales: 730 },
+//           { date: 'Oct 31', sales: 800 },
+//         ]);
+        try {
 
-        setTopProducts([
-          { name: 'Coca-Cola', sales: 1200 },
-          { name: 'Lays Chips', sales: 900 },
-          { name: 'Nescafe', sales: 750 },
-          { name: 'Indomie', sales: 650 },
-          { name: 'Sprite', sales: 400 },
-        ]);
+            const transactions = await transactionService.getTransactionsByPeriod(user, 'weekly');
+            const salesByDate = transactions.filter(t => t.transaction_type === 'sale').reduce((acc, t) => {
+                const dateStr = new Date(t.created_at).toLocaleDateString();
+                const total = t.total_amount;
+                acc[dateStr] = (acc[dateStr] || 0) + total;
+                return acc;
+            }, {});
+            setSalesTrend(Object.keys(salesByDate).map(date => ({ date, total: salesByDate[date] })));
+            const productSales = await transactionService.getProductSales(user);
+            setTopProducts(productSales);
+
+            const lowStockItems = await productService.getProductList(user.id);
+            const lowStockFiltered = lowStockItems.filter(p => p.stock <= p.low_stock);
+            setLowStock(lowStockFiltered);
+        } catch (error) {
+            console.error("Error fetching product sales:", error);
+        }
 
         setCategoryRevenue([
           { category: 'Beverages', revenue: 3200 },
@@ -72,11 +85,11 @@ function StatisticPage() {
           { category: 'Dairy', revenue: 900 },
         ]);
 
-        setLowStock([
-          { id: 1, name: 'Pepsi', stock: 4 },
-          { id: 2, name: 'Tissue Roll', stock: 3 },
-          { id: 3, name: 'Milo', stock: 2 },
-        ]);
+//         setLowStock([
+//           { id: 1, name: 'Pepsi', stock: 4 },
+//           { id: 2, name: 'Tissue Roll', stock: 3 },
+//           { id: 3, name: 'Milo', stock: 2 },
+//         ]);
 
         setLoading(false);
       }, 1000);
@@ -94,7 +107,9 @@ function StatisticPage() {
   }
 
   const totalRevenue = categoryRevenue.reduce((acc, c) => acc + c.revenue, 0);
-  const formatCurrency = (amount) => `$${amount.toLocaleString()}`;
+  const formatCurrency = (amount) => {
+      return `Rp ${amount.toLocaleString('id-ID', { maximumFractionDigits: 0 })}`;
+  };
 
   return (
     <Container
@@ -126,7 +141,7 @@ function StatisticPage() {
                     <Tooltip formatter={(value) => [formatCurrency(value), 'Sales']} />
                     <Line
                       type="monotone"
-                      dataKey="sales"
+                      dataKey="total"
                       stroke="#6f42c1"
                       strokeWidth={3}
                     />
@@ -156,9 +171,9 @@ function StatisticPage() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis type="number" fontSize={isMobile ? 10 : 12} tickFormatter={formatCurrency} />
                     {/* Shrink YAxis width on mobile */}
-                    <YAxis type="category" dataKey="name" fontSize={isMobile ? 10 : 12} width={isMobile ? 80 : 100} /> 
+                    <YAxis type="category" dataKey="product_name" fontSize={isMobile ? 10 : 12} width={isMobile ? 80 : 100} /> 
                     <Tooltip formatter={(value) => [formatCurrency(value), 'Sales']} />
-                    <Bar dataKey="sales" fill="#4caf50" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="total_revenue" fill="#6f42c1" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </Box>
@@ -253,7 +268,7 @@ function StatisticPage() {
                           {item.name}
                         </TableCell>
                         <TableCell align="right">
-                          <Box sx={{ color: item.stock < 5 ? 'error.main' : 'inherit', fontWeight: 'bold' }}>
+                          <Box sx={{ color: item.stock < 10 ? 'error.main' : 'inherit', fontWeight: 'bold' }}>
                             {item.stock}
                           </Box>
                         </TableCell>
