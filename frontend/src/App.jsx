@@ -19,6 +19,7 @@ import SettingsPage from './pages/SettingsPage.jsx';
 import SupplierDetailPage from './pages/SupplierDetailPage.jsx';
 import AddProductStockPage from './pages/AddProductStockPage.jsx';
 import ReportDetailPage from './pages/ReportDetailPage.jsx';
+import NotificationPage from './pages/notificationPage.jsx';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null = checking
@@ -70,6 +71,7 @@ function App() {
       <Route path="/supplier/edit/:id" element={isAuthenticated ? (<Layout user={user}><AddEditSupplierPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/supplier/:id" element={isAuthenticated ? (<Layout user={user}><SupplierDetailPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/settings" element={isAuthenticated ? (<Layout user={user}><SettingsPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
+      <Route path="/notifications" element={isAuthenticated ? (<Layout user={user}><NotificationPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
 
       {/* Fallback 404 */}
       <Route path="*" element={<h1>404 - Page Not Found</h1>} />

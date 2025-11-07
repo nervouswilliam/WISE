@@ -1,288 +1,262 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
-  Container,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  CircularProgress,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  Divider,
-  Box,
-  LinearProgress,
-  useMediaQuery,
-} from '@mui/material';
+  Container,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  CircularProgress,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Divider,
+  Box,
+  LinearProgress,
+  useMediaQuery,
+  Button,
+} from "@mui/material";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-} from 'recharts';
-import { useTheme } from '@mui/material/styles';
-import transactionService from '../services/transactionService';
-import productService from '../services/productService';
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie, 
+  Tooltip as PieTooltip,
+
+} from "recharts";
+import { useTheme } from "@mui/material/styles";
+import transactionService from "../services/transactionService";
+import productService from "../services/productService";
+import { useNavigate } from "react-router-dom";
+import DynamicTable from "../components/DynamicTable";
 
 function StatisticPage({ user }) {
-  const [loading, setLoading] = useState(true);
-  const [salesTrend, setSalesTrend] = useState([]);
-  const [topProducts, setTopProducts] = useState([]);
-  const [categoryRevenue, setCategoryRevenue] = useState([]);
-  const [lowStock, setLowStock] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [salesTrend, setSalesTrend] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
+  const [categoryRevenue, setCategoryRevenue] = useState([]);
+  const [lowStock, setLowStock] = useState([]);
+  const navigate = useNavigate();
 
-  const theme = useTheme();
-  // Check if viewport width is less than the 'sm' breakpoint (default 600px)
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-  // Mock data fetch simulation
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setTimeout(async () => {
-//         setSalesTrend([
-//           { date: 'Oct 25', sales: 420 },
-//           { date: 'Oct 26', sales: 390 },
-//           { date: 'Oct 27', sales: 580 },
-//           { date: 'Oct 28', sales: 610 },
-//           { date: 'Oct 29', sales: 550 },
-//           { date: 'Oct 30', sales: 730 },
-//           { date: 'Oct 31', sales: 800 },
-//         ]);
-        try {
-
-            const transactions = await transactionService.getTransactionsByPeriod(user, 'weekly');
-            const salesByDate = transactions.filter(t => t.transaction_type === 'sale').reduce((acc, t) => {
-                const dateStr = new Date(t.created_at).toLocaleDateString();
-                const total = t.total_amount;
-                acc[dateStr] = (acc[dateStr] || 0) + total;
-                return acc;
-            }, {});
-            setSalesTrend(Object.keys(salesByDate).map(date => ({ date, total: salesByDate[date] })));
-            const productSales = await transactionService.getProductSales(user);
-            setTopProducts(productSales);
-
-            const lowStockItems = await productService.getProductList(user.id);
-            const lowStockFiltered = lowStockItems.filter(p => p.stock <= p.low_stock);
-            setLowStock(lowStockFiltered);
-        } catch (error) {
-            console.error("Error fetching product sales:", error);
-        }
-
-        setCategoryRevenue([
-          { category: 'Beverages', revenue: 3200 },
-          { category: 'Snacks', revenue: 2100 },
-          { category: 'Instant Food', revenue: 1300 },
-          { category: 'Household', revenue: 600 },
-          { category: 'Frozen Food', revenue: 500 },
-          { category: 'Dairy', revenue: 900 },
-        ]);
-
-//         setLowStock([
-//           { id: 1, name: 'Pepsi', stock: 4 },
-//           { id: 2, name: 'Tissue Roll', stock: 3 },
-//           { id: 3, name: 'Milo', stock: 2 },
-//         ]);
-
-        setLoading(false);
-      }, 1000);
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return (
-      <Container sx={{ mt: 5, display: 'flex', justifyContent: 'center' }}>
-        <CircularProgress />
-      </Container>
-    );
-  }
-
-  const totalRevenue = categoryRevenue.reduce((acc, c) => acc + c.revenue, 0);
-  const formatCurrency = (amount) => {
-      return `Rp ${amount.toLocaleString('id-ID', { maximumFractionDigits: 0 })}`;
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const handleClick = (row) => {
+      navigate(`/product/stock-add/${row.id}`);
   };
 
-  return (
-    <Container
-      // Ensure max width is appropriate for large screens, but uses full width on mobile
-      maxWidth="lg"
-      sx={{
-        mt: { xs: 2, md: 4 },
-        mb: 4,
-        // Use responsive padding, ensuring no horizontal overflow issues
-        px: { xs: 1.5, sm: 2, md: 4 }, 
-      }}
-    >
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setTimeout(async () => {
+        try {
+          const transactions = await transactionService.getTransactionsByPeriod(user, "weekly");
+          const salesByDate = transactions
+            .filter((t) => t.transaction_type === "sale")
+            .reduce((acc, t) => {
+              const dateStr = new Date(t.created_at).toLocaleDateString();
+              acc[dateStr] = (acc[dateStr] || 0) + t.total_amount;
+              return acc;
+            }, {});
+          setSalesTrend(Object.keys(salesByDate).map((date) => ({ date, total: salesByDate[date] })));
 
-      <Grid container spacing={isMobile ? 2 : 3}>
-        {/* 1. Sales Trend (Line Chart) */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ borderRadius: 3, boxShadow: 2, height: '100%' }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Sales Trend (Last 7 Days)
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-              <Box sx={{ width: '100%', height: isMobile ? 250 : 350 }}>
-                <ResponsiveContainer width={450} height={250}>
-                  <LineChart data={salesTrend}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" fontSize={isMobile ? 10 : 12} />
-                    <YAxis fontSize={isMobile ? 10 : 12} tickFormatter={formatCurrency} />
-                    <Tooltip formatter={(value) => [formatCurrency(value), 'Sales']} />
-                    <Line
-                      type="monotone"
-                      dataKey="total"
-                      stroke="#6f42c1"
-                      strokeWidth={3}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+          const productSales = await transactionService.getProductSales(user);
+          setTopProducts(productSales);
 
-        {/* 2. Top Products (Bar Chart) */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ borderRadius: 3, boxShadow: 2, height: '100%' }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Top 5 Selling Products
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-              <Box sx={{ width: '100%', height: isMobile ? 250 : 350 }}>
-                <ResponsiveContainer width={450} height={250}>
-                  <BarChart
-                    data={topProducts}
-                    layout="vertical"
-                    // Adjust margins to ensure product labels don't get cut off on mobile
-                    margin={{ top: 5, right: 30, left: isMobile ? 0 : 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" fontSize={isMobile ? 10 : 12} tickFormatter={formatCurrency} />
-                    {/* Shrink YAxis width on mobile */}
-                    <YAxis type="category" dataKey="product_name" fontSize={isMobile ? 10 : 12} width={isMobile ? 80 : 100} /> 
-                    <Tooltip formatter={(value) => [formatCurrency(value), 'Sales']} />
-                    <Bar dataKey="total_revenue" fill="#6f42c1" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+          const lowStockItems = await productService.getProductList(user.id);
+          const lowStockFiltered = lowStockItems.filter((p) => p.stock <= p.low_stock);
+          setLowStock(lowStockFiltered);
+        } catch (error) {
+          console.error("Error fetching product sales:", error);
+        }
 
-        {/* 3. Revenue by Category (Horizontal Scroll) */}
-        <Grid item xs={12}>
-          <Card sx={{ borderRadius: 3, boxShadow: 2 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Revenue by Category
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-              <Box
-                sx={{
-                  display: 'flex',
-                  overflowX: 'auto',
-                  gap: isMobile ? 1.5 : 2, 
-                  pb: 1,
-                  '&::-webkit-scrollbar': { height: 6 },
-                  '&::-webkit-scrollbar-thumb': {
-                    backgroundColor: '#bdbdbd',
-                    borderRadius: 4,
-                  },
-                }}
-              >
-                {categoryRevenue.map((c, index) => {
-                  const percentage = ((c.revenue / totalRevenue) * 100).toFixed(1);
-                  return (
-                    <Card
-                      key={index}
-                      sx={{
-                        minWidth: isMobile ? 240 : 300,
-                        flex: '0 0 auto',
-                        borderRadius: 2,
-                        boxShadow: 1,
-                        borderLeft: '5px solid #6f42c1',
-                      }}
-                    >
-                      <CardContent>
-                        <Typography variant="subtitle1" color="#6f42c1">
-                          {c.category}
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 1 }}>
-                          Revenue: {formatCurrency(c.revenue)}
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 1 }}>
-                          Contribution: **{percentage}%**
-                        </Typography>
-                        <LinearProgress
-                          variant="determinate"
-                          value={parseFloat(percentage)}
-                          sx={{
-                            height: 8,
-                            borderRadius: 5,
-                            '& .MuiLinearProgress-bar': {
-                              backgroundColor: '#6f42c1',
-                            },
-                          }}
-                        />
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+        setCategoryRevenue([
+          { category: "Beverages", revenue: 3200 },
+          { category: "Snacks", revenue: 2100 },
+          { category: "Instant Food", revenue: 1300 },
+          { category: "Household", revenue: 600 },
+          { category: "Frozen Food", revenue: 500 },
+          { category: "Dairy", revenue: 900 },
+        ]);
 
-        {/* 4. Low Stock Table */}
-        <Grid item xs={12}>
-          <Card sx={{ borderRadius: 3, boxShadow: 2 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Low Stock Alerts ⚠️
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-              <Box sx={{ overflowX: 'auto' }}>
-                <Table size={isMobile ? 'small' : 'medium'}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 'bold' }}>Product</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 'bold' }}>Remaining Stock</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {lowStock.map((item) => (
-                      <TableRow key={item.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                        <TableCell component="th" scope="row">
-                          {item.name}
-                        </TableCell>
-                        <TableCell align="right">
-                          <Box sx={{ color: item.stock < 10 ? 'error.main' : 'inherit', fontWeight: 'bold' }}>
-                            {item.stock}
-                          </Box>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </Container>
-  );
+        setLoading(false);
+      }, 1000);
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <Container sx={{ mt: 5, display: "flex", justifyContent: "center" }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
+  const totalRevenue = categoryRevenue.reduce((acc, c) => acc + c.revenue, 0);
+  const formatCurrency = (amount) => `Rp ${amount.toLocaleString("id-ID", { maximumFractionDigits: 0 })}`;
+
+  return (
+    <Container
+      maxWidth="lg"
+      sx={{
+        mt: { xs: 2, md: 4 },
+        mb: 4,
+        px: { xs: 1.5, sm: 2, md: 4 },
+      }}
+    >
+      <Grid container spacing={isMobile ? 2 : 3}>
+        {/* 1️⃣ Sales Trend */}
+        <Grid item xs={12} md={6}>
+          <Card sx={{ borderRadius: 3, boxShadow: 2, height: "100%" }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Sales Trend (Last 7 Days)
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              <Box sx={{ width: "100%", height: isMobile ? 250 : 350 }}>
+                <ResponsiveContainer width={520} height={250}>
+                  <LineChart data={salesTrend}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" fontSize={isMobile ? 10 : 12} />
+                    <YAxis fontSize={isMobile ? 10 : 12} tickFormatter={formatCurrency} />
+                    <Tooltip formatter={(value) => [formatCurrency(value), "Sales"]} />
+                    <Line type="monotone" dataKey="total" stroke="#6f42c1" strokeWidth={3} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* 2️⃣ Top Products */}
+        <Grid item xs={12} md={6}>
+          <Card sx={{ borderRadius: 3, boxShadow: 2, height: "100%" }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Top 5 Selling Products
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              <Box sx={{ width: "100%", height: isMobile ? 250 : 350 }}>
+                <ResponsiveContainer width={520} height={250}>
+                  <BarChart
+                    data={topProducts}
+                    layout="vertical"
+                    margin={{ top: 5, right: 20, left: isMobile ? 0 : 40, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" tickFormatter={formatCurrency} fontSize={isMobile ? 10 : 12} />
+                    <YAxis
+                      type="category"
+                      dataKey="product_name"
+                      width={isMobile ? 80 : 120}
+                      fontSize={isMobile ? 10 : 12}
+                    />
+                    <Tooltip formatter={(value) => [formatCurrency(value), "Sales"]} />
+                    <Bar dataKey="total_revenue" fill="#6f42c1" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Divider sx={{ my: 3 }} />
+        {/* 3️⃣ Revenue by Category */}
+        <Grid item xs={12}>
+            <Card sx={{ borderRadius: 3, boxShadow: 2 }}>
+                <CardContent>
+                <Typography variant="h6" gutterBottom>
+                    Revenue by Category
+                </Typography>
+                <Divider sx={{ mb: 2 }} />
+                <Box
+                    sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: isMobile ? 300 : 400,
+                    width: "100%",
+                    }}
+                >
+                    <ResponsiveContainer width={isMobile ? 520 : 1100} height={350}>
+                    <PieChart>
+                        <Pie
+                        data={categoryRevenue}
+                        dataKey="revenue"
+                        nameKey="category"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={isMobile ? 60 : 100}
+                        outerRadius={isMobile ? 100 : 140}
+                        fill="#6f42c1"
+                        paddingAngle={3}
+                        labelLine={false}
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
+                        >
+                        {categoryRevenue.map((entry, index) => (
+                            <cell
+                            key={`cell-${index}`}
+                            fill={["#6f42c1", "#8b5cf6", "#9c27b0", "#7e57c2", "#9575cd", "#b39ddb"][index % 6]}
+                            />
+                        ))}
+                        </Pie>
+                        <Tooltip formatter={(value) => `Rp ${value.toLocaleString("id-ID")}`} />
+                    </PieChart>
+                    </ResponsiveContainer>
+                </Box>
+                </CardContent>
+            </Card>
+        </Grid>
+        
+        <Divider sx={{ my: 3 }} />
+
+        {/* 4️⃣ Low Stock Table */}
+        <Typography variant="h6" gutterBottom>Low Stock Alerts ⚠️</Typography>
+        <Box
+        sx={{
+            display: "flex",
+            justifyContent: "space-between", // Space between search bar and button
+            alignItems: "center",
+            width: "100%",
+            mb: 2,
+            flexDirection: "wrap", // make it responsive on small screens
+            gap: 2
+        }}
+        > 
+            <DynamicTable
+                columns={[
+                    { field: "id", label: "Product ID" },
+                    { field: "name", label: "Product" },
+                    { field: "stock", label: "Remaining Stock" },
+                ]}
+                rows={lowStock.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    stock: item.stock,
+                }))}
+                actions={(row) => (
+                    <Button
+                        variant="contained"
+                        onClick={() => handleClick(row)}
+                        sx={{ backgroundColor: "#6f42c1" }}
+                    >
+                        Add Stock
+                    </Button>
+                )}
+            />
+        </Box>
+      </Grid>
+    </Container>
+  );
 }
 
 export default StatisticPage;

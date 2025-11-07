@@ -499,39 +499,44 @@ function DashboardPage({ user }) {
         <Divider sx={{ my: 3 }} />
 
         {/* 4. Row: Recent Transactions Table */}
-        <Grid container>
-            <Grid item xs={12}>
-                <Card sx={{ boxShadow: 3 }}>
-                    <CardContent>
-                        <Typography variant="h6" gutterBottom>Recent Transactions</Typography>
-                        <DynamicTable
-                            columns={[
-                                { field: 'id', label: 'ID' },
-                                { field: 'total', label: 'Total (Rp)' },
-                                { field: 'TransactionType', label: 'Type' },
-                                { field: 'date', label: 'Date' }
-                            ]}
-                            rows={recentTransactions.map(t => ({
-                                id: t.transaction_id,
-                                // Formatting total using the helper function
-                                total: formatCurrency(t.total_amount),
-                                TransactionType: t.transaction_type,
-                                date: new Date(t.created_at).toLocaleDateString('id-ID')
-                            }))}
-                            actions={(row) => (
-                              <Button
-                                variant="contained"
-                                onClick={() => handleClick(row)}
-                                sx={{ backgroundColor: "#6f42c1" }}
-                              >
-                                VIEW
-                              </Button>
-                            )}
-                        />
-                    </CardContent>
-                </Card>
-            </Grid>
-        </Grid>
+        <Typography variant="h6" gutterBottom>Recent Transactions</Typography>
+        <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between", // Space between search bar and button
+          alignItems: "center",
+          width: "100%",
+          mb: 2,
+          flexDirection: "wrap", // make it responsive on small screens
+          gap: 2
+        }}
+        >
+          {/* <Typography variant="h6" gutterBottom>Recent Transactions</Typography> */}
+          <DynamicTable
+              columns={[
+                  { field: 'id', label: 'ID' },
+                  { field: 'total', label: 'Total (Rp)' },
+                  { field: 'TransactionType', label: 'Type' },
+                  { field: 'date', label: 'Date' }
+              ]}
+              rows={recentTransactions.map(t => ({
+                  id: t.transaction_id,
+                  // Formatting total using the helper function
+                  total: formatCurrency(t.total_amount),
+                  TransactionType: t.transaction_type,
+                  date: new Date(t.created_at).toLocaleDateString('id-ID')
+              }))}
+              actions={(row) => (
+                <Button
+                  variant="contained"
+                  onClick={() => handleClick(row)}
+                  sx={{ backgroundColor: "#6f42c1" }}
+                >
+                  VIEW
+                </Button>
+              )}
+          />
+        </Box>
     </Container>
   );
 }
