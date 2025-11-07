@@ -105,8 +105,41 @@ const addPaymentTransaction = async(paymentData, totalAmount, currentTransaction
         },
     ]);
 }
+
+const getTransactionItemsById = async(user, transactionId) => {
+    const { data, error } = await supabase
+      .from('view_transaction_item')
+      .select()
+      .eq('user_id', user.id)
+      .eq('transaction_id', transactionId);
+
+    if (error) {
+        console.error('Error fetching transaction items:', error);
+        return [];
+    }
+
+    return data;
+}
+
+const getProductSales = async(user) => {
+    const { data, error } = await supabase
+      .from('view_product_sales')
+      .select()
+      .eq('user_id', user.id)
+      .order('total_sold', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching product sales:', error);
+        return [];
+    }
+
+    return data;
+}
+
 export default {
     getTransactionsByPeriod,
     addTransaction,
-    addPaymentTransaction
+    addPaymentTransaction,
+    getTransactionItemsById,
+    getProductSales,
 }

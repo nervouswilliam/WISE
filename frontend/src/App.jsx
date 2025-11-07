@@ -18,6 +18,7 @@ import AddEditSupplierPage from './pages/AddEditSupplierPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import SupplierDetailPage from './pages/SupplierDetailPage.jsx';
 import AddProductStockPage from './pages/AddProductStockPage.jsx';
+import ReportDetailPage from './pages/ReportDetailPage.jsx';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null = checking
@@ -63,6 +64,7 @@ function App() {
       <Route path="/product/edit/:id" element={isAuthenticated ? (<Layout user={user}><AddEditProductPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/sales" element={isAuthenticated ? (<Layout user={user}><SalesPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/report" element={isAuthenticated ? (<Layout user={user}><ReportPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
+      <Route path="/report/:id" element={isAuthenticated ? (<Layout user={user}><ReportDetailPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/supplier" element={isAuthenticated ? (<Layout user={user}><SupplierPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/supplier/add" element={isAuthenticated ? (<Layout user={user}><AddEditSupplierPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/supplier/edit/:id" element={isAuthenticated ? (<Layout user={user}><AddEditSupplierPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />

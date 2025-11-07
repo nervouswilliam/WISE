@@ -107,6 +107,7 @@ import {
 } from '@mui/material';
 import DoneIcon from '@mui/icons-material/Done';
 import { supabase } from '../../supabaseClient';
+import { useNavigate } from 'react-router-dom';
 import transactionService from '../../services/transactionService';
 
 function PaymentOptions({user, cartItems,totals}) {
@@ -116,57 +117,50 @@ function PaymentOptions({user, cartItems,totals}) {
   const [cardType, setCardType] = useState('');
   const [chequeNumber, setChequeNumber] = useState('');
   const [giftCode, setGiftCode] = useState('');
+  const navigate = useNavigate();
 
   const handleEndSale = async () => {
-    // let paymentData = { method: paymentMethod };
 
-    // if (paymentMethod === 'Cash') {
-    //   const change = Math.max(0, cashReceived - totalAmount);
-    //   paymentData = { ...paymentData, cashReceived, change };
-    // } else if (paymentMethod === 'Credit Card' || paymentMethod === 'Debit Card') {
-    //   paymentData = { ...paymentData, cardType };
-    // } else if (paymentMethod === 'Cheque') {
-    //   paymentData = { ...paymentData, chequeNumber };
-    // } else if (paymentMethod === 'Gift Card') {
-    //   paymentData = { ...paymentData, giftCode };
+    // for (const item of cartItems) {
+    //   const paymentData = {
+    //     _card_type: paymentMethod === 'Credit Card' || paymentMethod === 'Debit Card' ? cardType : null,
+    //     _cash_received: paymentMethod === 'Cash' ? cashReceived : null,
+    //     _cheque_number: paymentMethod === 'Cheque' ? chequeNumber : null,
+    //     _gift_code: paymentMethod === 'Gift Card' ? giftCode : null,
+    //     _payment_method: paymentMethod,
+    //     _price_per_unit: item.price,
+    //     _product_id: item.id,
+    //     _quantity: item.qty,
+    //     _reason: 'Sale of product',
+    //     _transaction_type_id: 1,
+    //     _user_id: user.id,
+    //   };
+
+    //   const { data, error } = await supabase.rpc('complete_sale', paymentData);
+
+    //   if (error) {
+    //     console.error('Error completing sale for product', item.name, error);
+    //   } else {
+    //     console.log('Transaction completed for product', item.name, data);
+    //   }
     // }
+    const items = cartItems.map(item => ({
+      product_id: item.id,
+      quantity: item.qty,
+      price_per_unit: item.selling_price,
+    }));
 
-    // const response = await transactionService.addTransaction();
-    // const currentTransactionId = response[0].id;
+    const {data, error} = await supabase.rpc('complete_sale',{
+      _user_id: user.id,
+      _items: items,
+      _payment_method: paymentMethod,
+    })
 
-    // console.log('Payment data:', paymentData);
-    // const { data, error } = await transactionService.addPaymentTransaction(paymentData, totalAmount, currentTransactionId);
-
-    // if (error) {
-    //   console.error('Error inserting payment:', error);
-    //   alert('Failed to record payment');
-    // } else {
-    //   console.log('Payment recorded:', data);
-    //   alert('Payment successfully recorded!');
-    // }
-
-    for (const item of cartItems) {
-      const paymentData = {
-        _card_type: paymentMethod === 'Credit Card' || paymentMethod === 'Debit Card' ? cardType : null,
-        _cash_received: paymentMethod === 'Cash' ? cashReceived : null,
-        _cheque_number: paymentMethod === 'Cheque' ? chequeNumber : null,
-        _gift_code: paymentMethod === 'Gift Card' ? giftCode : null,
-        _payment_method: paymentMethod,
-        _price_per_unit: item.price,
-        _product_id: item.id,
-        _quantity: item.quantity,
-        _reason: 'Sale of product',
-        _transaction_type_id: 1,
-        _user_id: user.id
-      };
-
-      const { data, error } = await supabase.rpc('complete_sale', paymentData);
-
-      if (error) {
-        console.error('Error completing sale for product', item.name, error);
-      } else {
-        console.log('Transaction completed for product', item.name, data);
-      }
+    if (error) {
+      console.error('Error completing sale:', error);
+    } else {
+      console.log('Sale completed successfully:', data);
+      navigate('/report/' + data);
     }
 
 

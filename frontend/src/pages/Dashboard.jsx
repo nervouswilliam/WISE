@@ -274,22 +274,26 @@ const KpiCard = ({ title, value, color }) => (
     </Card>
 );
 
+
 // --- Main Dashboard Component ---
 
 function DashboardPage({ user }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  
   const [totalProducts, setTotalProducts] = useState(0);
   const [totalSuppliers, setTotalSuppliers] = useState(0);
   const [salesToday, setSalesToday] = useState(0);
   const [lowStock, setLowStock] = useState(0);
-
+  
   const [salesData, setSalesData] = useState([]);
   const [topProductsData, setTopProductsData] = useState([]);
   const [recentTransactions, setRecentTransactions] = useState([]);
   const navigate = useNavigate();
-
+  
+  const handleClick = (row) => {
+      navigate(`/report/${row.id}`);
+  };
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -313,13 +317,13 @@ function DashboardPage({ user }) {
         const todaySales = transactions.filter(t => {
           const tDate = new Date(t.created_at);
           return tDate.toDateString() === today.toDateString();
-        }).reduce((sum, t) => sum + t.price_per_unit * t.quantity, 0);
+        }).reduce((sum, t) => sum + (t.total_amount || 0), 0);
         setSalesToday(todaySales);
 
         // Sales Chart Data (aggregated by date)
         const salesByDate = transactions.reduce((acc, t) => {
             const dateStr = new Date(t.created_at).toLocaleDateString();
-            const total = t.price_per_unit * t.quantity;
+            const total = t.total_amount;
             acc[dateStr] = (acc[dateStr] || 0) + total;
             return acc;
         }, {});
@@ -327,15 +331,10 @@ function DashboardPage({ user }) {
 
 
         // Top Products
-        const topProducts = products
-          .map(p => {
-            const salesTransactions = transactions.filter(t => t.transaction_type === 'sale');
-            // Find related transactions (assuming t.product_id matches p.id)
-            const soldQty = salesTransactions.filter(t => t.product_id === p.id).reduce((sum, t) => sum + t.quantity, 0);
-            return { name: p.name, sold: soldQty };
-          })
-          .sort((a, b) => b.sold - a.sold)
-          .slice(0, 5);
+        const productSales = await transactionService.getProductSales(user);
+        const topProducts = productSales
+            .map(ps => ({ name: ps.product_name, sold: ps.total_sold }))
+            .slice(0, 5);
         setTopProductsData(topProducts);
 
         // Recent transactions (e.g., last 10)
@@ -417,7 +416,7 @@ function DashboardPage({ user }) {
                             <LineChart data={salesData}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="date" />
-                                <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                                <YAxis tickFormatter={(value) => formatCurrency(value)} width={100} />
                                 <Tooltip formatter={(value) => formatCurrency(value)} />
                                 <Line type="monotone" dataKey="total" stroke="#6f42c1" strokeWidth={2} />
                             </LineChart>
@@ -487,21 +486,26 @@ function DashboardPage({ user }) {
                         <DynamicTable
                             columns={[
                                 { field: 'id', label: 'ID' },
-                                { field: 'productName', label: 'Product Name' },
-                                { field: 'quantity', label: 'Quantity' },
                                 { field: 'total', label: 'Total (Rp)' },
                                 { field: 'TransactionType', label: 'Type' },
                                 { field: 'date', label: 'Date' }
                             ]}
                             rows={recentTransactions.map(t => ({
                                 id: t.transaction_id,
-                                productName: t.product_name,
-                                quantity: t.quantity,
                                 // Formatting total using the helper function
-                                total: formatCurrency(t.total_price),
+                                total: formatCurrency(t.total_amount),
                                 TransactionType: t.transaction_type,
                                 date: new Date(t.created_at).toLocaleDateString('id-ID')
                             }))}
+                            actions={(row) => (
+                              <Button
+                                variant="contained"
+                                onClick={() => handleClick(row)}
+                                sx={{ backgroundColor: "#6f42c1" }}
+                              >
+                                VIEW
+                              </Button>
+                            )}
                         />
                     </CardContent>
                 </Card>

@@ -12,6 +12,7 @@ import {
     Alert,
     Button
 } from '@mui/material';
+import { useNavigate } from "react-router-dom";
 import DynamicTable from '../components/DynamicTable';
 import transactionService from '../services/transactionService';
 
@@ -20,9 +21,14 @@ function ReportPage({user}) {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     const handlePeriodChange = (e) => {
         setPeriod(e.target.value);
+    };
+
+    const handleClick = (row) => {
+        navigate(`/report/${row.transaction_id}`);
     };
 
     const formatCurrency = (value) => {
@@ -82,10 +88,7 @@ function ReportPage({user}) {
 
     const columns = [
         { field: 'transaction_id', label: 'Transaction ID' },
-        { field: 'product_id', label: 'Product ID' },
-        { field: 'product_name', label: 'Product Name' },
-        { field: 'quantity', label: 'Quantity' },
-        { field: 'total_price', label: 'Total Price', render: (value) => formatCurrency(value) },
+        { field: 'total_amount', label: 'Total Amount', render: (value) => formatCurrency(value) },
         { field: 'transaction_type', label: 'Type' },
         { field: 'created_at', label: 'Date' },
     ];
@@ -131,6 +134,15 @@ function ReportPage({user}) {
             <DynamicTable
                 columns={columns}
                 rows={transactions}
+                actions={(row) => (
+                          <Button
+                            variant="contained"
+                            onClick={() => handleClick(row)}
+                            sx={{ backgroundColor: "#6f42c1" }}
+                          >
+                            VIEW
+                          </Button>
+                        )}
             />
         </Container>
     );
