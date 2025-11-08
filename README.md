@@ -1,105 +1,111 @@
-Warehouse Management System
+# Wisely: Warehouse Management System
 
-📌 Project Overview
+## 📌 Project Overview
 
-This Warehouse Management System is designed to help businesses efficiently manage their inventory, track stock levels, and monitor transactions such as sales, restocks, and adjustments. The system ensures accurate stock tracking and provides insights on best-selling products and restock recommendations.
+This Warehouse Management System is designed to help businesses efficiently manage their inventory, track stock levels, and monitor transactions such as sales, restocks, and adjustments. The system ensures accurate stock tracking and provides insights on **best-selling products** and **restock recommendations**.
 
-🚀 Features
+## 🚀 Features
 
-Product Management: Add, update, and remove products.
+  * **Product Management:** Add, update, and remove products.
+  * **Transaction Management:** Log sales, restocks, and stock adjustments.
+  * **Stock Tracking:** Monitor current stock levels in **real-time**.
+  * **Automated Reports:** Generate reports for daily sales, best-selling products, and restock suggestions.
+  * **Notification System:** Notify users when stock of a certain product is low.
+  * **Optimized Queries:** Leverages **Supabase Views/Functions** for efficient stock and transaction data retrieval.
 
-Transaction Management: Log sales, restocks, and stock adjustments.
+-----
 
-Stock Tracking: Monitor current stock levels in real-time.
+## 🏗️ Tech Stack
 
-Automated Reports: Generate reports for daily sales, best-selling products, and restock suggestions.
+### Backend:
 
-Materialized Views: Used for optimized stock and transaction queries.
+  * **Supabase:** Provides a robust backend as a service, including **PostgreSQL** database, **real-time subscriptions**, and **authentication**.
+  * **PostgreSQL:** The core relational database managed by Supabase.
+  * **Supabase Client Libraries:** Used for seamless interaction between the frontend and the database.
 
-🏗️ Tech Stack
+### Frontend:
 
-Backend:
+  * **React:** A declarative, component-based JavaScript library for building user interfaces.
+  * **Vite:** A next-generation frontend tooling that provides a fast and optimized development experience.
 
-Spring Boot (Java 17) – REST API
+-----
 
-PostgreSQL – Database
+## 📂 Database Schema
 
-JDBC Template – Database operations
+### Tables:
 
-Frontend:
+  * `products`: Stores product details (id, name, price, stock, etc.).
+  * `transactions`: Logs sales, restocks, and adjustments.
+  * `transaction_items`: Tracks detail transactions
+  * `type_transaction`: Stores transaction types (sale, restock, adjustment, etc.).
+  * `categories`: Stores categories set by users
+  * `categories_product`: Stores categories of each product
+  * `suppliers`: Stores suppliers
 
-Flutter
+### Views & Functions (Supabase):
 
-📂 Database Schema
+  * `view_transaction`: Aggregates transaction details for reporting.
+  * `view_transaction_item`: View Transaction details
+  * `view_products`: Optimized view for querying product data.
+  * `view_product_sales`: View product sales
+  * `function complete_sale()`: Function to update transaction and stocks in products
+  * `function check_low_stock()`: Function to check low stock of each product
 
-Tables:
+-----
 
-products: Stores product details (id, name, price, stock, etc.).
+## 🔧 Installation & Setup
 
-transactions: Logs sales, restocks, and adjustments.
+### 1\. Clone the repository:
 
-type_transaction: Stores transaction types (sale, restock, adjustment, etc.).
-
-product_stock: Tracks stock level changes over time.
-
-Views:
-
-view_transaction: Aggregates transaction details for reporting.
-
-view_products: Optimized view for querying product data.
-
-🔧 Installation & Setup
-
-Clone the repository:
-
+```bash
 git clone https://github.com/nervouswilliam/WISE.git
 cd warehouse-management
+```
 
-Set up the database:
+### 2\. Set up Supabase:
 
-Create a PostgreSQL database
+  * Create a new Supabase project.
+  * Execute the necessary **SQL migration scripts** (schema, tables, views) provided in the project's documentation.
+  * Get your Supabase **Project URL** and **Anon Key**.
 
-Update application.properties with:
+### 3\. Frontend Setup (React/Vite):
 
-spring.datasource.url=jdbc:postgresql://localhost:5432/your_db
-spring.datasource.username=your_username
-spring.datasource.password=your_password
-
-Run database migrations:
-
-./mvnw flyway:migrate
-
-Start the backend server:
-
-./mvnw spring-boot:run
-
-Start the frontend:
-
+```bash
 cd frontend
-flutter config --enable-web
-flutter devices
-flutter run -d chrome
-press r for hot restart
+npm install
+```
 
-to run DEV env:
-flutter run --dart-define=FLAVOR=dev
+  * Create a `.env` file in the `frontend` directory with your Supabase credentials:
 
-to run UAT env:
-flutter run --dart-define=FLAVOR=uat
+    ```
+    VITE_SUPABASE_URL=YOUR_SUPABASE_URL
+    VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+    ```
 
-to run PROD env:
-flutter run --dart-define=FLAVOR=prod
+### 4\. Run the Frontend:
 
-📊 Future Enhancements
+```bash
+npm run dev
+```
 
-Implement AI-based stock prediction.
+### 5\. Running Different Environments:
 
-Introduce role-based authentication for better security.
+  * Modify the `npm run dev` script or use configuration files to manage different environment variables for **DEV**, **UAT**, and **PROD**. *(The Supabase approach typically uses environment variables directly in the frontend build.)*
 
-Improve UI with advanced dashboards.
+-----
 
-🤝 Contributing
+## 📊 Future Enhancements
 
-Feel free to submit issues and pull requests to improve the project!
+  * Implement **AI-based stock prediction** leveraging Supabase's PostgreSQL extensibility.
+  * Introduce **role-based authentication (RLS)** using Supabase for better security and access control.
+  * Improve UI with advanced, responsive dashboards using React components.
 
-🛠️ Developed by Jeremiah William Sebastian 🎯
+## 🤝 Contributing
+
+Feel free to submit issues and pull requests to improve the project\!
+
+-----
+
+**🛠️ Developed by Jeremiah William Sebastian 🎯**
+
+-----
