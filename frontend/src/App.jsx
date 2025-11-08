@@ -20,6 +20,9 @@ import SupplierDetailPage from './pages/SupplierDetailPage.jsx';
 import AddProductStockPage from './pages/AddProductStockPage.jsx';
 import ReportDetailPage from './pages/ReportDetailPage.jsx';
 import NotificationPage from './pages/notificationPage.jsx';
+import TermsOfServicePage from './pages/TermsOfServicePage.jsx';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx';
+import NotFoundPage from './pages/NotFoundPage.jsx';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null = checking
@@ -56,6 +59,8 @@ function App() {
       <Route path="/landingPage" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
       <Route path="/dashboard" element={isAuthenticated ? (<Layout user={user}><Dashboard user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/statistic" element={isAuthenticated ? (<Layout user={user}><StatisticPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/warehouse" element={isAuthenticated ? (<Layout user={user}><WarehousePage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
@@ -73,8 +78,9 @@ function App() {
       <Route path="/settings" element={isAuthenticated ? (<Layout user={user}><SettingsPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/notifications" element={isAuthenticated ? (<Layout user={user}><NotificationPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
 
+
       {/* Fallback 404 */}
-      <Route path="*" element={<h1>404 - Page Not Found</h1>} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

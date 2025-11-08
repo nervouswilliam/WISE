@@ -152,8 +152,9 @@ function LandingPage() {
                 py: { xs: 1.5, sm: 2 },
                 px: { xs: 4, sm: 6 }
               }}
+              onClick={() => navigate("/login")}
             >
-              View Demo
+              Login
             </Button>
           </Box>
         </Container>
@@ -280,9 +281,9 @@ function LandingPage() {
       <Box sx={{ backgroundColor: '#212121', py: 4 }}>
         <Container maxWidth="lg" sx={{ textAlign: 'center' }}>
           <Typography variant="body2" color="#bdbdbd">
-            &copy; 2024 Wisely. All rights reserved. | 
-            <Link href="#" color="inherit" sx={{ ml: 1, '&:hover': { color: 'white' } }}>Privacy Policy</Link> | 
-            <Link href="#" color="inherit" sx={{ ml: 1, '&:hover': { color: 'white' } }}>Terms of Service</Link>
+            &copy; 2025 Wisely. All rights reserved. | 
+            <Link href="/privacy-policy" color="inherit" sx={{ ml: 1, '&:hover': { color: 'white' } }}>Privacy Policy</Link> | 
+            <Link href="/terms-of-service" color="inherit" sx={{ ml: 1, '&:hover': { color: 'white' } }}>Terms of Service</Link>
           </Typography>
         </Container>
       </Box>
