@@ -13,6 +13,7 @@ import supplierService from '../services/supplierService';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Loading from '../components/loading';
 
 function SupplierDetailPage({ user }) {
     const { id } = useParams();
@@ -58,11 +59,7 @@ function SupplierDetailPage({ user }) {
     const handleBack = () => navigate(-1);
 
     if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                <CircularProgress />
-            </Box>
-        );
+        return (<Loading />);
     }
 
     if (error) {

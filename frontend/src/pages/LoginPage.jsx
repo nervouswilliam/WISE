@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { MailOutline, LockOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
 import authService from "../services/authService";
+import Loading from "../components/loading";
 
 const PRIMARY_COLOR = '#6f42c1'; // Purple
 const ACCENT_COLOR = '#f3f4f6'; // Light Gray
@@ -193,7 +194,7 @@ function LoginPage() {
                 position: 'relative',
               }}
             >
-              {isLoading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Sign In'}
+              {isLoading ? <Loading /> : 'Sign In'}
             </Button>
             
             {/* Sign Up Link */}

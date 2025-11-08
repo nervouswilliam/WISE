@@ -20,6 +20,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import supplierService from '../services/supplierService'; // You'll need to create this service
 import { supabase } from '../supabaseClient';
+import Loading from '../components/loading';
 
 function AddEditSupplierPage({user}) {
     const { id } = useParams();
@@ -106,9 +107,7 @@ function AddEditSupplierPage({user}) {
 
     if (loading) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                <CircularProgress />
-            </Box>
+            <Loading />
         );
     }
 

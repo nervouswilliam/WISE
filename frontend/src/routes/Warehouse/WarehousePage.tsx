@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { NotificationContextType, useNotification } from "../helper/NotificationProvider";
 import { handleLogout } from "../components/Header";
+import Loading from "../../components/loading";
 
 async function getData(
     navigate: ReturnType<typeof useNavigate>,
@@ -53,7 +54,7 @@ export default function WarehousePage() {
   }, []); // Empty dependency array means this only runs once on mount
 
   if (loading) {
-    return <div>Loading Transactions...</div>;
+    return (<Loading />);
   }
 
   return (

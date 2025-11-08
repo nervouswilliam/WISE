@@ -12,6 +12,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import productService from "../services/productService";
 import transactionService from "../services/transactionService";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Loading from "../components/loading";
 
 const AddProductStockPage = ({ user }) => {
   const { id } = useParams();
@@ -85,9 +86,7 @@ const AddProductStockPage = ({ user }) => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" mt={5}>
-        <CircularProgress />
-      </Box>
+      <Loading />
     );
   }
 

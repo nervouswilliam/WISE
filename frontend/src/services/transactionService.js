@@ -41,7 +41,8 @@ const getTransactionsByPeriod = async (user,period) => {
       const { data: allData, error: allError } = await supabase
         .from('view_transaction')
         .select()
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (allError) {
         console.error('Error fetching all transactions:', allError);
@@ -56,7 +57,8 @@ const getTransactionsByPeriod = async (user,period) => {
     .select()
     .eq('user_id', user.id)
     .gte('created_at', startDate.toISOString())
-    .lte('created_at', now.toISOString());
+    .lte('created_at', now.toISOString())
+    .order('created_at', { ascending: false });
 
   if (error) {
     console.error('Error fetching transactions:', error);
@@ -66,6 +68,20 @@ const getTransactionsByPeriod = async (user,period) => {
   return data;
 };
 
+const getSalesTransactions = async(user) => {
+    const { data, error } = await supabase
+      .from('view_transaction')
+      .select()
+      .eq('user_id', user.id)
+      .eq('transaction_type', 'sale');
+
+    if (error) {
+        console.error('Error fetching sales transactions:', error);
+        return [];
+    }
+
+    return data;
+};
 
 // const addTransaction = async(transactionData) => {
 //     const response = await axios.post(
@@ -142,4 +158,5 @@ export default {
     addPaymentTransaction,
     getTransactionItemsById,
     getProductSales,
+    getSalesTransactions,
 }

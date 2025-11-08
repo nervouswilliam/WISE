@@ -23,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from '../supabaseClient';
 import { useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import Loading from '../components/loading';
 
 // --- Custom/Helper Components for better presentation ---
 
@@ -89,8 +90,10 @@ function DashboardPage({ user }) {
         }).reduce((sum, t) => sum + (t.total_amount || 0), 0);
         setSalesToday(todaySales);
 
+        const sales = await transactionService.getSalesTransactions(user);
+
         // Sales Chart Data (aggregated by date)
-        const salesByDate = transactions.filter(t => t.transaction_type === 'sale').reduce((acc, t) => {
+        const salesByDate = sales.filter(t => t.transaction_type === 'sale').reduce((acc, t) => {
             const dateStr = new Date(t.created_at).toLocaleDateString();
             const total = t.total_amount;
             acc[dateStr] = (acc[dateStr] || 0) + total;
@@ -153,11 +156,7 @@ function DashboardPage({ user }) {
   };
 
   if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
+    return (<Loading />);
   }
 
   if (error) {

@@ -11,21 +11,28 @@ import productService from "../services/productService";
 import { useNavigate } from "react-router-dom";
 import AddIcon from '@mui/icons-material/Add';
 import { supabase } from "../supabaseClient";
+import Loading from "../components/loading";
 
 function WarehousePage({ user }) {
   const [product, setProduct] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const user_id = user.id;
 
   const handleGetProductList = async () => {
     try {
+      setLoading(true);
       const data = await productService.getProductList(user_id);
       setProduct(data);
     } catch (err) {
       console.error("Error fetching product data: ", err);
+    } finally {
+      setLoading(false);
     }
   };
+
+  
 
   useEffect(() => {
     handleGetProductList();
@@ -38,6 +45,12 @@ function WarehousePage({ user }) {
   const handleAddProducts = () => {
     navigate(`/product/add`);
   };
+
+  if (loading) {
+    return (
+      <Loading />
+    );
+  }
 
   // Filtered products based on search term
   const filteredProducts = product.filter((p) => {

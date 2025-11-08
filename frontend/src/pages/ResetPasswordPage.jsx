@@ -12,6 +12,7 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
+import Loading from "../components/loading";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
@@ -108,7 +109,7 @@ export default function ResetPasswordPage() {
                 "&:hover": { backgroundColor: "#5a35a0" },
               }}
             >
-              {loading ? <CircularProgress size={24} color="inherit" /> : "Update Password"}
+              {loading ? <Loading /> : "Update Password"}
             </Button>
           </Box>
         </CardContent>

@@ -109,9 +109,11 @@ import DoneIcon from '@mui/icons-material/Done';
 import { supabase } from '../../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import transactionService from '../../services/transactionService';
+import Loading from '../loading';
 
 function PaymentOptions({user, cartItems,totals}) {
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [loading, setLoading] = useState(false);
   const [cashReceived, setCashReceived] = useState('');
   const [totalAmount] = useState(totals);
   const [cardType, setCardType] = useState('');
@@ -120,30 +122,7 @@ function PaymentOptions({user, cartItems,totals}) {
   const navigate = useNavigate();
 
   const handleEndSale = async () => {
-
-    // for (const item of cartItems) {
-    //   const paymentData = {
-    //     _card_type: paymentMethod === 'Credit Card' || paymentMethod === 'Debit Card' ? cardType : null,
-    //     _cash_received: paymentMethod === 'Cash' ? cashReceived : null,
-    //     _cheque_number: paymentMethod === 'Cheque' ? chequeNumber : null,
-    //     _gift_code: paymentMethod === 'Gift Card' ? giftCode : null,
-    //     _payment_method: paymentMethod,
-    //     _price_per_unit: item.price,
-    //     _product_id: item.id,
-    //     _quantity: item.qty,
-    //     _reason: 'Sale of product',
-    //     _transaction_type_id: 1,
-    //     _user_id: user.id,
-    //   };
-
-    //   const { data, error } = await supabase.rpc('complete_sale', paymentData);
-
-    //   if (error) {
-    //     console.error('Error completing sale for product', item.name, error);
-    //   } else {
-    //     console.log('Transaction completed for product', item.name, data);
-    //   }
-    // }
+    setLoading(true);
     const items = cartItems.map(item => ({
       product_id: item.id,
       quantity: item.qty,
@@ -159,13 +138,20 @@ function PaymentOptions({user, cartItems,totals}) {
     if (error) {
       console.error('Error completing sale:', error);
     } else {
+      setLoading(false);
       console.log('Sale completed successfully:', data);
       navigate('/report/' + data);
     }
 
 
+    if (loading) {
+      return (
+        <Loading/>
+      );
+    }
 
   };
+
 
   return (
     <Box>

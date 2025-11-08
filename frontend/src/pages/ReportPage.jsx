@@ -15,6 +15,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import DynamicTable from '../components/DynamicTable';
 import transactionService from '../services/transactionService';
+import Loading from '../components/loading';
 
 function ReportPage({user}) {
     const [period, setPeriod] = useState('all');
@@ -95,9 +96,7 @@ function ReportPage({user}) {
 
     if (loading) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                <CircularProgress />
-            </Box>
+            <Loading />
         );
     }
 

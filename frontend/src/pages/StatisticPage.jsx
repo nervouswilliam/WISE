@@ -30,6 +30,8 @@ import {
   PieChart,
   Pie, 
   Tooltip as PieTooltip,
+  Legend,
+  Cell,
 
 } from "recharts";
 import { useTheme } from "@mui/material/styles";
@@ -37,6 +39,7 @@ import transactionService from "../services/transactionService";
 import productService from "../services/productService";
 import { useNavigate } from "react-router-dom";
 import DynamicTable from "../components/DynamicTable";
+import Loading from "../components/loading";
 
 function StatisticPage({ user }) {
   const [loading, setLoading] = useState(true);
@@ -57,7 +60,7 @@ function StatisticPage({ user }) {
       setLoading(true);
       setTimeout(async () => {
         try {
-          const transactions = await transactionService.getTransactionsByPeriod(user, "weekly");
+          const transactions = await transactionService.getSalesTransactions(user);
           const salesByDate = transactions
             .filter((t) => t.transaction_type === "sale")
             .reduce((acc, t) => {
@@ -70,21 +73,21 @@ function StatisticPage({ user }) {
           const productSales = await transactionService.getProductSales(user);
           setTopProducts(productSales);
 
+          const categorySales = await productService.getProductSalesByCategory(user);
+          if (categorySales && Array.isArray(categorySales)) {
+            const formatted = categorySales.map(item => ({
+              category: item.category_name,
+              revenue: item.total_revenue
+            }));
+            setCategoryRevenue(formatted);
+          }
+
           const lowStockItems = await productService.getProductList(user.id);
           const lowStockFiltered = lowStockItems.filter((p) => p.stock <= p.low_stock);
           setLowStock(lowStockFiltered);
         } catch (error) {
           console.error("Error fetching product sales:", error);
         }
-
-        setCategoryRevenue([
-          { category: "Beverages", revenue: 3200 },
-          { category: "Snacks", revenue: 2100 },
-          { category: "Instant Food", revenue: 1300 },
-          { category: "Household", revenue: 600 },
-          { category: "Frozen Food", revenue: 500 },
-          { category: "Dairy", revenue: 900 },
-        ]);
 
         setLoading(false);
       }, 1000);
@@ -95,14 +98,15 @@ function StatisticPage({ user }) {
 
   if (loading) {
     return (
-      <Container sx={{ mt: 5, display: "flex", justifyContent: "center" }}>
-        <CircularProgress />
-      </Container>
+      <Loading />
     );
   }
 
   const totalRevenue = categoryRevenue.reduce((acc, c) => acc + c.revenue, 0);
   const formatCurrency = (amount) => `Rp ${amount.toLocaleString("id-ID", { maximumFractionDigits: 0 })}`;
+  const COLORS = [
+   "#6f42c1", "#00C49F", "#FFBB28", "#FF8042", "#0088FE", "#FF4444",
+];
 
   return (
     <Container
@@ -196,20 +200,21 @@ function StatisticPage({ user }) {
                         cx="50%"
                         cy="50%"
                         innerRadius={isMobile ? 60 : 100}
-                        outerRadius={isMobile ? 100 : 140}
-                        fill="#6f42c1"
+                        outerRadius={isMobile ? 90 : 120}
+                        // fill="#6f42c1"
                         paddingAngle={3}
                         labelLine={false}
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
+                        label={({ name, percent }) => isMobile ? `${(percent * 100).toFixed(1)}%`:`${name} ${(percent * 100).toFixed(1)}%`}
                         >
                         {categoryRevenue.map((entry, index) => (
-                            <cell
+                            <Cell
                             key={`cell-${index}`}
-                            fill={["#6f42c1", "#8b5cf6", "#9c27b0", "#7e57c2", "#9575cd", "#b39ddb"][index % 6]}
+                            fill={COLORS[index] || `hsl(${(index * 45) % 360}, 80%, 50%)`}
                             />
                         ))}
                         </Pie>
                         <Tooltip formatter={(value) => `Rp ${value.toLocaleString("id-ID")}`} />
+                        {isMobile && <Legend />}
                     </PieChart>
                     </ResponsiveContainer>
                 </Box>

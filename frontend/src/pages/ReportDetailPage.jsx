@@ -15,6 +15,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import transactionService from "../services/transactionService";
 import DynamicTable from "../components/DynamicTable";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Loading from "../components/loading";
 
 function ReportDetailPage({ user }) {
   const { id } = useParams(); // transaction_id from URL
@@ -51,9 +52,7 @@ function ReportDetailPage({ user }) {
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-        <CircularProgress />
-      </Box>
+      <Loading />
     );
   }
 

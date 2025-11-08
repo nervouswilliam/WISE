@@ -19,6 +19,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import Loading from "../components/loading";
 
 function ProductDetailPage({user}) {
     const { id } = useParams();
@@ -56,9 +57,7 @@ function ProductDetailPage({user}) {
 
     if (loading) {
         return (
-            <Container maxWidth="lg" sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-                <CircularProgress />
-            </Container>
+            <Loading />
         );
     }
 

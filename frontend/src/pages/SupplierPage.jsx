@@ -164,6 +164,7 @@ import DynamicTable from '../components/DynamicTable';
 import AddIcon from '@mui/icons-material/Add';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import supplierService from '../services/supplierService';
+import Loading from '../components/loading';
 
 
 function SupplierPage({user}) {
@@ -215,9 +216,7 @@ function SupplierPage({user}) {
     const handleViewClick = (row) => navigate(`/supplier/${row.id}`);
 
     if (loading) return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-            <CircularProgress />
-        </Box>
+        <Loading />
     );
 
     if (error) return (

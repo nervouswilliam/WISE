@@ -13,6 +13,7 @@ import {
 import notificationService from "../services/notificationService";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from "react-router-dom";
+import Loading from "../components/loading";
 
 export default function NotificationPage({user}) {
   const [notifications, setNotifications] = useState([]);
@@ -50,9 +51,7 @@ export default function NotificationPage({user}) {
         </Button>
 
       {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-          <CircularProgress />
-        </Box>
+        <Loading />
       ) : notifications.length === 0 ? (
         <Typography color="text.secondary" align="center" sx={{ mt: 4 }}>
           You don’t have any notifications yet.

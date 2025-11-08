@@ -31,6 +31,7 @@ import SecurityIcon from "@mui/icons-material/Security";
 import PersonIcon from "@mui/icons-material/Person";
 import authService from "../services/authService";
 import productService from "../services/productService";
+import Loading from "../components/loading";
 
 function SettingsPage() {
   const [user, setUser] = useState(null);
@@ -158,9 +159,7 @@ function SettingsPage() {
 
   if (loading) {
     return (
-      <Box sx={{ textAlign: "center", mt: 10 }}>
-        <CircularProgress sx={{ color: "#6f42c1" }} />
-      </Box>
+      <Loading />
     );
   }
 

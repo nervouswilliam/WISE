@@ -41,20 +41,36 @@ const getProductList = async(user_id) => {
 //     return response.data;
 // }
 
-const searchProduct = async(user, parameter) => {
-    const { data, error } = await supabase
+// const searchProduct = async(user, parameter) => {
+//     const { data, error } = await supabase
+//     .from('view_products')
+//     .select()
+//     .ilike('name', `%${parameter}%`)
+//     .eq('user_id', user.id);
+
+
+//     if (error) {
+//         console.error('Error fetching data:', error);
+//         return;
+//     }
+//     return data;
+// }
+
+const searchProduct = async (user, parameter) => {
+  const { data, error } = await supabase
     .from('view_products')
     .select()
-    .ilike('name', `%${parameter}%`)
+    .or(`name.ilike.%${parameter}%,id.ilike.%${parameter}%`)
     .eq('user_id', user.id);
 
+  if (error) {
+    console.error('Error fetching data:', error);
+    return [];
+  }
 
-    if (error) {
-        console.error('Error fetching data:', error);
-        return;
-    }
-    return data;
-}
+  return data;
+};
+
 
     // const getProductDetail = async (id) => {
     //     const response = await axios.get(
@@ -241,21 +257,27 @@ const addImageUrl = async (file, bucketName, fileName = null) => {
 //     );
 // }
 
-const addProductDetail = async(productData) => {
+const addProductDetail = async(productData, categoryData) => {
     const { data, error } = await supabase
         .from('products')
         .insert([productData]) 
         .select(); 
 
-    if (error) {
-        console.error("Error inserting product:", error);
-        throw error;
+    if (data && categoryData) {
+        const { error: categoryError } = await supabase
+            .from('categories_product')
+            .insert([{ product_id: data[0].id, category_id: categoryData.id }]);
+            if (categoryError) {
+                console.error("Error inserting product:", categoryError);
+                throw categoryError;
+            }
     }
 
     if (error) {
         console.error("Error inserting product:", error);
         throw error;
     }
+
 }
 
 const addProductCategory = async(category, productId) => {
@@ -297,18 +319,32 @@ const addProductCategory = async(category, productId) => {
 //     return response.data;
 // }
 
-const editProductDetail = async (id, productData) => {
+const editProductDetail = async (id, productData, categoryData) => {
     const { data, error } = await supabase
         .from('products')
         .update(productData)
         .eq('id', id)
         .eq('user_id', productData.user_id)
         .select();
+    console.log("categoryData", categoryData);
+    if (categoryData) {
+        console.log("Updating category for product:", id, categoryData);
+        const { error: categoryError } = await supabase
+            .from('categories_product')
+            .update({ category_id: categoryData.category_id })
+            .eq('product_id', id)
+            .eq('user_id', productData.user_id);
+            if (categoryError) {
+                console.error("Error updating product category:", categoryError);
+                throw categoryError;
+            }
+    }
 
     if (error) {
         console.error("Error updating product:", error);
         throw error;
     }
+
 
     return data;
 }
@@ -324,6 +360,36 @@ const deleteProduct = async (id) => {
     );
 }
 
+const getCategoryId = async(categoryName, user) => {
+    const { data, error } = await supabase
+        .from('categories')
+        .select()
+        .eq('name', categoryName)
+        .eq('user_id', user.id)
+        .single();
+
+    if (error) {
+        console.error("Error fetching category ID:", error);
+        return null;
+    }
+
+    return data.id;
+}
+
+const getProductSalesByCategory = async(user) => {
+    const { data, error } = await supabase
+        .from('view_category_sales')
+        .select()
+        .eq('user_id', user.id);
+
+    if (error) {
+        console.error("Error fetching product sales by category:", error);
+        return [];
+    }
+
+    return data;
+}
+
 export default {
     getProductList,
     searchProduct,
@@ -333,5 +399,7 @@ export default {
     addProductDetail,
     editProductDetail,
     deleteProduct,
-    addProductCategory
+    addProductCategory,
+    getProductSalesByCategory,
+    getCategoryId,
 }

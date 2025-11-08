@@ -18,6 +18,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import productService from '../services/productService'; 
 import transactionService from '../services/transactionService';
 import { supabase } from '../supabaseClient';
+import Loading from '../components/loading';
 
 function AddEditProductPage({ user }) {
     const { id } = useParams();
@@ -56,7 +57,7 @@ function AddEditProductPage({ user }) {
                     setProduct({
                         ...fetchedData,
                         imageUrl: fetchedData.image_url,
-                        category: fetchedData.category,
+                        category: fetchedData.category_name,
                     }); 
                 } catch (err) {
                     console.error("Error fetching product data: ", err);
@@ -135,6 +136,13 @@ function AddEditProductPage({ user }) {
                 user_id: userId,
             };
 
+            const categoryId = await productService.getCategoryId(product.category, user);
+
+            const categoryData = {
+                product_id: product.id,
+                category_id: categoryId
+            }
+
             const transactionData = {
                 transaction_type_id: transaction.transaction_type_id,
                 product_id: product.id,
@@ -150,13 +158,13 @@ function AddEditProductPage({ user }) {
             }
             
             if (isEditMode) {
-                await productService.editProductDetail(submissionData.id, submissionData);
+                await productService.editProductDetail(submissionData.id, submissionData, categoryData);
             } else {
-                await productService.addProductDetail(submissionData);
+                await productService.addProductDetail(submissionData, categoryData);
                 await transactionService.addTransaction(transactionData);
             }
             alert(`Product ${isEditMode ? 'updated' : 'added'} successfully!`);
-            navigate('/warehouse');
+            navigate(`/product/${submissionData.id}`);
         } catch (err) {
             console.error("Error submitting product data:", err);
             setError("Failed to save product. Please try again.");
@@ -167,9 +175,7 @@ function AddEditProductPage({ user }) {
 
     if (loading) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                <CircularProgress />
-            </Box>
+            <Loading />
         );
     }
 
