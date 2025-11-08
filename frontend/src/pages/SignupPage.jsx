@@ -73,49 +73,6 @@ function SignupPage() {
         }
     };
 
-
-    // const handleFileChange = (e) => {
-    //     const file = e.target.files[0];
-    //     if (file) {
-    //         handleImageUpload(file);
-    //     }
-    // };
-
-    // const handleImageUpload = (file) => {
-    //     if (!file) return;
-
-    //     const reader = new FileReader();
-    //     reader.readAsDataURL(file);
-
-    //     reader.onloadstart = () => setUploadingImage(true);
-
-    //     reader.onload = async () => {
-    //         const base64StringWithPrefix = reader.result;
-    //         const base64String = base64StringWithPrefix.split(',')[1];
-    //         try {
-    //             const response = await productService.addImageUrl(base64String);
-    //             const newImageUrl = response.output_schema["imageUrl"];
-
-    //             setFormData(prevFormData => ({
-    //                 ...prevFormData,
-    //                 imageUrl: newImageUrl,
-    //             }));
-    //             setError(null);
-    //             alert("Image uploaded successfully!");
-    //         } catch (err) {
-    //             console.error("Image upload failed:", err);
-    //             setError("Image upload failed. Please try again.");
-    //         } finally {
-    //             setUploadingImage(false);
-    //         }
-    //     };
-
-    //     reader.onerror = () => {
-    //         setUploadingImage(false);
-    //         setError("An error occurred while reading the file.");
-    //     };
-    // };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -123,11 +80,6 @@ function SignupPage() {
             alert("Please wait for the image to finish uploading.");
             return;
         }
-        
-        // if (!formData.imageUrl) {
-        //     setError("Please upload a profile picture.");
-        //     return;
-        // }
 
         try {
             await authService.signup(formData);
@@ -166,22 +118,6 @@ function SignupPage() {
                 <Typography variant="h4" component="h1" align="center" gutterBottom>
                     Create an Account
                 </Typography>
-
-                {/* <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                    <Avatar
-                        src={formData.imageUrl}
-                        sx={{ width: 100, height: 100 }}
-                    />
-                    <Button
-                        component="label"
-                        variant="outlined"
-                        startIcon={uploadingImage ? <CircularProgress size={20} /> : <PhotoCameraIcon />}
-                        disabled={uploadingImage}
-                    >
-                        {uploadingImage ? 'Uploading...' : 'Upload Profile Picture'}
-                        <VisuallyHiddenInput type="file" accept="image/*" onChange={handleFileChange} />
-                    </Button>
-                </Box> */}
                 {error && <Alert severity="error">{error}</Alert>}
 
                 <TextField

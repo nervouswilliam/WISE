@@ -112,11 +112,38 @@ const updateUser = async(user) =>{
     return data;
 }
 
+const changeEmail = async (newEmail) => {
+  const { data, error } = await supabase.auth.updateUser(
+    { email: newEmail },
+  );
+  if (error) throw error;
+  return data;
+};
+
+const resetPassword = async(email) => {
+  console.log("url:", import.meta.env.VITE_APP_URL)
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${import.meta.env.VITE_APP_URL}/reset-password`,
+  });
+
+  if (error) throw error;
+  return data;
+};
+
+const deleteAccount = async() => {
+  const { error } = await supabase.auth.deleteUser();
+
+  if (error) throw error;
+};
+
 export default {
   login,
   logout,
   signup,
   whoami,
+  resetPassword,
   validateToken,
-  updateUser, 
+  updateUser,
+  deleteAccount,
+  changeEmail
 };
