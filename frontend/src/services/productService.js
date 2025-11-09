@@ -257,7 +257,7 @@ const addImageUrl = async (file, bucketName, fileName = null) => {
 //     );
 // }
 
-const addProductDetail = async(productData, categoryData) => {
+const addProductDetail = async(productData, categoryData, supplierData) => {
     const { data, error } = await supabase
         .from('products')
         .insert([productData]) 
@@ -266,11 +266,21 @@ const addProductDetail = async(productData, categoryData) => {
     if (data && categoryData) {
         const { error: categoryError } = await supabase
             .from('categories_product')
-            .insert([{ product_id: data[0].id, category_id: categoryData.id }]);
+            .insert([{ product_id: data[0].id, category_id: categoryData.supplier_id }]);
             if (categoryError) {
                 console.error("Error inserting product:", categoryError);
                 throw categoryError;
             }
+    }
+
+    if (supplierData){
+        const {error: supplierError} = await supabase
+            .from('supplier_product')
+            .insert([{product_id: data[0].id, supplier_id: supplierData.supplier_id}])
+        if (supplierError) {
+            console.error("Error inserting supplier product:", supplierError);
+            throw supplierError;
+        }
     }
 
     if (error) {
@@ -319,7 +329,7 @@ const addProductCategory = async(category, productId) => {
 //     return response.data;
 // }
 
-const editProductDetail = async (id, productData, categoryData) => {
+const editProductDetail = async (id, productData, categoryData, supplierData) => {
     const { data, error } = await supabase
         .from('products')
         .update(productData)
@@ -337,6 +347,18 @@ const editProductDetail = async (id, productData, categoryData) => {
             if (categoryError) {
                 console.error("Error updating product category:", categoryError);
                 throw categoryError;
+            }
+    }
+
+    if (supplierData){
+        const { error: supplierError } = await supabase
+            .from('supplier_product')
+            .update({ supplier_id: supplierData.supplier_id })
+            .eq('product_id', id)
+            .eq('user_id', productData.user_id);
+            if (supplierError) {
+                console.error("Error updating product supplier:", supplierError);
+                throw supplierError;
             }
     }
 

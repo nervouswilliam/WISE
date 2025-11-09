@@ -36,6 +36,22 @@ const getSupplierDetail = async (id) => {
     return { data, error };
 };
 
+const getSupplierId = async(supplierName, user) => {
+    const { data, error } = await supabase
+        .from('suppliers')
+        .select()
+        .eq('name', supplierName)
+        .eq('user_id', user.id)
+        .single();
+
+    if (error) {
+        console.error("Error fetching category ID:", error);
+        return null;
+    }
+
+    return data.id;
+}
+
 const deleteSupplier = async (id) => {
     const { data, error } = await supabase
         .from('suppliers')
@@ -50,5 +66,6 @@ export default {
     addSupplier,
     getSupplierDetail,
     getSupplierList,
-    deleteSupplier
+    getSupplierId,
+    deleteSupplier,
 };

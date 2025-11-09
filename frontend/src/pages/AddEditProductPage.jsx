@@ -9,7 +9,9 @@ import {
     Grid,
     CircularProgress,
     Alert,
-    Autocomplete
+    Autocomplete,
+    Select,
+    MenuItem
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import AddIcon from '@mui/icons-material/Add';
@@ -19,6 +21,7 @@ import productService from '../services/productService';
 import transactionService from '../services/transactionService';
 import { supabase } from '../supabaseClient';
 import Loading from '../components/loading';
+import supplierService from '../services/supplierService';
 
 function AddEditProductPage({ user }) {
     const { id } = useParams();
@@ -32,6 +35,7 @@ function AddEditProductPage({ user }) {
         stock: 0,
         category: '',
         imageUrl: '',
+        supplier:'',
     });
 
     const [transaction, setTransaction] = useState({
@@ -43,6 +47,7 @@ function AddEditProductPage({ user }) {
     const [error, setError] = useState(null);
     const [categories, setCategories] = useState([]);
     const [uploadingImage, setUploadingImage] = useState(false);
+    const [supplier, setSupplier] = useState([]);
 
     const isEditMode = id !== undefined;
 
@@ -58,6 +63,7 @@ function AddEditProductPage({ user }) {
                         ...fetchedData,
                         imageUrl: fetchedData.image_url,
                         category: fetchedData.category_name,
+                        supplier: fetchedData.supplier_name,
                     }); 
                 } catch (err) {
                     console.error("Error fetching product data: ", err);
@@ -84,6 +90,19 @@ function AddEditProductPage({ user }) {
         };
         fetchCategories();
     }, []);
+
+    useEffect(() => {
+        const fetchSuppliers = async () => {
+            try{
+                const suppliers = await supplierService.getSupplierList(user);
+                setSupplier(suppliers.data);
+                console.log("supplier:", suppliers.data);
+            } catch (err){
+                console.error("Error Fetching Suppliers", err);
+            }
+        };
+        fetchSuppliers();
+    }, [])
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -143,6 +162,12 @@ function AddEditProductPage({ user }) {
                 category_id: categoryId
             }
 
+            const supplierId = await supplierService.getSupplierId(product.supplier, user);
+            const supplierData = {
+                product_id: product.id,
+                supplier_id: supplierId,
+            }
+
             const transactionData = {
                 transaction_type_id: transaction.transaction_type_id,
                 product_id: product.id,
@@ -158,9 +183,9 @@ function AddEditProductPage({ user }) {
             }
             
             if (isEditMode) {
-                await productService.editProductDetail(submissionData.id, submissionData, categoryData);
+                await productService.editProductDetail(submissionData.id, submissionData, categoryData, supplierData);
             } else {
-                await productService.addProductDetail(submissionData, categoryData);
+                await productService.addProductDetail(submissionData, categoryData, supplierData);
                 await transactionService.addTransaction(transactionData);
             }
             alert(`Product ${isEditMode ? 'updated' : 'added'} successfully!`);
@@ -337,10 +362,30 @@ function AddEditProductPage({ user }) {
                                     label="Category"
                                     required
                                     name="category"
-                                    sx={{ mr: 10 }}
+                                    sx={{ mr: 10, width:220 }}
                                 />
                             )}
                         />
+                    </Grid>
+
+                    {/* Supplier */}
+                    <Grid item xs={12} md={6}>
+                        <Select
+                        value={product.supplier || "Supplier"}
+                        label="Supplier"
+                        onChange={(event, newValue) => {setProduct(
+                            prevProduct => ({
+                                ...prevProduct,
+                                supplier: newValue,
+                            })                            
+                        )}}
+                        sx={{width:220}}>
+                            {supplier.map((s) => (
+                                <MenuItem value={s.name}>
+                                    {s.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
                     </Grid>
 
                     {/* Reason */}

@@ -153,6 +153,9 @@ function ProductDetailPage({user}) {
                             <strong>Category:</strong> {product.category_name || 'Electronics'}
                         </Typography>
                         <Typography variant="subtitle1" gutterBottom>
+                            <strong>Supplier:</strong> {product.supplier_name || 'Electronics'}
+                        </Typography>
+                        <Typography variant="subtitle1" gutterBottom>
                             <strong>Availability:</strong> {product.stock > 0 ? `${product.stock} In Stock` : 'Out of Stock'}
                         </Typography>
 
