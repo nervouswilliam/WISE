@@ -202,7 +202,10 @@ function SupplierPage({user}) {
 
     const handleExportClick = () => {
         const headers = ['Name', 'Phone Number', 'Email'];
-        const rows = suppliers.map(item => [item.name, item.phoneNumber, item.email].join(','));
+        const rows = suppliers.map(supplier => {
+            const formattedPhone = `(${supplier.country_code}) ${supplier.phone}`;
+            return [supplier.name, formattedPhone, supplier.email].join(',');
+        });
         const csvContent = "data:text/csv;charset=utf-8," + headers.join(',') + "\n" + rows.join('\n');
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");

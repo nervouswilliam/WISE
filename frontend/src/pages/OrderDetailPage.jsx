@@ -11,11 +11,11 @@ import {
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import orderService from "../services/orderService";
+import productService from "../services/productService";
 import Loading from "../components/loading";
 import StatusPill from "../components/StatusPill";
 import DynamicTable from "../components/DynamicTable";
-import productService from "../services/productService";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 function OrderDetailPage({ user }) {
   const { id } = useParams();
@@ -59,17 +59,19 @@ function OrderDetailPage({ user }) {
     setOrderItems(updated);
   };
 
-  // Receive all
+  // ✅ Receive remaining quantities only
   const handleReceiveAll = () => {
-    const updated = orderItems.map((item) => ({
-      ...item,
-      quantity_received: item.quantity_ordered,
-    }));
+    const updated = orderItems.map((item) => {
+      const remaining = item.quantity_ordered - (item.quantity_received || 0);
+      return {
+        ...item,
+        quantity_received: item.quantity_received + remaining,
+      };
+    });
     setOrderItems(updated);
   };
-  const handleBackClick = () =>{
-        navigate(-1);
-    }
+
+  const handleBackClick = () => navigate(-1);
 
   // Update order
   const handleUpdate = async () => {
@@ -97,11 +99,13 @@ function OrderDetailPage({ user }) {
 
       await orderService.updateOrderItems(updatedOrder.id, updatedOrder, user);
 
-      const newStock = Number(orderHeader.stock) + Number(orderItems[0].quantity_received);
+      const newStock =
+        Number(orderHeader.stock) + Number(orderItems[0].quantity_received);
       await productService.editProductDetail(orderHeader.product_id, {
-          stock: newStock,
-          user_id: user.id,
-        });
+        stock: newStock,
+        user_id: user.id,
+      });
+
       alert("Order updated successfully!");
       window.location.reload();
     } catch (err) {
@@ -123,15 +127,134 @@ function OrderDetailPage({ user }) {
     }
   };
 
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    const currentDate = new Date().toLocaleString();
+
+    const receiptHTML = `
+      <html>
+        <head>
+          <title>Order Receipt</title>
+          <style>
+            body {
+              font-family: 'Arial', sans-serif;
+              padding: 20px;
+              color: #333;
+            }
+            h1, h2, h3 {
+              text-align: center;
+              margin: 0;
+            }
+            .header {
+              margin-bottom: 20px;
+            }
+            .info {
+              margin-bottom: 20px;
+              line-height: 1.6;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 10px;
+            }
+            th, td {
+              border: 1px solid #ddd;
+              padding: 8px;
+              text-align: center;
+            }
+            th {
+              background-color: #6f42c1;
+              color: white;
+            }
+            tfoot td {
+              font-weight: bold;
+            }
+            .footer {
+              text-align: center;
+              margin-top: 30px;
+              font-size: 14px;
+              color: #555;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Order Receipt</h1>
+            <p>Generated on: ${currentDate}</p>
+          </div>
+
+          <div class="info">
+            <strong>Supplier:</strong> ${orderHeader.supplier_name}<br>
+            <strong>Status:</strong> ${orderHeader.status}<br>
+            <strong>Expected Arrival:</strong> ${orderHeader.expected_arrival || "—"}<br>
+            <strong>Actual Arrival:</strong> ${orderHeader.actual_arrival || "—"}<br>
+            <strong>Created At:</strong> ${new Date(orderHeader.created_at).toLocaleString()}
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Qty Ordered</th>
+                <th>Qty Received</th>
+                <th>Unit Price</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${orderItems
+                .map(
+                  (item) => `
+                <tr>
+                  <td>${item.product_name}</td>
+                  <td>${item.category_name}</td>
+                  <td>${item.quantity_ordered}</td>
+                  <td>${item.quantity_received ?? 0}</td>
+                  <td>${item.unit_price}</td>
+                  <td>${item.subtotal}</td>
+                </tr>
+              `
+                )
+                .join('')}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5">Total</td>
+                <td>
+                  ${orderItems.reduce(
+                    (sum, item) => sum + parseFloat(item.subtotal || 0),
+                    0
+                  ).toFixed(2)}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div class="footer">
+            <p>Thank you for your business!</p>
+          </div>
+
+          <script>
+            window.onload = () => window.print();
+          </script>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(receiptHTML);
+    printWindow.document.close();
+  };
+
+
   if (loading) return <Loading />;
   if (error) return <Alert severity="error">{error}</Alert>;
   if (!orderHeader) return null;
 
-  // Disable controls if status is Done or Cancelled
   const isDisabled =
     orderHeader.status === "Done" || orderHeader.status === "Cancelled";
 
-  // Define table columns
+  // ✅ Columns updated to include Remaining Quantity
   const columns = [
     { field: "product_name", label: "Product Name", sortable: true },
     { field: "category_name", label: "Category", sortable: true },
@@ -151,21 +274,33 @@ function OrderDetailPage({ user }) {
         />
       ),
     },
+    {
+      field: "remaining_quantity",
+      label: "Remaining Qty",
+      render: (_, row) =>
+        row.quantity_ordered - (row.quantity_received || 0),
+    },
     { field: "unit_price", label: "Unit Price", sortable: true },
     { field: "subtotal", label: "Subtotal", sortable: true },
   ];
+
+  // Compute with remaining quantity
+  const rowsWithRemaining = orderItems.map((item) => ({
+    ...item,
+    remaining_quantity: item.quantity_ordered - (item.quantity_received || 0),
+  }));
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       {/* Back Button */}
       <Button
         variant="contained"
-        startIcon= {<ArrowBackIcon/>}
-        sx={{ backgroundColor: "#6f42c1" }}
+        startIcon={<ArrowBackIcon />}
+        sx={{ backgroundColor: "#6f42c1", mb: 2 }}
         onClick={handleBackClick}
-        >
-            Back
-        </Button>
+      >
+        Back
+      </Button>
 
       <Paper sx={{ p: 3, mb: 3 }}>
         <Typography variant="h5" gutterBottom>
@@ -201,7 +336,7 @@ function OrderDetailPage({ user }) {
 
       <DynamicTable
         columns={columns}
-        rows={orderItems}
+        rows={rowsWithRemaining}
         rowsPerPageOptions={[5, 10]}
       />
 
@@ -212,7 +347,7 @@ function OrderDetailPage({ user }) {
           onClick={handleReceiveAll}
           disabled={isDisabled}
         >
-          Receive All
+          Receive Remaining
         </Button>
 
         <Box>
@@ -232,6 +367,15 @@ function OrderDetailPage({ user }) {
           >
             Cancel
           </Button>
+          <Button
+            variant="contained"
+            sx={{ backgroundColor: "green", mr: 1 }}
+            color="success"
+            onClick={handlePrint}
+          >
+            Print Receipt
+          </Button>
+
         </Box>
       </Box>
     </Container>

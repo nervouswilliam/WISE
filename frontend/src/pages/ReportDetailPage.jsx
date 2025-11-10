@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   Grid,
-  CircularProgress,
   Alert,
   Divider,
   Button,
@@ -14,11 +13,12 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import transactionService from "../services/transactionService";
 import DynamicTable from "../components/DynamicTable";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import PrintIcon from "@mui/icons-material/Print";
 import Loading from "../components/loading";
 
 function ReportDetailPage({ user }) {
-  const { id } = useParams(); // transaction_id from URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const [transactionDetails, setTransactionDetails] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,60 +50,180 @@ function ReportDetailPage({ user }) {
     fetchTransactionDetails();
   }, [id, user]);
 
-  if (loading) {
-    return (
-      <Loading />
-    );
-  }
+  if (loading) return <Loading />;
 
-  if (error) {
+  if (error)
     return (
       <Container sx={{ mt: 4 }}>
         <Alert severity="error">{error}</Alert>
       </Container>
     );
-  }
 
-  if (!transactionDetails.length) {
+  if (!transactionDetails.length)
     return (
       <Container sx={{ mt: 4 }}>
         <Alert severity="info">No details found for this transaction.</Alert>
       </Container>
     );
-  }
 
-  const handleBackClick = () =>{
-        navigate(-1);
-    }
+  const handleBackClick = () => navigate(-1);
 
-  const transaction = transactionDetails[0]; // all rows share same transaction_id
+  const transaction = transactionDetails[0];
   const totalAmount = transactionDetails.reduce((sum, item) => sum + item.subtotal, 0);
 
   const columns = [
     { field: "product_id", label: "Product ID" },
     { field: "product_name", label: "Product Name" },
     { field: "quantity", label: "Quantity" },
-    { field: "price_per_unit", label: "Price per Unit", render: (value) => formatCurrency(value) },
-    { field: "subtotal", label: "Subtotal", render: (value) => formatCurrency(value) },
+    { field: "price_per_unit", label: "Price per Unit", render: (v) => formatCurrency(v) },
+    { field: "subtotal", label: "Subtotal", render: (v) => formatCurrency(v) },
     { field: "payment_method", label: "Payment Method" },
   ];
 
+  // 🧾 Print Receipt Function
+  const handlePrint = () => {
+    const printWindow = window.open("", "_blank");
+    const currentDate = new Date().toLocaleString();
+
+    const receiptHTML = `
+      <html>
+        <head>
+          <title>Transaction Receipt</title>
+          <style>
+            body {
+              font-family: 'Arial', sans-serif;
+              padding: 20px;
+              color: #333;
+            }
+            h1, h2, h3 {
+              text-align: center;
+              margin: 0;
+            }
+            .header {
+              margin-bottom: 20px;
+            }
+            .info {
+              margin-bottom: 20px;
+              line-height: 1.6;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 10px;
+            }
+            th, td {
+              border: 1px solid #ddd;
+              padding: 8px;
+              text-align: center;
+            }
+            th {
+              background-color: #6f42c1;
+              color: white;
+            }
+            tfoot td {
+              font-weight: bold;
+            }
+            .footer {
+              text-align: center;
+              margin-top: 30px;
+              font-size: 14px;
+              color: #555;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Transaction Receipt</h1>
+            <p>Generated on: ${currentDate}</p>
+          </div>
+
+          <div class="info">
+            <strong>Transaction ID:</strong> ${transaction.transaction_id}<br>
+            <strong>User ID:</strong> ${transaction.user_id}<br>
+            <strong>Payment Method:</strong> ${transaction.payment_method}<br>
+            <strong>Date:</strong> ${new Date(transaction.created_at).toLocaleString()}<br>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${transactionDetails
+                .map(
+                  (item) => `
+                <tr>
+                  <td>${item.product_name}</td>
+                  <td>${item.quantity}</td>
+                  <td>${formatCurrency(item.price_per_unit)}</td>
+                  <td>${formatCurrency(item.subtotal)}</td>
+                </tr>`
+                )
+                .join("")}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3">Total</td>
+                <td>${formatCurrency(totalAmount)}</td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div class="footer">
+            <p>Thank you for your purchase!</p>
+          </div>
+
+          <script>
+            window.onload = () => window.print();
+          </script>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(receiptHTML);
+    printWindow.document.close();
+  };
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+      {/* Header with Buttons */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
         <Typography variant="h5" sx={{ fontWeight: "bold" }}>
           Transaction Details
         </Typography>
-        <Button
-        variant="contained"
-        startIcon= {<ArrowBackIcon/>}
-        sx={{ backgroundColor: "#6f42c1" }}
-        onClick={handleBackClick}
-        >
+        <Box>
+          <Button
+            variant="outlined"
+            startIcon={<PrintIcon />}
+            onClick={handlePrint}
+            sx={{ color: "#6f42c1", borderColor: "#6f42c1", mr: 1 }}
+          >
+            Print Receipt
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<ArrowBackIcon />}
+            sx={{ backgroundColor: "#6f42c1" }}
+            onClick={handleBackClick}
+          >
             Back
-        </Button>
+          </Button>
+        </Box>
       </Box>
 
+      {/* Transaction Info */}
       <Card sx={{ mb: 3, boxShadow: 3 }}>
         <CardContent>
           <Grid container spacing={2}>
@@ -120,15 +240,13 @@ function ReportDetailPage({ user }) {
         </CardContent>
       </Card>
 
+      {/* Item Table */}
       <Typography variant="h6" sx={{ mb: 2 }}>
         Items
       </Typography>
       <Divider sx={{ mb: 2 }} />
 
-      <DynamicTable
-        columns={columns}
-        rows={transactionDetails}
-      />
+      <DynamicTable columns={columns} rows={transactionDetails} />
     </Container>
   );
 }

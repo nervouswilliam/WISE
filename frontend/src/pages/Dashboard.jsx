@@ -151,8 +151,26 @@ function DashboardPage({ user }) {
   };
 
   const handleGenerateReport = () => {
-    // Implement report generation logic here
-    alert("Report generation feature is pending implementation.");
+    const headers = ['ID', 'Total (Rp)', 'Type', 'Date'];
+    const rows = recentTransactions.map(t => {
+        const formattedTotal = formatCurrency(t.total_amount);
+        const formattedDate = new Date(t.created_at).toLocaleDateString('id-ID');
+        return [t.transaction_id, formattedTotal, t.transaction_type, formattedDate].join(',');
+    });
+
+    const csvContent =
+        "data:text/csv;charset=utf-8," +
+        headers.join(',') +
+        "\n" +
+        rows.join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "recent_transactions.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (loading) {
