@@ -1,103 +1,3 @@
-// import React, { useState } from "react";
-// import {
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableContainer,
-//   TableHead,
-//   TableRow,
-//   TableSortLabel,
-//   Paper,
-//   TablePagination,
-//   Button,
-//   Box // Import Box
-// } from "@mui/material";
-// // ... other imports
-
-// function DynamicTable({ columns, rows, actions, rowsPerPageOptions = [5, 10, 25] }) {
-//   const [orderBy, setOrderBy] = useState("");
-//   const [order, setOrder] = useState("asc");
-//   const [page, setPage] = useState(0);
-//   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
-
-//   const handleSort = (field) => {
-//     const isAsc = orderBy === field && order === "asc";
-//     setOrder(isAsc ? "desc" : "asc");
-//     setOrderBy(field);
-//   };
-
-//   const sortedRows = [...rows].sort((a, b) => {
-//     if (!orderBy) return 0; // no sorting
-//     if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
-//     if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
-//     return 0;
-//   });
-
-//   const handleChangePage = (event, newPage) => {
-//     setPage(newPage);
-//   };
-
-//   const handleChangeRowsPerPage = (event) => {
-//     setRowsPerPage(parseInt(event.target.value, 10));
-//     setPage(0);
-//   };
-
-//   const paginatedRows = sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
-//   return (
-//     // Wrap the entire component in a Box that can grow
-//     <Paper sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-//         <TableContainer sx={{ flexGrow: 1 }}> {/* The TableContainer must also grow */}
-//           <Table>
-//             <TableHead>
-//               <TableRow>
-//                 {columns.map((col) => (
-//                   <TableCell key={col.field}>
-//                     {col.sortable ? (
-//                       <TableSortLabel
-//                         active={orderBy === col.field}
-//                         direction={orderBy === col.field ? order : "asc"}
-//                         onClick={() => handleSort(col.field)}
-//                       >
-//                         {col.label}
-//                       </TableSortLabel>
-//                     ) : (
-//                       col.label
-//                     )}
-//                   </TableCell>
-//                 ))}
-//                 {actions && <TableCell>Actions</TableCell>}
-//               </TableRow>
-//             </TableHead>
-//             <TableBody>
-//               {paginatedRows.map((row, index) => (
-//                 <TableRow key={index}>
-//                   {columns.map((col) => (
-//                     <TableCell key={col.field}>
-//                       {col.render ? col.render(row[col.field], row) : row[col.field]}
-//                     </TableCell>
-//                   ))}
-//                   {actions && <TableCell>{actions(row)}</TableCell>}
-//                 </TableRow>
-//               ))}
-//             </TableBody>
-//           </Table>
-//         </TableContainer>
-//         <TablePagination
-//           component="div"
-//           count={rows.length}
-//           page={page}
-//           onPageChange={handleChangePage}
-//           rowsPerPage={rowsPerPage}
-//           onRowsPerPageChange={handleChangeRowsPerPage}
-//           rowsPerPageOptions={rowsPerPageOptions}
-//         />
-//     </Paper>
-//   );
-// }
-
-// export default DynamicTable;
-
 import React, { useState } from "react";
 import {
   Table,
@@ -109,7 +9,6 @@ import {
   TableSortLabel,
   Paper,
   TablePagination,
-  Button,
   Box,
   Typography,
   useMediaQuery,
@@ -132,18 +31,15 @@ function DynamicTable({ columns, rows, actions, rowsPerPageOptions = [5, 10, 25]
   };
 
   const sortedRows = [...rows].sort((a, b) => {
-    if (!orderBy) return 0; // no sorting
+    if (!orderBy) return 0;
     if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
     if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
     return 0;
   });
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+  const handleChangePage = (_, newPage) => setPage(newPage);
+  const handleChangeRowsPerPage = (e) => {
+    setRowsPerPage(parseInt(e.target.value, 10));
     setPage(0);
   };
 
@@ -152,7 +48,13 @@ function DynamicTable({ columns, rows, actions, rowsPerPageOptions = [5, 10, 25]
     page * rowsPerPage + rowsPerPage
   );
 
-  // 📱 Mobile view: show card layout
+  // Helper to truncate long values (like UUIDs)
+  const truncate = (text, length = 12) => {
+    if (typeof text !== "string") return text;
+    return text.length > length ? `${text.slice(0, length)}...` : text;
+  };
+
+  // 📱 Mobile view: card layout
   if (isMobile) {
     return (
       <Box>
@@ -175,11 +77,17 @@ function DynamicTable({ columns, rows, actions, rowsPerPageOptions = [5, 10, 25]
                   mb: 1,
                 }}
               >
-                <Typography variant="body2" fontWeight="bold" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  fontWeight="bold"
+                  color="text.secondary"
+                >
                   {col.label}
                 </Typography>
-                <Typography variant="body2">
-                  {col.render ? col.render(row[col.field], row) : row[col.field]}
+                <Typography variant="body2" sx={{ wordBreak: "break-all" }}>
+                  {col.render
+                    ? col.render(row[col.field], row)
+                    : truncate(row[col.field])}
                 </Typography>
               </Box>
             ))}
@@ -210,7 +118,7 @@ function DynamicTable({ columns, rows, actions, rowsPerPageOptions = [5, 10, 25]
     );
   }
 
-  // 🖥️ Desktop view: standard table
+  // 🖥️ Desktop view: sticky column + sticky header
   return (
     <Paper
       sx={{
@@ -220,22 +128,23 @@ function DynamicTable({ columns, rows, actions, rowsPerPageOptions = [5, 10, 25]
         overflow: "hidden",
       }}
     >
-      <TableContainer
-        sx={{
-          flexGrow: 1,
-          overflowX: "auto", // Enables horizontal scroll on smaller laptops
-        }}
-      >
-        <Table size="medium" stickyHeader>
+      <TableContainer sx={{ flexGrow: 1, overflowX: "auto" }}>
+        <Table stickyHeader sx={{ tableLayout: "fixed", minWidth: 600 }}>
           <TableHead>
             <TableRow>
-              {columns.map((col) => (
+              {columns.map((col, idx) => (
                 <TableCell
                   key={col.field}
                   sx={{
                     whiteSpace: "nowrap",
                     fontWeight: "bold",
                     fontSize: "0.95rem",
+                    backgroundColor: theme.palette.background.paper,
+                    ...(idx === 0 && {
+                      position: "sticky",
+                      left: 0,
+                      zIndex: 2,
+                    }),
                   }}
                 >
                   {col.sortable ? (
@@ -252,21 +161,41 @@ function DynamicTable({ columns, rows, actions, rowsPerPageOptions = [5, 10, 25]
                 </TableCell>
               ))}
               {actions && (
-                <TableCell sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}>
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    whiteSpace: "nowrap",
+                    backgroundColor: theme.palette.background.paper,
+                  }}
+                >
                   Actions
                 </TableCell>
               )}
             </TableRow>
           </TableHead>
+
           <TableBody>
             {paginatedRows.map((row, index) => (
               <TableRow hover key={index}>
-                {columns.map((col) => (
+                {columns.map((col, idx) => (
                   <TableCell
                     key={col.field}
-                    sx={{ fontSize: "0.9rem", whiteSpace: "nowrap" }}
+                    sx={{
+                      fontSize: "0.9rem",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      ...(idx === 0 && {
+                        position: "sticky",
+                        left: 0,
+                        backgroundColor: theme.palette.background.paper,
+                        zIndex: 1,
+                      }),
+                    }}
                   >
-                    {col.render ? col.render(row[col.field], row) : row[col.field]}
+                    {col.render
+                      ? col.render(row[col.field], row)
+                      : truncate(row[col.field])}
                   </TableCell>
                 ))}
                 {actions && <TableCell>{actions(row)}</TableCell>}
