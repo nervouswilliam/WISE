@@ -185,7 +185,7 @@ function PaymentOptions({user, cartItems,totals}) {
             onChange={(e) => setCashReceived(e.target.value)}
           />
           <Typography sx={{ mt: 1 }}>
-            Change: Rp {Math.max(0, Number(cashReceived) - Number(totalAmount)).toLocaleString()}
+            Change: Rp {Math.max(0, Number(cashReceived) - Number(totals.total)).toLocaleString()}
           </Typography>
         </Box>
       )}

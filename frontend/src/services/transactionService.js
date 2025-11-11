@@ -73,7 +73,8 @@ const getSalesTransactions = async(user) => {
       .from('view_transaction')
       .select()
       .eq('user_id', user.id)
-      .eq('transaction_type', 'sale');
+      .eq('transaction_type', 'sale')
+      .order("created_at", {ascending:true});
 
     if (error) {
         console.error('Error fetching sales transactions:', error);

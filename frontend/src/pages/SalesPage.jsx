@@ -69,6 +69,21 @@ function SalesPage({ user }) {
         setCartItems(cartItems.filter(item => item.id !== productId));
     };
 
+    const handleUpdateQty = (productId, newQty) => {
+        if (newQty < 1) return; // prevent zero or negative qty
+
+        setCartItems(prevItems =>
+            prevItems.map(item =>
+                item.id === productId
+                    ? {
+                        ...item,
+                        qty: newQty,
+                        subtotal: newQty * item.selling_price,
+                    }
+                    : item
+            )
+        );
+    };
     return (
         <Container
             maxWidth="xl"
@@ -120,6 +135,7 @@ function SalesPage({ user }) {
                         <CartTable
                             cartItems={cartItems}
                             onRemoveItem={handleRemoveFromCart}
+                            onUpdateQty={handleUpdateQty}
                         />
                     </Box>
                 </Box>
