@@ -36,6 +36,7 @@ function AddEditProductPage({ user }) {
         category: '',
         imageUrl: '',
         supplier:'',
+        low_stock:0,
     });
 
     const [transaction, setTransaction] = useState({
@@ -152,17 +153,23 @@ function AddEditProductPage({ user }) {
                 selling_price: parseInt(product.selling_price, 10),
                 stock: parseInt(product.stock, 10),
                 image_url: product.imageUrl,
+                low_stock:product.low_stock,
                 user_id: userId,
             };
 
+            console.log("category", product.category);
+
             const categoryId = await productService.getCategoryId(product.category, user);
 
+            console.log("categoryId", categoryId);
+            
             const categoryData = {
                 product_id: product.id,
-                category_id: categoryId
+                category_id: categoryId,
             }
-
+            
             const supplierId = await supplierService.getSupplierId(product.supplier, user);
+            console.log("supplierId", supplierId);
             const supplierData = {
                 product_id: product.id,
                 supplier_id: supplierId,
@@ -179,6 +186,7 @@ function AddEditProductPage({ user }) {
 
             const existingCategory = categories.find(cat => cat.name === product.category);
             if (!existingCategory) {
+                console.log("masuk sini ngentot")
                 await productService.addProductCategory(product.category, submissionData.id);
             }
             
@@ -335,6 +343,19 @@ function AddEditProductPage({ user }) {
                         />
                     </Grid>
 
+                    {/* Low Stock */}
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            label="Low Stock"
+                            name="low_stock"
+                            type="number"
+                            value={product.low_stock}
+                            onChange={handleChange}
+                            required
+                        />
+                    </Grid>
+
                     {/* Category */}
                     <Grid item xs={12} md={6}>
                         <Autocomplete
@@ -373,10 +394,10 @@ function AddEditProductPage({ user }) {
                         <Select
                         value={product.supplier || "Supplier"}
                         label="Supplier"
-                        onChange={(event, newValue) => {setProduct(
+                        onChange={(event) => {setProduct(
                             prevProduct => ({
                                 ...prevProduct,
-                                supplier: newValue,
+                                supplier: event.target.value,
                             })                            
                         )}}
                         sx={{width:220}}>

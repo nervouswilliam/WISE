@@ -266,7 +266,7 @@ const addProductDetail = async(productData, categoryData, supplierData) => {
     if (data && categoryData) {
         const { error: categoryError } = await supabase
             .from('categories_product')
-            .insert([{ product_id: data[0].id, category_id: categoryData.supplier_id }]);
+            .insert([{ product_id: data[0].id, category_id: categoryData.category_id, user_id: productData.user_id }]);
             if (categoryError) {
                 console.error("Error inserting product:", categoryError);
                 throw categoryError;
@@ -276,7 +276,7 @@ const addProductDetail = async(productData, categoryData, supplierData) => {
     if (supplierData){
         const {error: supplierError} = await supabase
             .from('supplier_product')
-            .insert([{product_id: data[0].id, supplier_id: supplierData.supplier_id}])
+            .insert([{product_id: data[0].id, supplier_id: supplierData.supplier_id, user_id: productData.user_id}])
         if (supplierError) {
             console.error("Error inserting supplier product:", supplierError);
             throw supplierError;
@@ -371,15 +371,15 @@ const editProductDetail = async (id, productData, categoryData, supplierData) =>
     return data;
 }
 
-const deleteProduct = async (id) => {
-    const response = await axios.delete(
-        `${BASE_URL}/products/${id}`,
-        {
-            headers:{
-                "Authorization": localStorage.getItem("token")
-            }
-        }
-    );
+const deleteProduct = async(id, user) => {
+    const {data, error} = await supabase
+        .from("products")
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id);
+    if (error){
+        console.log("Error delete Data", error)
+    }
 }
 
 const getCategoryId = async(categoryName, user) => {

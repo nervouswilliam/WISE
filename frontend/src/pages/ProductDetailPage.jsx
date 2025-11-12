@@ -205,10 +205,10 @@ function ProductDetailPage({user}) {
                                 </Button>
                                 <Button onClick={() => {
                                     // Your delete logic goes here
-                                    // Example: productService.deleteProduct(product.id);
-                                    productService.deleteProduct(product.id)
+                                    productService.deleteProduct(product.id, user);
                                     alert(`Product ${product.name} has been deleted!`);
                                     handleCloseDialog();
+                                    navigate("/warehouse")
                                 }} color="white" autoFocus sx={{backgroundColor:"Red"}}>
                                     Delete
                                 </Button>

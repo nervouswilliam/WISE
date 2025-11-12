@@ -24,22 +24,23 @@ import { supabase } from '../supabaseClient';
 import { useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import Loading from '../components/loading';
+import KpiCard from '../components/KpiCard';
 
 // --- Custom/Helper Components for better presentation ---
 
 // Reusable KPI Card component
-const KpiCard = ({ title, value, color }) => (
-    <Card sx={{ height: '100%', boxShadow: 3 }}>
-        <CardContent>
-            <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                {title}
-            </Typography>
-            <Typography variant="h4" sx={{ color: color || 'inherit' }}>
-                {value}
-            </Typography>
-        </CardContent>
-    </Card>
-);
+// const KpiCard = ({ title, value, color }) => (
+//     <Card sx={{ height: '100%', boxShadow: 3 }}>
+//         <CardContent>
+//             <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+//                 {title}
+//             </Typography>
+//             <Typography variant="h4" sx={{ color: color || 'inherit' }}>
+//                 {value}
+//             </Typography>
+//         </CardContent>
+//     </Card>
+// );
 
 
 // --- Main Dashboard Component ---
@@ -194,7 +195,7 @@ function DashboardPage({ user }) {
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
 
         {/* 1. Row: KPI Cards (4 in a row) */}
-        <Grid container spacing={3} sx={{ mb: 3 }}>
+        {/* <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid item xs={12} sm={6} lg={3}>
                 <KpiCard title="Total Products" value={totalProducts} color="#3f51b5" />
             </Grid>
@@ -207,7 +208,22 @@ function DashboardPage({ user }) {
             <Grid item xs={12} sm={6} lg={3}>
                 <KpiCard title="Low Stock Items" value={lowStockItems.length} color="#f44336" />
             </Grid>
+        </Grid> */}
+        <Grid container spacing={3} sx={{ mb: 3 }}>
+          <Grid item xs={12} sm={6} lg={3}>
+            <KpiCard title="Total Products" value={totalProducts} color="#3f51b5" to="/warehouse" />
+          </Grid>
+          <Grid item xs={12} sm={6} lg={3}>
+            <KpiCard title="Total Suppliers" value={totalSuppliers} color="#4caf50" to="/supplier" />
+          </Grid>
+          <Grid item xs={12} sm={6} lg={3}>
+            <KpiCard title="Sales Today" value={formatCurrency(salesToday)} color="#ff9800" to="/report" />
+          </Grid>
+          <Grid item xs={12} sm={6} lg={3}>
+            <KpiCard title="Low Stock Items" value={lowStockItems.length} color="#f44336" to="/statistic" />
+          </Grid>
         </Grid>
+
 
         <Divider sx={{ my: 3 }} />
 

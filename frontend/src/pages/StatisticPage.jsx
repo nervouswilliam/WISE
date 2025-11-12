@@ -71,7 +71,7 @@ function StatisticPage({ user }) {
           setSalesTrend(Object.keys(salesByDate).map((date) => ({ date, total: salesByDate[date] })));
 
           const productSales = await transactionService.getProductSales(user);
-          setTopProducts(productSales);
+          setTopProducts(productSales.slice(0,5));
 
           const categorySales = await productService.getProductSalesByCategory(user);
           if (categorySales && Array.isArray(categorySales)) {
