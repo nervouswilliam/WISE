@@ -128,7 +128,7 @@ function SalesPage({ user }) {
                             flexGrow: 1,
                             overflowY: 'auto',
                             borderRadius: 2,
-                            bgcolor: '#fafafa',
+                            bgcolor: (theme) => theme.palette.mode === 'dark' ? theme.palette.background.paper : '#fafafa',
                             p: 1,
                         }}
                     >

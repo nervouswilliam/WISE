@@ -12,7 +12,7 @@ export default function Loading() {
             justifyContent: 'center',
             alignItems: 'center',
             height: '100vh',
-            backgroundColor: '#f9f7fc',
+            backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.default : '#f9f7fc',
         }}
         >
         <img

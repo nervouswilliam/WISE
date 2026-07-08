@@ -27,6 +27,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import OrderPage from './pages/OrderPage.jsx';
 import OrderDetailPage from './pages/OrderDetailPage.jsx';
 import SalesForecastPage from './pages/SalesForecastPage.jsx';
+import LightModeShell from './components/LightModeShell.jsx';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null = checking
@@ -60,11 +61,11 @@ function App() {
       <Route path="/" element={<Navigate to="/landingPage" />} />
 
       {/* Pages */}
-      <Route path="/landingPage" element={<LandingPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignupPage />} />
-      <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-      <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+      <Route path="/landingPage" element={<LightModeShell><LandingPage /></LightModeShell>} />
+      <Route path="/login" element={<LightModeShell><LoginPage /></LightModeShell>} />
+      <Route path="/signup" element={<LightModeShell><SignupPage /></LightModeShell>} />
+      <Route path="/terms-of-service" element={<LightModeShell><TermsOfServicePage /></LightModeShell>} />
+      <Route path="/privacy-policy" element={<LightModeShell><PrivacyPolicyPage /></LightModeShell>} />
       <Route path="/dashboard" element={isAuthenticated ? (<Layout user={user}><Dashboard user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/statistic" element={isAuthenticated ? (<Layout user={user}><StatisticPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/forecast" element={isAuthenticated ? (<Layout user={user}><SalesForecastPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
@@ -84,11 +85,11 @@ function App() {
       <Route path="/order" element={isAuthenticated ? (<Layout user={user}><OrderPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/order/:id" element={isAuthenticated ? (<Layout user={user}><OrderDetailPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/notifications" element={isAuthenticated ? (<Layout user={user}><NotificationPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/reset-password" element={<LightModeShell><ResetPasswordPage /></LightModeShell>} />
 
 
       {/* Fallback 404 */}
-      <Route path="*" element={<NotFoundPage />} />
+      <Route path="*" element={<LightModeShell><NotFoundPage /></LightModeShell>} />
     </Routes>
   );
 }

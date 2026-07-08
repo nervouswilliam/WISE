@@ -29,11 +29,14 @@ import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import SecurityIcon from "@mui/icons-material/Security";
 import PersonIcon from "@mui/icons-material/Person";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
 import authService from "../services/authService";
 import productService from "../services/productService";
 import Loading from "../components/loading";
+import { useThemeMode } from "../context/ThemeModeContext.jsx";
 
 function SettingsPage() {
+  const { mode, toggleMode } = useThemeMode();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -326,7 +329,7 @@ function SettingsPage() {
                   sx={{
                     borderColor: "#6f42c1",
                     color: "#6f42c1",
-                    "&:hover": { backgroundColor: "#f2e8ff" },
+                    "&:hover": { backgroundColor: mode === "dark" ? "rgba(111, 66, 193, 0.16)" : "#f2e8ff" },
                   }}
                   startIcon={<MailOutlineIcon />}
                 >
@@ -354,6 +357,29 @@ function SettingsPage() {
               </Button>
             </Box>
           </Stack>
+        </CardContent>
+      </Card>
+
+      {/* Appearance */}
+      <Card sx={{ mb: 4, boxShadow: 3, borderRadius: 3 }}>
+        <CardContent>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <DarkModeIcon sx={{ color: "#6f42c1" }} />
+            <Typography variant="h6" fontWeight="bold" color="#6f42c1">
+              Appearance
+            </Typography>
+          </Stack>
+          <Divider sx={{ my: 2 }} />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={mode === "dark"}
+                onChange={toggleMode}
+                sx={{ color: "#6f42c1" }}
+              />
+            }
+            label="Dark mode"
+          />
         </CardContent>
       </Card>
 
@@ -395,7 +421,7 @@ function SettingsPage() {
           border: "1px solid #f5c2c7",
           boxShadow: 3,
           borderRadius: 3,
-          backgroundColor: "#fff0f0",
+          backgroundColor: mode === "dark" ? "rgba(244, 67, 54, 0.12)" : "#fff0f0",
         }}
       >
         <CardContent>

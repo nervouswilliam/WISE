@@ -29,9 +29,12 @@ import AssessmentIcon from "@mui/icons-material/Assessment";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import SettingsIcon from "@mui/icons-material/Settings";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
 import authService from "../services/authService";
 import notificationService from "../services/notificationService";
 import LocalShipping from '@mui/icons-material/LocalShipping';
+import { useThemeMode } from "../context/ThemeModeContext.jsx";
 
 const drawerWidth = 240;
 
@@ -43,6 +46,7 @@ export default function Layout({ children }) {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const { mode, toggleMode } = useThemeMode();
 
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
 
@@ -247,6 +251,11 @@ export default function Layout({ children }) {
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             {title}
           </Typography>
+
+          {/* Light/Dark mode toggle */}
+          <IconButton color="inherit" onClick={toggleMode} title={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
+            {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
+          </IconButton>
 
           {/* 🔔 Notification Icon */}
           <IconButton color="inherit" onClick={handleNotifClick}>
