@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seed:purchases": "node scripts/seedPurchases.mjs",
+    "seed:sales": "node scripts/seedSales.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Container,
   Grid,
@@ -10,6 +10,9 @@ import {
   CircularProgress,
   Alert,
   Divider, // Added Divider for visual separation
+  Select,
+  MenuItem,
+  FormControl,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import GetAppIcon from '@mui/icons-material/GetApp';
@@ -54,8 +57,10 @@ function DashboardPage({ user }) {
   const [salesToday, setSalesToday] = useState(0);
   const [lowStock, setLowStock] = useState(0);
   
-  const [salesData, setSalesData] = useState([]);
-  const [topProductsData, setTopProductsData] = useState([]);
+  const [rawSalesTransactions, setRawSalesTransactions] = useState([]);
+  const [salesTimeframe, setSalesTimeframe] = useState('daily');
+  const [rawTransactionItems, setRawTransactionItems] = useState([]);
+  const [topProductsTimeframe, setTopProductsTimeframe] = useState('daily');
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [lowStockItems, setLowStockItems] = useState([]);
   const navigate = useNavigate();
@@ -92,23 +97,12 @@ function DashboardPage({ user }) {
         setSalesToday(todaySales);
 
         const sales = await transactionService.getSalesTransactions(user);
-
-        // Sales Chart Data (aggregated by date)
-        const salesByDate = sales.filter(t => t.transaction_type === 'sale').reduce((acc, t) => {
-            const dateStr = new Date(t.created_at).toLocaleDateString();
-            const total = t.total_amount;
-            acc[dateStr] = (acc[dateStr] || 0) + total;
-            return acc;
-        }, {});
-        setSalesData(Object.keys(salesByDate).map(date => ({ date, total: salesByDate[date] })));
+        setRawSalesTransactions(sales.filter(t => t.transaction_type === 'sale'));
 
 
-        // Top Products
-        const productSales = await transactionService.getProductSales(user);
-        const topProducts = productSales
-            .map(ps => ({ name: ps.product_name, sold: ps.total_sold }))
-            .slice(0, 5);
-        setTopProductsData(topProducts);
+        // Top Products (raw items; aggregated client-side per selected timeframe)
+        const transactionItems = await transactionService.getAllTransactionItems(user);
+        setRawTransactionItems(transactionItems);
 
         // Recent transactions (e.g., last 10)
         setRecentTransactions(transactions.slice(0, 10));
@@ -142,6 +136,165 @@ function DashboardPage({ user }) {
   fetchLowStock();
 }, [user]);
 
+  // Each timeframe is a rolling window ending today, broken into buckets of the given unit.
+  // e.g. "weekly" => the 7 days up to and including today, one bucket per day.
+  const TIMEFRAME_CONFIG = {
+    daily: { unit: 'hour', count: 24 },
+    weekly: { unit: 'day', count: 7 },
+    monthly: { unit: 'day', count: 30 },
+    quarterly: { unit: 'week', count: 13 },
+    yearly: { unit: 'month', count: 12 },
+  };
+
+  const getBucketStart = (date, unit) => {
+    const d = new Date(date);
+    switch (unit) {
+      case 'hour':
+        d.setMinutes(0, 0, 0);
+        return d;
+      case 'week':
+        d.setHours(0, 0, 0, 0);
+        d.setDate(d.getDate() - d.getDay());
+        return d;
+      case 'month':
+        d.setHours(0, 0, 0, 0);
+        d.setDate(1);
+        return d;
+      case 'day':
+      default:
+        d.setHours(0, 0, 0, 0);
+        return d;
+    }
+  };
+
+  const addUnit = (date, unit, amount) => {
+    const d = new Date(date);
+    switch (unit) {
+      case 'hour':
+        d.setHours(d.getHours() + amount);
+        break;
+      case 'week':
+        d.setDate(d.getDate() + amount * 7);
+        break;
+      case 'month':
+        d.setMonth(d.getMonth() + amount);
+        break;
+      case 'day':
+      default:
+        d.setDate(d.getDate() + amount);
+        break;
+    }
+    return d;
+  };
+
+  const formatBucketLabel = (date, unit) => {
+    switch (unit) {
+      case 'hour':
+        return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+      case 'week':
+        return `Week of ${date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}`;
+      case 'month':
+        return date.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+      case 'day':
+      default:
+        return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+    }
+  };
+
+  // Computes the rolling [start, end) window for a timeframe, anchored to today.
+  // "all" spans from the earliest of the given transactions through the current month.
+  const computeSalesWindow = (timeframe, transactions) => {
+    const unit = timeframe === 'all' ? 'month' : (TIMEFRAME_CONFIG[timeframe] || TIMEFRAME_CONFIG.daily).unit;
+    const currentBucketStart = getBucketStart(new Date(), unit);
+    const end = addUnit(currentBucketStart, unit, 1);
+
+    let count;
+    if (timeframe === 'all') {
+      if (transactions.length === 0) {
+        count = 1;
+      } else {
+        const earliest = transactions.reduce(
+          (min, t) => (new Date(t.created_at) < min ? new Date(t.created_at) : min),
+          new Date(transactions[0].created_at)
+        );
+        const earliestBucketStart = getBucketStart(earliest, unit);
+        count =
+          (currentBucketStart.getFullYear() - earliestBucketStart.getFullYear()) * 12 +
+          (currentBucketStart.getMonth() - earliestBucketStart.getMonth()) +
+          1;
+      }
+    } else {
+      count = (TIMEFRAME_CONFIG[timeframe] || TIMEFRAME_CONFIG.daily).count;
+    }
+
+    const start = addUnit(currentBucketStart, unit, -(count - 1));
+    return { unit, count, start, end };
+  };
+
+  // Sales Chart Data: filters rawSalesTransactions down to the rolling window for the
+  // selected timeframe and buckets them, so e.g. "weekly" always reflects the last 7 days
+  // relative to today rather than every week ever recorded.
+  const salesWindow = useMemo(
+    () => computeSalesWindow(salesTimeframe, rawSalesTransactions),
+    [salesTimeframe, rawSalesTransactions]
+  );
+
+  const salesData = useMemo(() => {
+    const { unit, count, start } = salesWindow;
+    const buckets = [];
+    for (let i = 0; i < count; i++) {
+      const bucketStart = addUnit(start, unit, i);
+      buckets.push({
+        label: formatBucketLabel(bucketStart, unit),
+        start: bucketStart,
+        end: addUnit(bucketStart, unit, 1),
+        total: 0,
+      });
+    }
+
+    rawSalesTransactions.forEach(t => {
+      const tDate = new Date(t.created_at);
+      const bucket = buckets.find(b => tDate >= b.start && tDate < b.end);
+      if (bucket) {
+        bucket.total += t.total_amount;
+      }
+    });
+
+    return buckets.map(b => ({ date: b.label, total: b.total }));
+  }, [rawSalesTransactions, salesWindow]);
+
+  // Top-Selling Products: rawTransactionItems has no date of its own, so each item is
+  // matched back to its sale transaction (by transaction_id) to get created_at for filtering.
+  const topProductsWindow = useMemo(
+    () => computeSalesWindow(topProductsTimeframe, rawSalesTransactions),
+    [topProductsTimeframe, rawSalesTransactions]
+  );
+
+  const topProductsData = useMemo(() => {
+    const { start, end } = topProductsWindow;
+    const saleTransactionDates = new Map(
+      rawSalesTransactions.map(t => [t.transaction_id, new Date(t.created_at)])
+    );
+
+    const soldByProduct = rawTransactionItems.reduce((acc, item) => {
+      const tDate = saleTransactionDates.get(item.transaction_id);
+      if (!tDate || tDate < start || tDate >= end) return acc;
+      acc[item.product_name] = (acc[item.product_name] || 0) + (item.quantity || 0);
+      return acc;
+    }, {});
+
+    return Object.entries(soldByProduct)
+      .map(([name, sold]) => ({ name, sold }))
+      .sort((a, b) => b.sold - a.sold)
+      .slice(0, 5);
+  }, [rawTransactionItems, rawSalesTransactions, topProductsWindow]);
+
+  // Average Order Value across all recorded sales (all-time, not scoped to a timeframe).
+  const averageOrderValue = useMemo(() => {
+    if (rawSalesTransactions.length === 0) return 0;
+    const total = rawSalesTransactions.reduce((sum, t) => sum + (t.total_amount || 0), 0);
+    return total / rawSalesTransactions.length;
+  }, [rawSalesTransactions]);
 
   const handleAddProduct = () => {
     navigate("/product/add");
@@ -222,18 +375,35 @@ function DashboardPage({ user }) {
           <Grid item xs={12} sm={6} lg={3}>
             <KpiCard title="Low Stock Items" value={lowStockItems.length} color="#f44336" to="/statistic" />
           </Grid>
+          <Grid item xs={12} sm={6} lg={3}>
+            <KpiCard title="Avg Order Value" value={formatCurrency(averageOrderValue)} color="#009688" to="/report" />
+          </Grid>
         </Grid>
 
 
         <Divider sx={{ my: 3 }} />
 
         {/* 2. Row: Charts (Sales Over Time and Top Selling Products) */}
-        <Grid container spacing={3} sx={{ mb: 3 }}>
-            <Grid item xs={12} md={7}>
-                <Card sx={{ height: '100%', boxShadow: 3 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 3 }}>
+                <Card sx={{ width: '100%', boxShadow: 3 }}>
                     <CardContent>
-                        <Typography variant="h6" gutterBottom>Sales Over Time</Typography>
-                        <ResponsiveContainer width={isMobile ? 300 : 700} height={250}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                            <Typography variant="h6" gutterBottom sx={{ mb: 0 }}>Sales Over Time</Typography>
+                            <FormControl size="small">
+                                <Select
+                                    value={salesTimeframe}
+                                    onChange={(e) => setSalesTimeframe(e.target.value)}
+                                >
+                                    <MenuItem value="daily">Daily</MenuItem>
+                                    <MenuItem value="weekly">Weekly</MenuItem>
+                                    <MenuItem value="monthly">Monthly</MenuItem>
+                                    <MenuItem value="quarterly">Quarterly</MenuItem>
+                                    <MenuItem value="yearly">Yearly</MenuItem>
+                                    <MenuItem value="all">All Time</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Box>
+                        <ResponsiveContainer width="100%" height={250}>
                             <LineChart data={salesData}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="date" />
@@ -244,12 +414,25 @@ function DashboardPage({ user }) {
                         </ResponsiveContainer>
                     </CardContent>
                 </Card>
-            </Grid>
-            <Grid item xs={12} md={5}>
-                <Card sx={{ height: '100%', boxShadow: 3 }}>
+                <Card sx={{ width: '100%', boxShadow: 3 }}>
                     <CardContent>
-                        <Typography variant="h6" gutterBottom>Top-Selling Products</Typography>
-                        <ResponsiveContainer width={isMobile ? 300 : 700} height={250}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                            <Typography variant="h6" gutterBottom sx={{ mb: 0 }}>Top-Selling Products</Typography>
+                            <FormControl size="small">
+                                <Select
+                                    value={topProductsTimeframe}
+                                    onChange={(e) => setTopProductsTimeframe(e.target.value)}
+                                >
+                                    <MenuItem value="daily">Daily</MenuItem>
+                                    <MenuItem value="weekly">Weekly</MenuItem>
+                                    <MenuItem value="monthly">Monthly</MenuItem>
+                                    <MenuItem value="quarterly">Quarterly</MenuItem>
+                                    <MenuItem value="yearly">Yearly</MenuItem>
+                                    <MenuItem value="all">All Time</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Box>
+                        <ResponsiveContainer width="100%" height={250}>
                             <BarChart data={topProductsData}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="name" />
@@ -260,8 +443,7 @@ function DashboardPage({ user }) {
                         </ResponsiveContainer>
                     </CardContent>
                 </Card>
-            </Grid>
-        </Grid>
+        </Box>
 
         <Divider sx={{ my: 3 }} />
 

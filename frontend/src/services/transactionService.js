@@ -138,6 +138,20 @@ const getTransactionItemsById = async(user, transactionId) => {
     return data;
 }
 
+const getAllTransactionItems = async(user) => {
+    const { data, error } = await supabase
+      .from('view_transaction_item')
+      .select()
+      .eq('user_id', user.id);
+
+    if (error) {
+        console.error('Error fetching all transaction items:', error);
+        return [];
+    }
+
+    return data;
+}
+
 const getProductSales = async(user) => {
     const { data, error } = await supabase
       .from('view_product_sales')
@@ -158,6 +172,7 @@ export default {
     addTransaction,
     addPaymentTransaction,
     getTransactionItemsById,
+    getAllTransactionItems,
     getProductSales,
     getSalesTransactions,
 }
