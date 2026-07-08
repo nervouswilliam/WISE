@@ -22,6 +22,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import LogoutIcon from "@mui/icons-material/Logout";
 import InsightsIcon from "@mui/icons-material/Insights";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import FactoryIcon from "@mui/icons-material/Factory";
 import AssessmentIcon from "@mui/icons-material/Assessment";
@@ -125,6 +126,15 @@ export default function Layout({ children }) {
         </ListItem>
 
         <ListItem disablePadding>
+          <ListItemButton component={Link} to="/forecast">
+            <ListItemIcon>
+              <TrendingUpIcon />
+            </ListItemIcon>
+            <ListItemText primary="Sales Forecast" />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
           <ListItemButton component={Link} to="/supplier">
             <ListItemIcon>
               <FactoryIcon />
@@ -184,6 +194,7 @@ export default function Layout({ children }) {
   const pageTitles = {
     "/dashboard": "Dashboard",
     "/statistic": "Statistics",
+    "/forecast": "Sales Forecast",
     "/supplier": "Supplier",
     "/report": "Report",
     "/sale": "Sale",

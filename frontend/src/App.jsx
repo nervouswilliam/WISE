@@ -26,6 +26,7 @@ import NotFoundPage from './pages/NotFoundPage.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import OrderPage from './pages/OrderPage.jsx';
 import OrderDetailPage from './pages/OrderDetailPage.jsx';
+import SalesForecastPage from './pages/SalesForecastPage.jsx';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null = checking
@@ -66,6 +67,7 @@ function App() {
       <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
       <Route path="/dashboard" element={isAuthenticated ? (<Layout user={user}><Dashboard user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/statistic" element={isAuthenticated ? (<Layout user={user}><StatisticPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
+      <Route path="/forecast" element={isAuthenticated ? (<Layout user={user}><SalesForecastPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/warehouse" element={isAuthenticated ? (<Layout user={user}><WarehousePage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/product/:id" element={isAuthenticated ? (<Layout user={user}><ProductDetailPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/product/add" element={isAuthenticated ? (<Layout user={user}><AddEditProductPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />

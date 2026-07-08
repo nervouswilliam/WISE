@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Container,
   Typography,
@@ -42,6 +42,7 @@ import { useNavigate } from "react-router-dom";
 import DynamicTable from "../components/DynamicTable";
 import Loading from "../components/loading";
 import KpiCard from "../components/KpiCard";
+import { forecastNextDays } from "../utils/forecast";
 
 function StatisticPage({ user }) {
   const [loading, setLoading] = useState(true);
@@ -56,6 +57,16 @@ function StatisticPage({ user }) {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  // Quick preview for the forecast teaser card: projects the next 7 days off the same
+  // 7-day sales trend already fetched, without re-fetching everything the dedicated
+  // Sales Forecast page needs.
+  const forecastPreview = useMemo(() => {
+    if (!salesTrend || salesTrend.length === 0) return 0;
+    const { predictions } = forecastNextDays(salesTrend.map((d) => d.total), 7);
+    return predictions.reduce((a, b) => a + b, 0);
+  }, [salesTrend]);
+
   const handleClick = (row) => {
       navigate(`/product/stock-add/${row.id}`);
   };
@@ -277,7 +288,39 @@ function StatisticPage({ user }) {
 
       <Divider sx={{ my: 3 }} />
 
-      {/* 3️⃣ Purchase Spend Trend */}
+      {/* 3️⃣ Sales Forecast (click through to detailed per-product breakdown) */}
+      <Box sx={{ width: "100%", mb: 3 }}>
+        <Card
+          sx={{
+            borderRadius: 3,
+            boxShadow: 2,
+            cursor: "pointer",
+            transition: "transform 0.2s ease, box-shadow 0.2s ease",
+            "&:hover": { transform: "scale(1.01)", boxShadow: 6 },
+          }}
+          onClick={() => navigate("/forecast")}
+        >
+          <CardContent>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2 }}>
+              <Box>
+                <Typography variant="h6" gutterBottom sx={{ mb: 0.5 }}>
+                  Sales Forecast
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Projected revenue for the next 7 days, based on the recent trend. Click for a detailed per-product breakdown.
+                </Typography>
+              </Box>
+              <Typography variant="h5" sx={{ color: "#6f42c1", fontWeight: "bold", whiteSpace: "nowrap" }}>
+                {formatCurrency(forecastPreview)}
+              </Typography>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
+
+      <Divider sx={{ my: 3 }} />
+
+      {/* 4️⃣ Purchase Spend Trend */}
       <Box sx={{ width: "100%", mb: 3 }}>
         <Card sx={{ borderRadius: 3, boxShadow: 2 }}>
           <CardContent>
@@ -302,7 +345,7 @@ function StatisticPage({ user }) {
 
       <Divider sx={{ my: 3 }} />
 
-      {/* 4️⃣ Revenue by Category */}
+      {/* 5️⃣ Revenue by Category */}
       <Box sx={{ width: "100%", mb: 3 }}>
         <Card sx={{ borderRadius: 3, boxShadow: 2 }}>
             <CardContent>
@@ -352,7 +395,7 @@ function StatisticPage({ user }) {
 
       <Divider sx={{ my: 3 }} />
 
-        {/* 5️⃣ Low Stock Table */}
+        {/* 6️⃣ Low Stock Table */}
         <Typography variant="h6" gutterBottom>Low Stock Alerts ⚠️</Typography>
         <Box
         sx={{
