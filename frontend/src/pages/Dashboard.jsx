@@ -16,12 +16,20 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import GetAppIcon from '@mui/icons-material/GetApp';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import DynamicTable from '../components/DynamicTable';
 // Assuming the following service imports are correct
 import productService from '../services/productService';
 import supplierService from '../services/supplierService';
 import transactionService from '../services/transactionService';
+import orderService from '../services/orderService';
 import { useNavigate } from "react-router-dom";
 import { supabase } from '../supabaseClient';
 import { useMediaQuery } from '@mui/material';
@@ -56,7 +64,9 @@ function DashboardPage({ user }) {
   const [totalSuppliers, setTotalSuppliers] = useState(0);
   const [salesToday, setSalesToday] = useState(0);
   const [lowStock, setLowStock] = useState(0);
-  
+  const [products, setProducts] = useState([]);
+  const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
+
   const [rawSalesTransactions, setRawSalesTransactions] = useState([]);
   const [salesTimeframe, setSalesTimeframe] = useState('daily');
   const [rawTransactionItems, setRawTransactionItems] = useState([]);
@@ -77,6 +87,7 @@ function DashboardPage({ user }) {
 
         // Fetch products and calculate metrics
         const products = await productService.getProductList(user.id);
+        setProducts(products);
         setTotalProducts(products.length);
         const lowStockItems = products.filter(p => p.stock < 5);
         setLowStock(lowStockItems.length);
@@ -84,6 +95,10 @@ function DashboardPage({ user }) {
         // Fetch suppliers
         const suppliers = await supplierService.getSupplierList(user);
         setTotalSuppliers(suppliers.data.length);
+
+        // Fetch purchase orders awaiting action
+        const orders = await orderService.getOrderListByUser(user);
+        setPendingOrdersCount(orders.filter(o => o.status === 'Pending').length);
 
         // Fetch transactions
         const transactions = await transactionService.getTransactionsByPeriod(user, 'weekly');
@@ -296,6 +311,46 @@ function DashboardPage({ user }) {
     return total / rawSalesTransactions.length;
   }, [rawSalesTransactions]);
 
+  // Total cost value of everything currently sitting in stock (stock units x cost price).
+  const totalInventoryValue = useMemo(() => {
+    return products.reduce((sum, p) => sum + (p.stock || 0) * (p.price || 0), 0);
+  }, [products]);
+
+  // This week's (last 7 days) sales total vs. the 7 days before that, for a quick
+  // momentum indicator on the Sales Today card.
+  const weekOverWeekChange = useMemo(() => {
+    const now = new Date();
+    const thisWeekStart = new Date(now);
+    thisWeekStart.setDate(thisWeekStart.getDate() - 7);
+    const lastWeekStart = new Date(now);
+    lastWeekStart.setDate(lastWeekStart.getDate() - 14);
+
+    let thisWeekTotal = 0;
+    let lastWeekTotal = 0;
+    rawSalesTransactions.forEach(t => {
+      const tDate = new Date(t.created_at);
+      if (tDate >= thisWeekStart && tDate <= now) {
+        thisWeekTotal += t.total_amount || 0;
+      } else if (tDate >= lastWeekStart && tDate < thisWeekStart) {
+        lastWeekTotal += t.total_amount || 0;
+      }
+    });
+
+    if (lastWeekTotal === 0) return null;
+    const percent = ((thisWeekTotal - lastWeekTotal) / lastWeekTotal) * 100;
+    return {
+      direction: percent >= 0 ? 'up' : 'down',
+      label: `${percent >= 0 ? '+' : ''}${percent.toFixed(1)}% vs last week`,
+    };
+  }, [rawSalesTransactions]);
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
+
   const handleAddProduct = () => {
     navigate("/product/add");
   };
@@ -347,39 +402,68 @@ function DashboardPage({ user }) {
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
 
-        {/* 1. Row: KPI Cards (4 in a row) */}
-        {/* <Grid container spacing={3} sx={{ mb: 3 }}>
-            <Grid item xs={12} sm={6} lg={3}>
-                <KpiCard title="Total Products" value={totalProducts} color="#3f51b5" />
-            </Grid>
-            <Grid item xs={12} sm={6} lg={3}>
-                <KpiCard title="Total Suppliers" value={totalSuppliers} color="#4caf50" />
-            </Grid>
-            <Grid item xs={12} sm={6} lg={3}>
-                <KpiCard title="Sales Today" value={formatCurrency(salesToday)} color="#ff9800" />
-            </Grid>
-            <Grid item xs={12} sm={6} lg={3}>
-                <KpiCard title="Low Stock Items" value={lowStockItems.length} color="#f44336" />
-            </Grid>
-        </Grid> */}
+        {/* 0. Greeting Header */}
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h4" fontWeight={700}>
+            {getGreeting()}{user?.name ? `, ${user.name}` : ''}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Here's what's happening with your business on{' '}
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.
+          </Typography>
+        </Box>
+
+        {/* 1. Row: KPI Cards */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
           <Grid item xs={12} sm={6} lg={3}>
-            <KpiCard title="Total Products" value={totalProducts} color="#3f51b5" to="/warehouse" />
+            <KpiCard
+              title="Sales Today"
+              value={formatCurrency(salesToday)}
+              color="#ff9800"
+              to="/report"
+              icon={<PointOfSaleIcon />}
+              trend={weekOverWeekChange}
+            />
           </Grid>
           <Grid item xs={12} sm={6} lg={3}>
-            <KpiCard title="Total Suppliers" value={totalSuppliers} color="#4caf50" to="/supplier" />
+            <KpiCard
+              title="Avg Order Value"
+              value={formatCurrency(averageOrderValue)}
+              color="#009688"
+              to="/report"
+              icon={<ReceiptLongIcon />}
+            />
           </Grid>
           <Grid item xs={12} sm={6} lg={3}>
-            <KpiCard title="Sales Today" value={formatCurrency(salesToday)} color="#ff9800" to="/report" />
+            <KpiCard
+              title="Total Inventory Value"
+              value={formatCurrency(totalInventoryValue)}
+              color="#5e35b1"
+              to="/warehouse"
+              icon={<AccountBalanceWalletIcon />}
+              subtitle="Stock on hand, at cost"
+            />
           </Grid>
           <Grid item xs={12} sm={6} lg={3}>
-            <KpiCard title="Low Stock Items" value={lowStockItems.length} color="#f44336" to="/statistic" />
+            <KpiCard
+              title="Pending Orders"
+              value={pendingOrdersCount}
+              color="#546e7a"
+              to="/order"
+              icon={<PendingActionsIcon />}
+              subtitle="Purchases awaiting delivery"
+            />
           </Grid>
           <Grid item xs={12} sm={6} lg={3}>
-            <KpiCard title="Avg Order Value" value={formatCurrency(averageOrderValue)} color="#009688" to="/report" />
+            <KpiCard title="Total Products" value={totalProducts} color="#3f51b5" to="/warehouse" icon={<Inventory2Icon />} />
+          </Grid>
+          <Grid item xs={12} sm={6} lg={3}>
+            <KpiCard title="Total Suppliers" value={totalSuppliers} color="#4caf50" to="/supplier" icon={<LocalShippingIcon />} />
+          </Grid>
+          <Grid item xs={12} sm={6} lg={3}>
+            <KpiCard title="Low Stock Items" value={lowStockItems.length} color="#f44336" to="/statistic" icon={<WarningAmberIcon />} />
           </Grid>
         </Grid>
-
 
         <Divider sx={{ my: 3 }} />
 

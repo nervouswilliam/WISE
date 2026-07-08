@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     Container,
     Box,
@@ -10,6 +10,7 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
+    Chip,
     useTheme,
     Link // <-- FIXED: Link component added here
 } from "@mui/material";
@@ -17,6 +18,7 @@ import {
 // Icon Imports (replacing generic SVGs from the HTML file)
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'; // For WMS/Stock
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale'; // For POS
+import AutoGraphIcon from '@mui/icons-material/AutoGraph'; // For Sales Forecasting
 import CheckIcon from '@mui/icons-material/Check';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
@@ -70,6 +72,21 @@ function LandingPage() {
     const navigate = useNavigate();
   const theme = useTheme();
   const [demoLoading, setDemoLoading] = useState(false);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+  const heroButtonsRef = useRef(null);
+
+  // Shows a compact fixed bar with Login/Try Demo once the hero's own buttons have
+  // scrolled out of view, so those actions stay reachable without scrolling back up.
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!heroButtonsRef.current) return;
+      const { bottom } = heroButtonsRef.current.getBoundingClientRect();
+      setShowStickyBar(bottom < 0);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleTryDemo = async () => {
     setDemoLoading(true);
@@ -90,7 +107,64 @@ function LandingPage() {
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: ACCENT_BG }}>
-      
+
+      {/* Sticky bar: appears once the hero's own Login/Try Demo buttons scroll out of view */}
+      {showStickyBar && (
+      <Paper
+        elevation={4}
+        square
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: theme.zIndex.appBar + 1,
+        }}
+      >
+        <Container maxWidth="lg">
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 56, px: { xs: 2, sm: 0 } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box component="img" src="/loginLogo.png" alt="Wisely Logo" sx={{ backgroundColor: PRIMARY_COLOR, width: 28, height: 28, mr: 1.5 }} />
+              <Typography variant="subtitle1" component="span" sx={{ fontWeight: 800, color: PRIMARY_COLOR, letterSpacing: 1.5 }}>
+                Wisely
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{
+                  color: PRIMARY_COLOR,
+                  borderColor: PRIMARY_COLOR,
+                  '&:hover': { backgroundColor: PRIMARY_COLOR, color: 'white' },
+                  borderRadius: 2,
+                  fontWeight: 600,
+                }}
+                onClick={() => navigate('/login')}
+              >
+                Login
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<PlayCircleOutlineIcon />}
+                disabled={demoLoading}
+                sx={{
+                  backgroundColor: PRIMARY_COLOR,
+                  '&:hover': { backgroundColor: '#5a34a8' },
+                  borderRadius: 2,
+                  fontWeight: 600,
+                }}
+                onClick={handleTryDemo}
+              >
+                {demoLoading ? 'Loading...' : 'Try Live Demo'}
+              </Button>
+            </Box>
+          </Box>
+        </Container>
+      </Paper>
+      )}
+
       {/* 1. Navigation Bar */}
       <Paper elevation={2} square>
         <Container maxWidth="lg">
@@ -102,20 +176,6 @@ function LandingPage() {
                     Wisely
                 </Typography>
             </Box>
-            
-            {/* CTA Button */}
-            <Button 
-                variant="contained" 
-                sx={{ 
-                    backgroundColor: PRIMARY_COLOR,
-                    '&:hover': { backgroundColor: '#5a34a8' },
-                    borderRadius: 2,
-                    display: { xs: 'none', md: 'inline-flex' } // Hidden on mobile
-                }}
-                onClick={() => navigate('/login')}
-            >
-                Login
-            </Button>
           </Box>
         </Container>
       </Paper>
@@ -142,7 +202,7 @@ function LandingPage() {
           </Typography>
           
           {/* Primary CTA Group */}
-          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
+          <Box ref={heroButtonsRef} sx={{ mt: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
             <Button 
               variant="contained" 
               size="large"
@@ -160,10 +220,10 @@ function LandingPage() {
             >
               Get Started Now
             </Button>
-            <Button 
-              variant="outlined" 
+            <Button
+              variant="outlined"
               size="large"
-              sx={{ 
+              sx={{
                 color: PRIMARY_COLOR,
                 borderColor: PRIMARY_COLOR,
                 '&:hover': { backgroundColor: PRIMARY_COLOR, color: 'white' },
@@ -205,7 +265,7 @@ function LandingPage() {
           <Grid container spacing={4}>
             
             {/* Feature 1: Stock Management (WMS) */}
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={4}>
               <Paper 
                 elevation={6} 
                 sx={{ 
@@ -267,7 +327,52 @@ function LandingPage() {
                 </List>
               </Paper>
             </Grid>
-            
+
+            {/* Feature 3: Sales Forecasting */}
+            <Grid item xs={12} md={4}>
+              <Paper
+                elevation={6}
+                sx={{
+                  p: { xs: 3, sm: 5 },
+                  borderRadius: 3,
+                  borderTop: `4px solid ${PRIMARY_COLOR}`,
+                  transition: '0.3s',
+                  position: 'relative',
+                  '&:hover': {
+                      transform: 'translateY(-5px)',
+                      boxShadow: theme.shadows[12]
+                  }
+                }}
+              >
+                <Chip
+                  label="New"
+                  size="small"
+                  sx={{
+                    position: 'absolute',
+                    top: 16,
+                    right: 16,
+                    backgroundColor: PRIMARY_COLOR,
+                    color: 'white',
+                    fontWeight: 700,
+                  }}
+                />
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <AutoGraphIcon sx={{ color: PRIMARY_COLOR, fontSize: 40, mr: 2 }} />
+                  <Typography variant="h5" component="h3" fontWeight={700}>
+                    Smart Sales Forecasting
+                  </Typography>
+                </Box>
+                <Typography color="text.secondary" sx={{ mb: 3 }}>
+                  Stop guessing what to restock. Wisely looks at your recent sales trends and projects what's coming next, product by product, so you can plan ahead with confidence.
+                </Typography>
+                <List disablePadding>
+                    <FeatureListItem text="Demand Prediction: See projected revenue and units sold for the days ahead." />
+                    <FeatureListItem text="Per-Product Trends: Spot which items are trending up or down at a glance." />
+                    <FeatureListItem text="Smarter Restocking: Know how many days of stock you have left before you run out." />
+                </List>
+              </Paper>
+            </Grid>
+
           </Grid>
         </Container>
       </Box>
