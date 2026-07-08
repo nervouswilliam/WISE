@@ -249,9 +249,10 @@ function SettingsPage() {
                 />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
+                <FormControl fullWidth sx={{ minWidth: 160 }}>
                     <InputLabel>Code</InputLabel>
                     <Select
+                    fullWidth
                     name="countryCode"
                     value={user?.countryCode || ""}
                     label="Code"

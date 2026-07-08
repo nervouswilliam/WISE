@@ -1,14 +1,14 @@
-import React from 'react';
-import { 
-    Container, 
-    Box, 
-    Typography, 
-    Button, 
-    Paper, 
-    Grid, 
-    List, 
-    ListItem, 
-    ListItemIcon, 
+import React, { useState } from 'react';
+import {
+    Container,
+    Box,
+    Typography,
+    Button,
+    Paper,
+    Grid,
+    List,
+    ListItem,
+    ListItemIcon,
     ListItemText,
     useTheme,
     Link // <-- FIXED: Link component added here
@@ -19,7 +19,9 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping'; // For WMS/St
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale'; // For POS
 import CheckIcon from '@mui/icons-material/Check';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { useNavigate } from 'react-router-dom';
+import authService from '../services/authService';
 
 // --- Theme and Color Configuration ---
 const PRIMARY_COLOR = '#6f42c1'; // Wisely Purple
@@ -67,6 +69,24 @@ const FeatureListItem = ({ text }) => {
 function LandingPage() {
     const navigate = useNavigate();
   const theme = useTheme();
+  const [demoLoading, setDemoLoading] = useState(false);
+
+  const handleTryDemo = async () => {
+    setDemoLoading(true);
+    try {
+      const token = await authService.login(
+        import.meta.env.VITE_DEMO_EMAIL,
+        import.meta.env.VITE_DEMO_PASSWORD
+      );
+      localStorage.setItem("token", token);
+      localStorage.setItem("isAuthenticated", "true");
+      window.location.href = "/dashboard";
+    } catch (err) {
+      console.error("Demo login failed:", err);
+      alert("Sorry, the live demo is temporarily unavailable. Please try again shortly.");
+      setDemoLoading(false);
+    }
+  };
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: ACCENT_BG }}>
@@ -155,6 +175,21 @@ function LandingPage() {
               onClick={() => navigate("/login")}
             >
               Login
+            </Button>
+            <Button
+              variant="text"
+              size="large"
+              startIcon={<PlayCircleOutlineIcon />}
+              disabled={demoLoading}
+              sx={{
+                color: PRIMARY_COLOR,
+                fontWeight: 600,
+                py: { xs: 1.5, sm: 2 },
+                px: { xs: 3, sm: 4 }
+              }}
+              onClick={handleTryDemo}
+            >
+              {demoLoading ? "Loading Demo..." : "Try Live Demo"}
             </Button>
           </Box>
         </Container>

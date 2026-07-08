@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "seed:purchases": "node scripts/seedPurchases.mjs",
-    "seed:sales": "node scripts/seedSales.mjs"
+    "seed:sales": "node scripts/seedSales.mjs",
+    "demo:reset": "node scripts/resetDemoAccount.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
