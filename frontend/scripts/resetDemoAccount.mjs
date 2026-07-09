@@ -203,6 +203,41 @@ async function main() {
     }
   }
   console.log(`Reseeded ${inserted} purchase order(s) across ${days} days.`);
+
+  // 4. Expenses support full CRUD (unlike sales, which RLS makes append-only), so they can
+  // be wiped and reseeded with a realistic baseline just like purchases.
+  const { error: deleteExpensesError, count: expenseCount } = await supabase
+    .from('expenses')
+    .delete({ count: 'exact' })
+    .eq('user_id', user.id);
+  if (deleteExpensesError) {
+    console.error('Failed to clear existing expenses:', deleteExpensesError.message);
+  } else {
+    console.log(`Cleared ${expenseCount ?? 0} existing expense(s).`);
+  }
+
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const BASELINE_EXPENSES = [
+    { category: 'Rent', description: 'Monthly shop rent', amount: 3500000, daysIntoMonth: 1 },
+    { category: 'Utilities', description: 'Electricity & water', amount: 850000, daysIntoMonth: 3 },
+    { category: 'Salaries', description: 'Part-time staff wages', amount: 4000000, daysIntoMonth: 5 },
+  ];
+  for (const e of BASELINE_EXPENSES) {
+    const expenseDate = new Date(monthStart);
+    expenseDate.setDate(expenseDate.getDate() + e.daysIntoMonth);
+    if (expenseDate > now) continue; // don't backdate into the future this early in the month
+    const { error } = await supabase.from('expenses').insert([{
+      user_id: user.id,
+      category: e.category,
+      description: e.description,
+      amount: e.amount,
+      expense_date: expenseDate.toISOString().slice(0, 10),
+    }]);
+    if (error) console.error('Failed to insert demo expense:', error.message);
+  }
+  console.log('Baseline expenses reseeded.');
+
   console.log('Demo account reset complete.');
 }
 

@@ -31,6 +31,8 @@ import WarehouseIcon from "@mui/icons-material/Warehouse";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
+import PaidIcon from "@mui/icons-material/Paid";
+import GroupIcon from "@mui/icons-material/Group";
 import authService from "../services/authService";
 import notificationService from "../services/notificationService";
 import LocalShipping from '@mui/icons-material/LocalShipping';
@@ -38,7 +40,7 @@ import { useThemeMode } from "../context/ThemeModeContext.jsx";
 
 const drawerWidth = 240;
 
-export default function Layout({ children }) {
+export default function Layout({ children, user: authUser }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [notifications, setNotifications] = useState([]);
@@ -184,6 +186,26 @@ export default function Layout({ children }) {
         </ListItem>
 
         <ListItem disablePadding>
+          <ListItemButton component={Link} to="/expenses">
+            <ListItemIcon>
+              <PaidIcon />
+            </ListItemIcon>
+            <ListItemText primary="Expenses" />
+          </ListItemButton>
+        </ListItem>
+
+        {!authUser?.isStaff && (
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/team">
+              <ListItemIcon>
+                <GroupIcon />
+              </ListItemIcon>
+              <ListItemText primary="Team" />
+            </ListItemButton>
+          </ListItem>
+        )}
+
+        <ListItem disablePadding>
           <ListItemButton component={Link} to="/settings">
             <ListItemIcon>
               <SettingsIcon />
@@ -213,6 +235,8 @@ export default function Layout({ children }) {
     "/supplier/:id": "Supplier Detail",
     "/notifications": "Notifications",
     "/order":"Order",
+    "/expenses": "Expenses",
+    "/team": "Team",
   };
 
   const getPageTitle = (path) => {

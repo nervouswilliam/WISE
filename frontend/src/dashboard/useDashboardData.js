@@ -3,6 +3,7 @@ import productService from '../services/productService';
 import supplierService from '../services/supplierService';
 import transactionService from '../services/transactionService';
 import orderService from '../services/orderService';
+import expenseService from '../services/expenseService';
 
 // Single shared fetch for every widget on the customizable dashboard, so adding/removing
 // widgets never triggers extra network calls - everything is pulled once up front and
@@ -17,6 +18,7 @@ export function useDashboardData(user) {
   const [rawTransactionItems, setRawTransactionItems] = useState([]);
   const [orders, setOrders] = useState([]);
   const [recentTransactions, setRecentTransactions] = useState([]);
+  const [expenses, setExpenses] = useState([]);
 
   useEffect(() => {
     if (!user) return;
@@ -25,13 +27,14 @@ export function useDashboardData(user) {
         setLoading(true);
         setError(null);
 
-        const [productList, supplierResp, weeklyTransactions, sales, items, orderList] = await Promise.all([
+        const [productList, supplierResp, weeklyTransactions, sales, items, orderList, expenseList] = await Promise.all([
           productService.getProductList(user.id),
           supplierService.getSupplierList(user),
           transactionService.getTransactionsByPeriod(user, 'weekly'),
           transactionService.getSalesTransactions(user),
           transactionService.getAllTransactionItems(user),
           orderService.getOrderListByUser(user),
+          expenseService.getExpenseList(user),
         ]);
 
         setProducts(productList || []);
@@ -40,6 +43,7 @@ export function useDashboardData(user) {
         setRawTransactionItems(items || []);
         setOrders(orderList || []);
         setRecentTransactions((weeklyTransactions || []).slice(0, 10));
+        setExpenses(expenseList || []);
       } catch (err) {
         console.error(err);
         setError('Failed to load dashboard data. Please check network and service connectivity.');
@@ -169,6 +173,101 @@ export function useDashboardData(user) {
     return { grossMargin, daysOfStock, purchaseTrend, categoryRevenue };
   }, [products, orders, rawTransactionItems, rawSalesTransactions]);
 
+  // Net profit for the current calendar month: gross profit (revenue - COGS) minus
+  // operating expenses. Monthly rather than the 7-day window used elsewhere, since
+  // expenses like rent/salaries are naturally monthly and would look distorted over 7 days.
+  const monthlyProfitStats = useMemo(() => {
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+    const costByProductId = new Map(products.map((p) => [p.id, p.price]));
+    const saleTransactionDates = new Map(
+      rawSalesTransactions.map((t) => [t.transaction_id, new Date(t.created_at)])
+    );
+
+    let revenueThisMonth = 0;
+    let cogsThisMonth = 0;
+    rawTransactionItems.forEach((item) => {
+      const tDate = saleTransactionDates.get(item.transaction_id);
+      if (!tDate || tDate < monthStart || tDate >= monthEnd) return;
+      revenueThisMonth += item.subtotal || 0;
+      cogsThisMonth += (item.quantity || 0) * (costByProductId.get(item.product_id) || 0);
+    });
+
+    const totalExpensesThisMonth = expenses
+      .filter((e) => {
+        const eDate = new Date(e.expense_date);
+        return eDate >= monthStart && eDate < monthEnd;
+      })
+      .reduce((sum, e) => sum + (e.amount || 0), 0);
+
+    const netProfitThisMonth = revenueThisMonth - cogsThisMonth - totalExpensesThisMonth;
+
+    return { totalExpensesThisMonth, netProfitThisMonth };
+  }, [products, rawTransactionItems, rawSalesTransactions, expenses]);
+
+  // Per-product sales velocity (last 30 days) drives a suggested reorder quantity for any
+  // product that's either already below its low-stock threshold or projected to run out
+  // soon at its current sales pace - catching it before the plain low-stock alert would.
+  const reorderSuggestions = useMemo(() => {
+    const LOOKBACK_DAYS = 30;
+    const TARGET_COVERAGE_DAYS = 30;
+    const TRIGGER_DAYS_THRESHOLD = 14;
+
+    const windowStart = new Date();
+    windowStart.setDate(windowStart.getDate() - LOOKBACK_DAYS);
+
+    const saleTransactionDates = new Map(
+      rawSalesTransactions.map((t) => [t.transaction_id, new Date(t.created_at)])
+    );
+
+    const quantitySoldByProduct = {};
+    rawTransactionItems.forEach((item) => {
+      const tDate = saleTransactionDates.get(item.transaction_id);
+      if (!tDate || tDate < windowStart) return;
+      quantitySoldByProduct[item.product_id] = (quantitySoldByProduct[item.product_id] || 0) + (item.quantity || 0);
+    });
+
+    const suggestions = [];
+    products.forEach((p) => {
+      const totalSold = quantitySoldByProduct[p.id] || 0;
+      const avgDailyUnitsSold = totalSold / LOOKBACK_DAYS;
+      const daysOfStockForProduct = avgDailyUnitsSold > 0 ? p.stock / avgDailyUnitsSold : null;
+
+      const needsReorder =
+        p.stock <= p.low_stock ||
+        (daysOfStockForProduct !== null && daysOfStockForProduct <= TRIGGER_DAYS_THRESHOLD);
+      if (!needsReorder) return;
+
+      const suggestedQty =
+        avgDailyUnitsSold > 0
+          ? Math.max(Math.ceil(avgDailyUnitsSold * TARGET_COVERAGE_DAYS - p.stock), 1)
+          : Math.max((p.low_stock || 1) * 2 - p.stock, p.low_stock || 1);
+
+      suggestions.push({
+        productId: p.id,
+        productName: p.name,
+        stock: p.stock,
+        lowStockThreshold: p.low_stock,
+        avgDailyUnitsSold,
+        daysOfStock: daysOfStockForProduct,
+        suggestedQty,
+        supplierName: p.supplier_name,
+      });
+    });
+
+    // Most urgent first; products with no recent sales (unknown urgency) sort last.
+    suggestions.sort((a, b) => {
+      if (a.daysOfStock === null && b.daysOfStock === null) return 0;
+      if (a.daysOfStock === null) return 1;
+      if (b.daysOfStock === null) return -1;
+      return a.daysOfStock - b.daysOfStock;
+    });
+
+    return suggestions;
+  }, [products, rawTransactionItems, rawSalesTransactions]);
+
   return {
     loading,
     error,
@@ -179,6 +278,7 @@ export function useDashboardData(user) {
     orders,
     recentTransactions,
     lowStockItems,
+    reorderSuggestions,
     totalProducts: products.length,
     totalSuppliers: suppliers.length,
     salesToday,
@@ -186,6 +286,8 @@ export function useDashboardData(user) {
     totalInventoryValue,
     pendingOrdersCount,
     weekOverWeekChange,
+    expenses,
     ...sevenDayStats,
+    ...monthlyProfitStats,
   };
 }

@@ -26,7 +26,7 @@ export const PRESETS = {
   salesFocus: {
     label: 'Sales Focus',
     widgets: [
-      'kpi-sales-today', 'kpi-avg-order-value', 'kpi-gross-margin', 'kpi-pending-orders',
+      'kpi-sales-today', 'kpi-avg-order-value', 'kpi-gross-margin', 'kpi-net-profit',
       'chart-sales-over-time', 'chart-top-products',
       'widget-forecast-preview', 'chart-category-revenue',
     ],
@@ -34,7 +34,7 @@ export const PRESETS = {
       { i: 'kpi-sales-today', x: 0, y: 0, w: 3, h: 2 },
       { i: 'kpi-avg-order-value', x: 3, y: 0, w: 3, h: 2 },
       { i: 'kpi-gross-margin', x: 6, y: 0, w: 3, h: 2 },
-      { i: 'kpi-pending-orders', x: 9, y: 0, w: 3, h: 2 },
+      { i: 'kpi-net-profit', x: 9, y: 0, w: 3, h: 2 },
       { i: 'chart-sales-over-time', x: 0, y: 2, w: 6, h: 4 },
       { i: 'chart-top-products', x: 6, y: 2, w: 6, h: 4 },
       { i: 'widget-forecast-preview', x: 0, y: 6, w: 6, h: 2 },
@@ -46,7 +46,7 @@ export const PRESETS = {
     widgets: [
       'kpi-total-products', 'kpi-low-stock', 'kpi-inventory-value', 'kpi-days-of-stock',
       'kpi-pending-orders', 'kpi-total-suppliers',
-      'chart-purchase-trend',
+      'widget-reorder-suggestions', 'chart-purchase-trend',
     ],
     layout: [
       { i: 'kpi-total-products', x: 0, y: 0, w: 3, h: 2 },
@@ -55,7 +55,8 @@ export const PRESETS = {
       { i: 'kpi-days-of-stock', x: 9, y: 0, w: 3, h: 2 },
       { i: 'kpi-pending-orders', x: 0, y: 2, w: 3, h: 2 },
       { i: 'kpi-total-suppliers', x: 3, y: 2, w: 3, h: 2 },
-      { i: 'chart-purchase-trend', x: 0, y: 4, w: 12, h: 4 },
+      { i: 'widget-reorder-suggestions', x: 0, y: 4, w: 12, h: 4 },
+      { i: 'chart-purchase-trend', x: 0, y: 8, w: 12, h: 4 },
     ],
   },
 };

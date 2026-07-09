@@ -10,6 +10,8 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import EventBusyIcon from '@mui/icons-material/EventBusy';
+import PaidIcon from '@mui/icons-material/Paid';
+import SavingsIcon from '@mui/icons-material/Savings';
 
 // Metric registry: each entry knows how to read/format its own value off the shared
 // useDashboardData() result, so KpiWidget stays a single generic component instead of
@@ -80,6 +82,21 @@ export const KPI_METRICS = {
     icon: <EventBusyIcon />,
     to: '/statistic',
     value: (d) => (d.daysOfStock !== null ? `${d.daysOfStock.toFixed(1)} days` : 'N/A'),
+  },
+  totalExpenses: {
+    title: 'Expenses (This Month)',
+    color: '#c62828',
+    icon: <PaidIcon />,
+    to: '/expenses',
+    value: (d) => formatCurrency(d.totalExpensesThisMonth),
+  },
+  netProfit: {
+    title: 'Net Profit (This Month)',
+    color: '#2e7d32',
+    icon: <SavingsIcon />,
+    to: '/expenses',
+    value: (d) => formatCurrency(d.netProfitThisMonth),
+    subtitle: 'Revenue - COGS - Expenses',
   },
 };
 

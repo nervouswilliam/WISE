@@ -28,6 +28,9 @@ import OrderPage from './pages/OrderPage.jsx';
 import OrderDetailPage from './pages/OrderDetailPage.jsx';
 import SalesForecastPage from './pages/SalesForecastPage.jsx';
 import LightModeShell from './components/LightModeShell.jsx';
+import ExpensePage from './pages/ExpensePage.jsx';
+import TeamPage from './pages/TeamPage.jsx';
+import teamService from './services/teamService.js';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null = checking
@@ -39,12 +42,27 @@ function App() {
       try {
         const data = await authService.whoami()
         const metadata  = data.user_metadata;
-        const user_id = data.id;
-        setUser({ ...metadata, id: user_id });
-        console.log("Authenticated user:", user);
+        const authId = data.id;
+
+        // First, silently accept any pending team invite addressed to this person's
+        // own verified email - safe to attempt every login, it's a no-op if there isn't one.
+        await teamService.acceptPendingInviteIfAny(authId, data.email);
+
+        // Then resolve which business this login should actually operate on: their own
+        // (owner), or - if they're active staff on someone else's team - that owner's.
+        // Every existing page/service in the app uses `user.id` as the business scope, so
+        // resolving it here means nothing downstream needs to change.
+        const membership = await teamService.getActiveMembership(authId);
+
+        setUser(
+          membership
+            ? { ...metadata, id: membership.owner_id, authId, role: membership.role, isStaff: true }
+            : { ...metadata, id: authId, authId, role: 'owner', isStaff: false }
+        );
         const valid = data !== null
         setIsAuthenticated(valid);
       } catch (err) {
+        console.error('Auth check failed:', err);
         setIsAuthenticated(false);
       } finally {
         setLoading(false);
@@ -82,9 +100,11 @@ function App() {
       <Route path="/supplier/edit/:id" element={isAuthenticated ? (<Layout user={user}><AddEditSupplierPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/supplier/:id" element={isAuthenticated ? (<Layout user={user}><SupplierDetailPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/settings" element={isAuthenticated ? (<Layout user={user}><SettingsPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
+      <Route path="/team" element={isAuthenticated ? (<Layout user={user}><TeamPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/order" element={isAuthenticated ? (<Layout user={user}><OrderPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/order/:id" element={isAuthenticated ? (<Layout user={user}><OrderDetailPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/notifications" element={isAuthenticated ? (<Layout user={user}><NotificationPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
+      <Route path="/expenses" element={isAuthenticated ? (<Layout user={user}><ExpensePage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
       <Route path="/reset-password" element={<LightModeShell><ResetPasswordPage /></LightModeShell>} />
 
 

@@ -8,7 +8,7 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import productService from "../services/productService";
 import transactionService from "../services/transactionService";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -25,11 +25,13 @@ import supplierService from "../services/supplierService";
 const AddProductStockPage = ({ user }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const suggestedQty = searchParams.get("suggested");
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [stockToAdd, setStockToAdd] = useState("");
+  const [stockToAdd, setStockToAdd] = useState(suggestedQty || "");
   const [transactionDate, setTransactionDate] = useState(dayjs());
   const [notes, setNotes] = useState("");
   const theme = useTheme();

@@ -5,6 +5,7 @@ import PurchaseTrendWidget from './widgets/PurchaseTrendWidget';
 import CategoryRevenueWidget from './widgets/CategoryRevenueWidget';
 import ForecastPreviewWidget from './widgets/ForecastPreviewWidget';
 import RecentTransactionsWidget from './widgets/RecentTransactionsWidget';
+import ReorderSuggestionsWidget from './widgets/ReorderSuggestionsWidget';
 
 // Every widget a user can add to their customizable dashboard. `props` are static extras
 // passed to the widget alongside `data` (the shared useDashboardData() result) and
@@ -73,6 +74,20 @@ export const WIDGET_REGISTRY = {
     props: { metricId: 'daysOfStock' },
     defaultSize: { w: 3, h: 2, minW: 2, minH: 2 },
   },
+  'kpi-total-expenses': {
+    title: 'Expenses (This Month)',
+    category: 'KPI',
+    component: KpiWidget,
+    props: { metricId: 'totalExpenses' },
+    defaultSize: { w: 3, h: 2, minW: 2, minH: 2 },
+  },
+  'kpi-net-profit': {
+    title: 'Net Profit (This Month)',
+    category: 'KPI',
+    component: KpiWidget,
+    props: { metricId: 'netProfit' },
+    defaultSize: { w: 3, h: 2, minW: 2, minH: 2 },
+  },
   'chart-sales-over-time': {
     title: 'Sales Over Time',
     category: 'Chart',
@@ -107,6 +122,12 @@ export const WIDGET_REGISTRY = {
     title: 'Recent Transactions',
     category: 'Chart',
     component: RecentTransactionsWidget,
+    defaultSize: { w: 12, h: 4, minW: 6, minH: 3 },
+  },
+  'widget-reorder-suggestions': {
+    title: 'Reorder Suggestions',
+    category: 'Chart',
+    component: ReorderSuggestionsWidget,
     defaultSize: { w: 12, h: 4, minW: 6, minH: 3 },
   },
 };
