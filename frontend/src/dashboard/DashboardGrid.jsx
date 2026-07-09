@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Box, Button, IconButton, Menu, MenuItem, ListItemText, ListSubheader,
+  Box, Button, IconButton, MenuItem,
   FormControl, Select, Typography, useMediaQuery, Divider,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -16,6 +16,7 @@ import GetAppIcon from '@mui/icons-material/GetApp';
 import { useDashboardData } from './useDashboardData';
 import { WIDGET_REGISTRY, WIDGET_IDS } from './widgetRegistry';
 import { PRESETS, DEFAULT_PRESET_KEY } from './presets';
+import AddWidgetDialog from './AddWidgetDialog';
 import authService from '../services/authService';
 import Loading from '../components/loading';
 import { formatCurrency } from '../utils/currency';
@@ -42,7 +43,7 @@ function DashboardGrid({ user }) {
   const [presetKey, setPresetKey] = useState(DEFAULT_PRESET_KEY);
   const [widgets, setWidgets] = useState([]);
   const [layout, setLayout] = useState([]);
-  const [addMenuAnchor, setAddMenuAnchor] = useState(null);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
   // Load the user's saved layout (stored on their account, same mechanism Settings uses
@@ -122,7 +123,7 @@ function DashboardGrid({ user }) {
     setWidgets(nextWidgets);
     setLayout(nextLayout);
     setPresetKey('custom');
-    setAddMenuAnchor(null);
+    setAddDialogOpen(false);
   };
 
   const handleGenerateReport = () => {
@@ -182,23 +183,94 @@ function DashboardGrid({ user }) {
     return <Typography color="error" sx={{ p: 4 }}>{data.error}</Typography>;
   }
 
+  const toolbar = (
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+      <FormControl size="small" sx={{ minWidth: 200 }}>
+        <Select value={PRESETS[presetKey] ? presetKey : 'custom'} onChange={handlePresetChange}>
+          {Object.entries(PRESETS).map(([key, preset]) => (
+            <MenuItem key={key} value={key}>{preset.label}</MenuItem>
+          ))}
+          {!PRESETS[presetKey] && <MenuItem value="custom" disabled>Custom Layout</MenuItem>}
+        </Select>
+      </FormControl>
+
+      <Box sx={{ display: 'flex', gap: 1 }}>
+        {editMode && (
+          <Button
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={() => setAddDialogOpen(true)}
+            disabled={availableToAdd.length === 0}
+          >
+            Add Widget
+          </Button>
+        )}
+        <Button
+          variant="contained"
+          startIcon={editMode ? <CheckIcon /> : <EditIcon />}
+          onClick={handleToggleEdit}
+          sx={{ backgroundColor: '#6f42c1', '&:hover': { backgroundColor: '#5a34a8' } }}
+        >
+          {editMode ? 'Done Editing' : 'Customize Dashboard'}
+        </Button>
+      </Box>
+
+      <AddWidgetDialog
+        open={addDialogOpen}
+        onClose={() => setAddDialogOpen(false)}
+        availableToAdd={availableToAdd}
+        data={data}
+        onAdd={handleAddWidget}
+      />
+    </Box>
+  );
+
   // Mobile: skip the drag/resize grid and just stack active widgets in saved order -
-  // dragging/resizing isn't practical on a small touch screen.
+  // dragging/resizing isn't practical on a small touch screen - but editing (adding/
+  // removing widgets via the same toolbar and dialog as desktop) still works.
   if (isMobile) {
-    const orderedWidgets = [...layout].sort((a, b) => a.y - b.y || a.x - b.x).map((item) => item.i);
+    const orderedLayout = [...layout].sort((a, b) => a.y - b.y || a.x - b.x);
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {orderedWidgets.map((id) => {
-          const def = WIDGET_REGISTRY[id];
-          if (!def) return null;
-          const WidgetComponent = def.component;
-          return (
-            <Box key={id} sx={{ backgroundColor: 'background.paper', borderRadius: 2, boxShadow: 3, p: 2, minHeight: 160 }}>
-              <WidgetComponent data={data} editMode={false} {...(def.props || {})} />
-            </Box>
-          );
-        })}
-        <Divider />
+      <Box>
+        {toolbar}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {orderedLayout.map((item) => {
+            const def = WIDGET_REGISTRY[item.i];
+            if (!def) return null;
+            const WidgetComponent = def.component;
+            // Mirrors the desktop grid's row-height math so charts get a real pixel
+            // height instead of "100%" of an auto-height parent, which resolves to 0
+            // and leaves recharts with nothing to measure (blank chart).
+            const height = item.h * ROW_HEIGHT + (item.h - 1) * 16;
+            return (
+              <Box
+                key={item.i}
+                sx={{
+                  height, position: 'relative', backgroundColor: 'background.paper',
+                  borderRadius: 2, boxShadow: 3, p: 2, overflow: 'hidden',
+                }}
+              >
+                {editMode && (
+                  <IconButton
+                    size="small"
+                    onClick={() => handleRemoveWidget(item.i)}
+                    sx={{
+                      position: 'absolute', top: 4, right: 4, zIndex: 10,
+                      backgroundColor: 'rgba(0,0,0,0.55)', color: 'white',
+                      '&:hover': { backgroundColor: 'rgba(0,0,0,0.75)' },
+                    }}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                )}
+                <Box sx={{ height: '100%', overflow: 'auto' }}>
+                  <WidgetComponent data={data} editMode={editMode} {...(def.props || {})} />
+                </Box>
+              </Box>
+            );
+          })}
+        </Box>
+        <Divider sx={{ my: 3 }} />
         {actionButtons}
       </Box>
     );
@@ -206,54 +278,7 @@ function DashboardGrid({ user }) {
 
   return (
     <Box>
-      {/* Toolbar */}
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-        <FormControl size="small" sx={{ minWidth: 200 }}>
-          <Select value={PRESETS[presetKey] ? presetKey : 'custom'} onChange={handlePresetChange}>
-            {Object.entries(PRESETS).map(([key, preset]) => (
-              <MenuItem key={key} value={key}>{preset.label}</MenuItem>
-            ))}
-            {!PRESETS[presetKey] && <MenuItem value="custom" disabled>Custom Layout</MenuItem>}
-          </Select>
-        </FormControl>
-
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          {editMode && (
-            <Button
-              variant="outlined"
-              startIcon={<AddIcon />}
-              onClick={(e) => setAddMenuAnchor(e.currentTarget)}
-              disabled={availableToAdd.length === 0}
-            >
-              Add Widget
-            </Button>
-          )}
-          <Button
-            variant="contained"
-            startIcon={editMode ? <CheckIcon /> : <EditIcon />}
-            onClick={handleToggleEdit}
-            sx={{ backgroundColor: '#6f42c1', '&:hover': { backgroundColor: '#5a34a8' } }}
-          >
-            {editMode ? 'Done Editing' : 'Customize Dashboard'}
-          </Button>
-        </Box>
-
-        <Menu anchorEl={addMenuAnchor} open={Boolean(addMenuAnchor)} onClose={() => setAddMenuAnchor(null)}>
-          {['KPI', 'Chart'].flatMap((category) => {
-            const items = availableToAdd.filter((id) => WIDGET_REGISTRY[id].category === category);
-            if (items.length === 0) return [];
-            return [
-              <ListSubheader key={`header-${category}`}>{category === 'KPI' ? 'KPI Cards' : 'Charts & Tables'}</ListSubheader>,
-              ...items.map((id) => (
-                <MenuItem key={id} onClick={() => handleAddWidget(id)}>
-                  <ListItemText>{WIDGET_REGISTRY[id].title}</ListItemText>
-                </MenuItem>
-              )),
-            ];
-          })}
-          {availableToAdd.length === 0 && <MenuItem disabled>All widgets added</MenuItem>}
-        </Menu>
-      </Box>
+      {toolbar}
 
       {/* Grid */}
       <div ref={containerRef}>
