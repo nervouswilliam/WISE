@@ -229,8 +229,15 @@ export function useDashboardData(user) {
       quantitySoldByProduct[item.product_id] = (quantitySoldByProduct[item.product_id] || 0) + (item.quantity || 0);
     });
 
+    // Don't suggest reordering something that's already on its way.
+    const productIdsWithPendingOrder = new Set(
+      orders.filter((o) => o.status === 'Pending').map((o) => o.product_id)
+    );
+
     const suggestions = [];
     products.forEach((p) => {
+      if (productIdsWithPendingOrder.has(p.id)) return;
+
       const totalSold = quantitySoldByProduct[p.id] || 0;
       const avgDailyUnitsSold = totalSold / LOOKBACK_DAYS;
       const daysOfStockForProduct = avgDailyUnitsSold > 0 ? p.stock / avgDailyUnitsSold : null;
@@ -254,6 +261,7 @@ export function useDashboardData(user) {
         daysOfStock: daysOfStockForProduct,
         suggestedQty,
         supplierName: p.supplier_name,
+        price: p.price,
       });
     });
 
@@ -266,7 +274,7 @@ export function useDashboardData(user) {
     });
 
     return suggestions;
-  }, [products, rawTransactionItems, rawSalesTransactions]);
+  }, [products, rawTransactionItems, rawSalesTransactions, orders]);
 
   return {
     loading,

@@ -34,6 +34,7 @@ import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import PaidIcon from "@mui/icons-material/Paid";
 import GroupIcon from "@mui/icons-material/Group";
+import PeopleIcon from "@mui/icons-material/People";
 import authService from "../services/authService";
 import notificationService from "../services/notificationService";
 import ChatbotWidget from "./ChatbotWidget.jsx";
@@ -54,6 +55,7 @@ const NAV_ITEMS = [
   { to: "/report", label: "Report", icon: <AssessmentIcon /> },
   { to: "/sales", label: "Sale", icon: <PointOfSaleIcon /> },
   { to: "/warehouse", label: "Warehouse", icon: <WarehouseIcon /> },
+  { to: "/customer", label: "Customers", icon: <PeopleIcon /> },
   { to: "/expenses", label: "Expenses", icon: <PaidIcon /> },
 ];
 
@@ -193,6 +195,8 @@ export default function Layout({ children, user: authUser }) {
     "/order":"Order",
     "/expenses": "Expenses",
     "/team": "Team",
+    "/customer": "Customers",
+    "/customer/add": "Add Customer",
   };
 
   const getPageTitle = (path) => {
@@ -202,6 +206,8 @@ export default function Layout({ children, user: authUser }) {
     if (path.startsWith("/product/")) return "Product Detail";
     if (path.startsWith("/supplier/edit/")) return "Edit Supplier";
     if (path.startsWith("/supplier/")) return "Supplier Detail";
+    if (path.startsWith("/customer/edit/")) return "Edit Customer";
+    if (path.startsWith("/customer/")) return "Customer Detail";
     return "Wisely";
   };
 

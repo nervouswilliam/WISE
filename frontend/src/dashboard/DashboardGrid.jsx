@@ -264,7 +264,7 @@ function DashboardGrid({ user }) {
                   </IconButton>
                 )}
                 <Box sx={{ height: '100%', overflow: 'auto' }}>
-                  <WidgetComponent data={data} editMode={editMode} {...(def.props || {})} />
+                  <WidgetComponent data={data} editMode={editMode} user={user} {...(def.props || {})} />
                 </Box>
               </Box>
             );
@@ -327,7 +327,7 @@ function DashboardGrid({ user }) {
                       </IconButton>
                     )}
                     <Box sx={{ height: '100%', overflow: 'auto', pointerEvents: editMode ? 'none' : 'auto' }}>
-                      <WidgetComponent data={data} editMode={editMode} {...(def.props || {})} />
+                      <WidgetComponent data={data} editMode={editMode} user={user} {...(def.props || {})} />
                     </Box>
                   </Box>
                 </div>

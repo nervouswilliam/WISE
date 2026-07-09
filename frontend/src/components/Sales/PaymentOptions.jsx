@@ -111,7 +111,7 @@ import { useNavigate } from 'react-router-dom';
 import transactionService from '../../services/transactionService';
 import Loading from '../loading';
 
-function PaymentOptions({user, cartItems,totals}) {
+function PaymentOptions({user, cartItems, totals, customer}) {
   const [paymentMethod, setPaymentMethod] = useState('');
   const [loading, setLoading] = useState(false);
   const [cashReceived, setCashReceived] = useState('');
@@ -144,6 +144,19 @@ function PaymentOptions({user, cartItems,totals}) {
 
     // complete_sale already creates a low-stock notification server-side when a sold
     // item's stock drops to/below its threshold - no client-side check needed here.
+    if (customer) {
+      const { error: linkError } = await supabase
+        .from('transactions')
+        .update({ customer_id: customer.id })
+        .eq('id', data)
+        .eq('user_id', user.id);
+      if (linkError) {
+        // Non-fatal - the sale itself already succeeded, this just misses being
+        // attributed to the customer's purchase history.
+        console.error('Error linking sale to customer:', linkError);
+      }
+    }
+
     navigate('/report/' + data);
   };
 

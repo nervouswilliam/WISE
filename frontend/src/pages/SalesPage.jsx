@@ -5,12 +5,14 @@ import CartTable from '../components/Sales/CartTable';
 import SalesSummary from '../components/Sales/SalesSummary';
 import PaymentOptions from '../components/Sales/PaymentOptions';
 import SearchResultsList from '../components/Sales/SearchResultsList';
+import CustomerSelector from '../components/Sales/CustomerSelector';
 import productService from '../services/productService';
 
 function SalesPage({ user }) {
     const [cartItems, setCartItems] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [customer, setCustomer] = useState(null);
     const [totals, setTotals] = useState({
         subtotal: 0,
         discounts: 0,
@@ -152,11 +154,15 @@ function SalesPage({ user }) {
                     <Box sx={{ mb: 2 }}>
                         <SalesSummary totals={totals} />
                     </Box>
+                    <Box sx={{ mb: 2 }}>
+                        <CustomerSelector user={user} value={customer} onChange={setCustomer} />
+                    </Box>
                     <Box>
                         <PaymentOptions
                             user={user}
                             cartItems={cartItems}
                             totals={totals}
+                            customer={customer}
                         />
                     </Box>
                 </Box>

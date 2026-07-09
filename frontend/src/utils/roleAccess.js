@@ -5,7 +5,7 @@
 //
 // Owner and manager are unrestricted (any role not listed below gets full access).
 export const ROLE_ALLOWED_PREFIXES = {
-  cashier: ['/sales', '/warehouse', '/product', '/report'],
+  cashier: ['/sales', '/warehouse', '/product', '/report', '/customer'],
   purchasing: ['/supplier', '/order', '/warehouse', '/product'],
 };
 

@@ -30,6 +30,9 @@ import SalesForecastPage from './pages/SalesForecastPage.jsx';
 import LightModeShell from './components/LightModeShell.jsx';
 import ExpensePage from './pages/ExpensePage.jsx';
 import TeamPage from './pages/TeamPage.jsx';
+import CustomerPage from './pages/CustomerPage.jsx';
+import AddEditCustomerPage from './pages/AddEditCustomerPage.jsx';
+import CustomerDetailPage from './pages/CustomerDetailPage.jsx';
 import teamService from './services/teamService.js';
 import { hasRouteAccess, ROLE_DEFAULT_PATH } from './utils/roleAccess.js';
 
@@ -117,6 +120,10 @@ function App() {
       <Route path="/supplier/add" element={protect(<AddEditSupplierPage user={user}/>)} />
       <Route path="/supplier/edit/:id" element={protect(<AddEditSupplierPage user={user}/>)} />
       <Route path="/supplier/:id" element={protect(<SupplierDetailPage user={user}/>)} />
+      <Route path="/customer" element={protect(<CustomerPage user={user}/>)} />
+      <Route path="/customer/add" element={protect(<AddEditCustomerPage user={user}/>)} />
+      <Route path="/customer/edit/:id" element={protect(<AddEditCustomerPage user={user}/>)} />
+      <Route path="/customer/:id" element={protect(<CustomerDetailPage user={user}/>)} />
       <Route path="/settings" element={protect(<SettingsPage user={user}/>)} />
       <Route path="/team" element={protect(<TeamPage user={user}/>)} />
       <Route path="/order" element={protect(<OrderPage user={user}/>)} />
