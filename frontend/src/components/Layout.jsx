@@ -37,8 +37,23 @@ import authService from "../services/authService";
 import notificationService from "../services/notificationService";
 import LocalShipping from '@mui/icons-material/LocalShipping';
 import { useThemeMode } from "../context/ThemeModeContext.jsx";
+import { hasRouteAccess } from "../utils/roleAccess.js";
 
 const drawerWidth = 240;
+
+// Team and Settings are handled separately below (Team is gated by isStaff/role directly,
+// not the ROLE_ALLOWED_PREFIXES map; Settings is always accessible to everyone).
+const NAV_ITEMS = [
+  { to: "/dashboard", label: "Dashboard", icon: <DashboardIcon /> },
+  { to: "/statistic", label: "Statistics", icon: <InsightsIcon /> },
+  { to: "/forecast", label: "Sales Forecast", icon: <TrendingUpIcon /> },
+  { to: "/supplier", label: "Supplier", icon: <FactoryIcon /> },
+  { to: "/order", label: "Order", icon: <LocalShipping /> },
+  { to: "/report", label: "Report", icon: <AssessmentIcon /> },
+  { to: "/sales", label: "Sale", icon: <PointOfSaleIcon /> },
+  { to: "/warehouse", label: "Warehouse", icon: <WarehouseIcon /> },
+  { to: "/expenses", label: "Expenses", icon: <PaidIcon /> },
+];
 
 export default function Layout({ children, user: authUser }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -113,88 +128,16 @@ export default function Layout({ children, user: authUser }) {
         WISELY
       </Typography>
       <List>
-        <ListItem disablePadding>
-          <ListItemButton component={Link} to="/dashboard">
-            <ListItemIcon>
-              <DashboardIcon />
-            </ListItemIcon>
-            <ListItemText primary="Dashboard" />
-          </ListItemButton>
-        </ListItem>
+        {NAV_ITEMS.filter((item) => hasRouteAccess(authUser?.role, item.to)).map((item) => (
+          <ListItem key={item.to} disablePadding>
+            <ListItemButton component={Link} to={item.to}>
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.label} />
+            </ListItemButton>
+          </ListItem>
+        ))}
 
-        <ListItem disablePadding>
-          <ListItemButton component={Link} to="/statistic">
-            <ListItemIcon>
-              <InsightsIcon />
-            </ListItemIcon>
-            <ListItemText primary="Statistics" />
-          </ListItemButton>
-        </ListItem>
-
-        <ListItem disablePadding>
-          <ListItemButton component={Link} to="/forecast">
-            <ListItemIcon>
-              <TrendingUpIcon />
-            </ListItemIcon>
-            <ListItemText primary="Sales Forecast" />
-          </ListItemButton>
-        </ListItem>
-
-        <ListItem disablePadding>
-          <ListItemButton component={Link} to="/supplier">
-            <ListItemIcon>
-              <FactoryIcon />
-            </ListItemIcon>
-            <ListItemText primary="Supplier" />
-          </ListItemButton>
-        </ListItem>
-
-        <ListItem disablePadding>
-          <ListItemButton component={Link} to="/order">
-            <ListItemIcon>
-              <LocalShipping/>
-            </ListItemIcon>
-            <ListItemText primary="Order" />
-          </ListItemButton>
-        </ListItem>
-
-        <ListItem disablePadding>
-          <ListItemButton component={Link} to="/report">
-            <ListItemIcon>
-              <AssessmentIcon />
-            </ListItemIcon>
-            <ListItemText primary="Report" />
-          </ListItemButton>
-        </ListItem>
-
-        <ListItem disablePadding>
-          <ListItemButton component={Link} to="/sales">
-            <ListItemIcon>
-              <PointOfSaleIcon />
-            </ListItemIcon>
-            <ListItemText primary="Sale" />
-          </ListItemButton>
-        </ListItem>
-
-        <ListItem disablePadding>
-          <ListItemButton component={Link} to="/warehouse">
-            <ListItemIcon>
-              <WarehouseIcon />
-            </ListItemIcon>
-            <ListItemText primary="Warehouse" />
-          </ListItemButton>
-        </ListItem>
-
-        <ListItem disablePadding>
-          <ListItemButton component={Link} to="/expenses">
-            <ListItemIcon>
-              <PaidIcon />
-            </ListItemIcon>
-            <ListItemText primary="Expenses" />
-          </ListItemButton>
-        </ListItem>
-
-        {!authUser?.isStaff && (
+        {(!authUser?.isStaff || authUser?.role === "manager") && (
           <ListItem disablePadding>
             <ListItemButton component={Link} to="/team">
               <ListItemIcon>
@@ -342,9 +285,14 @@ export default function Layout({ children, user: authUser }) {
 
           {/* Profile info */}
           <Avatar alt={user?.name} src={user?.imageUrl} sx={{ ml: 2, mr: 1 }} />
-          <Typography variant="body1" sx={{ mr: 2 }}>
-            {user?.name}
-          </Typography>
+          <Box sx={{ mr: 2, lineHeight: 1.2 }}>
+            <Typography variant="body1">{user?.name}</Typography>
+            {authUser?.role && (
+              <Typography variant="caption" sx={{ opacity: 0.8, display: "block" }}>
+                {authUser.role.charAt(0).toUpperCase() + authUser.role.slice(1)}
+              </Typography>
+            )}
+          </Box>
 
           <Button color="inherit" onClick={handleLogout}>
             <LogoutIcon sx={{ mr: 1 }} /> Logout

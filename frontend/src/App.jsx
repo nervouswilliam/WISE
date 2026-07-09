@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from "react";
 
 import LandingPage from './pages/LandingPage.jsx';
@@ -31,6 +31,20 @@ import LightModeShell from './components/LightModeShell.jsx';
 import ExpensePage from './pages/ExpensePage.jsx';
 import TeamPage from './pages/TeamPage.jsx';
 import teamService from './services/teamService.js';
+import { hasRouteAccess, ROLE_DEFAULT_PATH } from './utils/roleAccess.js';
+
+// Wraps every authenticated page: bounces to /login if not signed in, and to the role's
+// default page if this role isn't allowed to see the current path (UI-only gating - see
+// utils/roleAccess.js for the caveat that this isn't backed by RLS).
+function ProtectedRoute({ isAuthenticated, user, children }) {
+  const location = useLocation();
+
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!hasRouteAccess(user?.role, location.pathname)) {
+    return <Navigate to={ROLE_DEFAULT_PATH[user?.role] || '/dashboard'} replace />;
+  }
+  return <Layout user={user}>{children}</Layout>;
+}
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null = checking
@@ -73,6 +87,10 @@ function App() {
 
   if (loading) return <p>Loading...</p>;
 
+  const protect = (element) => (
+    <ProtectedRoute isAuthenticated={isAuthenticated} user={user}>{element}</ProtectedRoute>
+  );
+
   return (
     <Routes>
       {/* Default redirect to login if not authenticated */}
@@ -84,27 +102,27 @@ function App() {
       <Route path="/signup" element={<LightModeShell><SignupPage /></LightModeShell>} />
       <Route path="/terms-of-service" element={<LightModeShell><TermsOfServicePage /></LightModeShell>} />
       <Route path="/privacy-policy" element={<LightModeShell><PrivacyPolicyPage /></LightModeShell>} />
-      <Route path="/dashboard" element={isAuthenticated ? (<Layout user={user}><Dashboard user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/statistic" element={isAuthenticated ? (<Layout user={user}><StatisticPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/forecast" element={isAuthenticated ? (<Layout user={user}><SalesForecastPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/warehouse" element={isAuthenticated ? (<Layout user={user}><WarehousePage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/product/:id" element={isAuthenticated ? (<Layout user={user}><ProductDetailPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/product/add" element={isAuthenticated ? (<Layout user={user}><AddEditProductPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/product/stock-add/:id" element={isAuthenticated ? (<Layout user={user}><AddProductStockPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/product/edit/:id" element={isAuthenticated ? (<Layout user={user}><AddEditProductPage user = {user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/sales" element={isAuthenticated ? (<Layout user={user}><SalesPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/report" element={isAuthenticated ? (<Layout user={user}><ReportPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/report/:id" element={isAuthenticated ? (<Layout user={user}><ReportDetailPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/supplier" element={isAuthenticated ? (<Layout user={user}><SupplierPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/supplier/add" element={isAuthenticated ? (<Layout user={user}><AddEditSupplierPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/supplier/edit/:id" element={isAuthenticated ? (<Layout user={user}><AddEditSupplierPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/supplier/:id" element={isAuthenticated ? (<Layout user={user}><SupplierDetailPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/settings" element={isAuthenticated ? (<Layout user={user}><SettingsPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/team" element={isAuthenticated ? (<Layout user={user}><TeamPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/order" element={isAuthenticated ? (<Layout user={user}><OrderPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/order/:id" element={isAuthenticated ? (<Layout user={user}><OrderDetailPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/notifications" element={isAuthenticated ? (<Layout user={user}><NotificationPage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
-      <Route path="/expenses" element={isAuthenticated ? (<Layout user={user}><ExpensePage user={user}/></Layout>) : <Navigate to="/login" replace/>} />
+      <Route path="/dashboard" element={protect(<Dashboard user={user}/>)} />
+      <Route path="/statistic" element={protect(<StatisticPage user={user}/>)} />
+      <Route path="/forecast" element={protect(<SalesForecastPage user={user}/>)} />
+      <Route path="/warehouse" element={protect(<WarehousePage user={user}/>)} />
+      <Route path="/product/:id" element={protect(<ProductDetailPage user={user}/>)} />
+      <Route path="/product/add" element={protect(<AddEditProductPage user={user}/>)} />
+      <Route path="/product/stock-add/:id" element={protect(<AddProductStockPage user={user}/>)} />
+      <Route path="/product/edit/:id" element={protect(<AddEditProductPage user={user}/>)} />
+      <Route path="/sales" element={protect(<SalesPage user={user}/>)} />
+      <Route path="/report" element={protect(<ReportPage user={user}/>)} />
+      <Route path="/report/:id" element={protect(<ReportDetailPage user={user}/>)} />
+      <Route path="/supplier" element={protect(<SupplierPage user={user}/>)} />
+      <Route path="/supplier/add" element={protect(<AddEditSupplierPage user={user}/>)} />
+      <Route path="/supplier/edit/:id" element={protect(<AddEditSupplierPage user={user}/>)} />
+      <Route path="/supplier/:id" element={protect(<SupplierDetailPage user={user}/>)} />
+      <Route path="/settings" element={protect(<SettingsPage user={user}/>)} />
+      <Route path="/team" element={protect(<TeamPage user={user}/>)} />
+      <Route path="/order" element={protect(<OrderPage user={user}/>)} />
+      <Route path="/order/:id" element={protect(<OrderDetailPage user={user}/>)} />
+      <Route path="/notifications" element={protect(<NotificationPage user={user}/>)} />
+      <Route path="/expenses" element={protect(<ExpensePage user={user}/>)} />
       <Route path="/reset-password" element={<LightModeShell><ResetPasswordPage /></LightModeShell>} />
 
 

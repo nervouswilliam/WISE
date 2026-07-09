@@ -22,7 +22,7 @@ import teamService from '../services/teamService';
 import DynamicTable from '../components/DynamicTable';
 import Loading from '../components/loading';
 
-const ROLES = ['manager', 'cashier'];
+const ROLES = ['manager', 'cashier', 'purchasing'];
 
 function TeamPage({ user }) {
   const [members, setMembers] = useState([]);
@@ -32,10 +32,16 @@ function TeamPage({ user }) {
   const [inviting, setInviting] = useState(false);
   const [error, setError] = useState(null);
 
+  // Owners always manage the team; managers can too. Cashiers/purchasing can't.
+  const canManageTeam = !user.isStaff || user.role === 'manager';
+
   const fetchMembers = async () => {
     try {
       setLoading(true);
-      const data = await teamService.getTeamMembers(user.authId);
+      // user.id is the *effective* business id (the real owner's, even for a manager
+      // logged in as staff) - always use this, never user.authId, when talking to
+      // team_members, so a manager's actions apply to the owner's team, not their own.
+      const data = await teamService.getTeamMembers(user.id);
       setMembers(data);
     } catch (err) {
       console.error(err);
@@ -46,7 +52,7 @@ function TeamPage({ user }) {
   };
 
   useEffect(() => {
-    if (!user.isStaff) fetchMembers();
+    if (canManageTeam) fetchMembers();
   }, [user]);
 
   const handleInvite = async () => {
@@ -60,7 +66,7 @@ function TeamPage({ user }) {
     }
     setInviting(true);
     try {
-      await teamService.inviteMember(email, role, user.authId);
+      await teamService.inviteMember(email, role, user.id);
       setEmail('');
       setRole('cashier');
       await fetchMembers();
@@ -76,7 +82,7 @@ function TeamPage({ user }) {
     const confirmed = window.confirm(`Remove ${row.email} from your team?`);
     if (!confirmed) return;
     try {
-      await teamService.revokeMember(row.id, user.authId);
+      await teamService.revokeMember(row.id, user.id);
       await fetchMembers();
     } catch (err) {
       console.error(err);
@@ -84,11 +90,11 @@ function TeamPage({ user }) {
     }
   };
 
-  if (user.isStaff) {
+  if (!canManageTeam) {
     return (
       <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
         <Alert severity="info">
-          Only the business owner can manage the team. You're signed in as a {user.role}.
+          Only the business owner or a manager can manage the team. You're signed in as a {user.role}.
         </Alert>
       </Container>
     );
