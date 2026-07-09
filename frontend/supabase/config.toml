@@ -1,0 +1,7 @@
+# Minimal Supabase CLI config. Run `supabase link --project-ref <your-project-ref>`
+# from this directory (frontend/) to connect the CLI to your actual project - that
+# updates project_id below automatically.
+project_id = "your-project-ref"
+
+[functions.chatbot]
+verify_jwt = true

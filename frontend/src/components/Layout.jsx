@@ -35,6 +35,7 @@ import PaidIcon from "@mui/icons-material/Paid";
 import GroupIcon from "@mui/icons-material/Group";
 import authService from "../services/authService";
 import notificationService from "../services/notificationService";
+import ChatbotWidget from "./ChatbotWidget.jsx";
 import LocalShipping from '@mui/icons-material/LocalShipping';
 import { useThemeMode } from "../context/ThemeModeContext.jsx";
 import { hasRouteAccess } from "../utils/roleAccess.js";
@@ -348,6 +349,8 @@ export default function Layout({ children, user: authUser }) {
         <Toolbar />
         {children}
       </Box>
+
+      <ChatbotWidget />
     </Box>
   );
 }
