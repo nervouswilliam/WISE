@@ -135,21 +135,16 @@ function PaymentOptions({user, cartItems,totals}) {
       _payment_method: paymentMethod,
     })
 
+    setLoading(false);
+
     if (error) {
       console.error('Error completing sale:', error);
-    } else {
-      setLoading(false);
-      console.log('Sale completed successfully:', data);
-      navigate('/report/' + data);
+      return;
     }
 
-
-    if (loading) {
-      return (
-        <Loading/>
-      );
-    }
-
+    // complete_sale already creates a low-stock notification server-side when a sold
+    // item's stock drops to/below its threshold - no client-side check needed here.
+    navigate('/report/' + data);
   };
 
 

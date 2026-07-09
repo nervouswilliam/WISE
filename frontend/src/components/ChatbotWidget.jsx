@@ -7,6 +7,7 @@ import {
   Typography,
   CircularProgress,
   Fade,
+  Chip,
 } from "@mui/material";
 import ChatIcon from "@mui/icons-material/Chat";
 import CloseIcon from "@mui/icons-material/Close";
@@ -15,6 +16,13 @@ import SmartToyIcon from "@mui/icons-material/SmartToy";
 import chatbotService from "../services/chatbotService";
 
 const STORAGE_KEY = "wisely_chat_history";
+
+const SUGGESTED_QUESTIONS = [
+  "What's low on stock?",
+  "How were sales this week?",
+  "Any pending orders?",
+  "What's my biggest expense category?",
+];
 
 function loadHistory() {
   try {
@@ -45,8 +53,8 @@ export default function ChatbotWidget() {
     }
   }, [messages, sending, open]);
 
-  const handleSend = async () => {
-    const text = input.trim();
+  const handleSend = async (presetText) => {
+    const text = (typeof presetText === "string" ? presetText : input).trim();
     if (!text || sending) return;
     setInput("");
     setMessages((prev) => [...prev, { role: "user", text }]);
@@ -142,9 +150,23 @@ export default function ChatbotWidget() {
             sx={{ flex: 1, overflowY: "auto", p: 2, display: "flex", flexDirection: "column", gap: 1.5 }}
           >
             {messages.length === 0 && (
-              <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center", mt: 4 }}>
-                Ask me about your stock, sales trends, or anything else about your business.
-              </Typography>
+              <Box sx={{ mt: 4, display: "flex", flexDirection: "column", gap: 1.5 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center" }}>
+                  Ask me about your stock, sales trends, or anything else about your business.
+                </Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, justifyContent: "center" }}>
+                  {SUGGESTED_QUESTIONS.map((q) => (
+                    <Chip
+                      key={q}
+                      label={q}
+                      size="small"
+                      variant="outlined"
+                      clickable
+                      onClick={() => handleSend(q)}
+                    />
+                  ))}
+                </Box>
+              </Box>
             )}
             {messages.map((m, i) => (
               <Box
@@ -188,7 +210,7 @@ export default function ChatbotWidget() {
               maxRows={3}
             />
             <IconButton
-              onClick={handleSend}
+              onClick={() => handleSend()}
               disabled={sending || !input.trim()}
               sx={{
                 backgroundColor: "#6f42c1",

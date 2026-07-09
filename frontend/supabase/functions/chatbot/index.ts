@@ -2,9 +2,13 @@
 //
 // Flow: verify the caller's Supabase session -> resolve which business they operate on
 // (mirrors the owner/staff resolution in src/App.jsx) -> pull a lean, real snapshot of
-// that business's data through the SAME RLS-scoped client the caller would use -> hand
-// that snapshot to Groq (hosted open-source models, OpenAI-compatible API) as grounding
-// context -> return its answer.
+// that business's data (products/stock, sales, orders, suppliers, expenses) through the
+// SAME RLS-scoped client the caller would use -> hand that snapshot to Groq (hosted
+// open-source models, OpenAI-compatible API) as grounding context -> return its answer.
+//
+// Money values in the context are pre-formatted as Indonesian Rupiah strings (matching
+// src/utils/currency.js) so the model relays them as-is instead of re-formatting numbers
+// itself, which is where models tend to drop the "Rp"/thousands-separator convention.
 //
 // Deploy: supabase functions deploy chatbot
 // Secret: supabase secrets set GROQ_API_KEY=your-key-here (get one at console.groq.com)
@@ -78,13 +82,31 @@ Deno.serve(async (req) => {
   }
 });
 
+// Matches src/utils/currency.js exactly, so numbers read the same way here as they do
+// everywhere else in the app ("Rp 26.000.000", dot thousands-separator).
+function formatIDR(amount: number) {
+  return `Rp ${Math.round(amount || 0).toLocaleString('id-ID', { maximumFractionDigits: 0 })}`;
+}
+
 // Pulls a lean snapshot of the business's current state - just enough for the model to
-// answer stock/trend questions grounded in real numbers, without shipping entire tables.
+// answer stock/trend/spending questions grounded in real numbers, without shipping entire
+// tables. Every money figure is pre-formatted (see formatIDR) so the model only ever has
+// to relay a string, never compute currency formatting itself.
 async function buildBusinessContext(supabase: ReturnType<typeof createClient>, ownerId: string) {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
 
-  const [{ data: products }, { data: sales }, { data: saleItems }, { data: orders }] = await Promise.all([
+  const [
+    { data: products },
+    { data: sales },
+    { data: saleItems },
+    { data: orders },
+    { data: suppliers },
+    { data: expenses },
+  ] = await Promise.all([
     supabase.from('view_products').select('name, stock, low_stock, price, category_name').eq('user_id', ownerId),
     supabase
       .from('view_transaction')
@@ -97,6 +119,12 @@ async function buildBusinessContext(supabase: ReturnType<typeof createClient>, o
       .select('product_name, quantity, subtotal, transaction_id')
       .eq('user_id', ownerId),
     supabase.from('view_orders').select('status, total_cost, subtotal, created_at').eq('user_id', ownerId),
+    supabase.from('suppliers').select('name').eq('user_id', ownerId),
+    supabase
+      .from('expenses')
+      .select('category, description, amount, expense_date')
+      .eq('user_id', ownerId)
+      .gte('expense_date', monthStart.toISOString().slice(0, 10)),
   ]);
 
   const saleTransactionIds = new Set((sales || []).map((s) => s.transaction_id));
@@ -109,34 +137,51 @@ async function buildBusinessContext(supabase: ReturnType<typeof createClient>, o
   const topProducts = Object.entries(revenueByProduct)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
-    .map(([name, revenue]) => ({ name, revenue }));
+    .map(([name, revenue]) => ({ name, revenue: formatIDR(revenue) }));
 
   const lowStockItems = (products || [])
     .filter((p) => p.stock <= p.low_stock)
     .map((p) => ({ name: p.name, stock: p.stock, threshold: p.low_stock }));
 
-  const salesByDay: Record<string, number> = {};
+  const salesByDayRaw: Record<string, number> = {};
   for (const s of sales || []) {
     const day = new Date(s.created_at).toISOString().slice(0, 10);
-    salesByDay[day] = (salesByDay[day] || 0) + (s.total_amount || 0);
+    salesByDayRaw[day] = (salesByDayRaw[day] || 0) + (s.total_amount || 0);
   }
+  const salesByDay = Object.fromEntries(
+    Object.entries(salesByDayRaw).map(([day, total]) => [day, formatIDR(total)])
+  );
 
   const pendingOrders = (orders || []).filter((o) => o.status === 'Pending');
 
+  const expensesByCategory: Record<string, number> = {};
+  for (const e of expenses || []) {
+    expensesByCategory[e.category] = (expensesByCategory[e.category] || 0) + (e.amount || 0);
+  }
+  const expensesThisMonthTotal = (expenses || []).reduce((sum, e) => sum + (e.amount || 0), 0);
+
   return {
     totalProducts: products?.length || 0,
-    totalInventoryValue: (products || []).reduce((sum, p) => sum + (p.stock || 0) * (p.price || 0), 0),
+    totalInventoryValue: formatIDR((products || []).reduce((sum, p) => sum + (p.stock || 0) * (p.price || 0), 0)),
     lowStockItems,
-    salesLast7DaysTotal: (sales || []).reduce((sum, s) => sum + (s.total_amount || 0), 0),
+    salesLast7DaysTotal: formatIDR((sales || []).reduce((sum, s) => sum + (s.total_amount || 0), 0)),
     salesByDay,
     topProductsLast7Days: topProducts,
     pendingOrdersCount: pendingOrders.length,
-    pendingOrdersValue: pendingOrders.reduce((sum, o) => sum + (o.total_cost ?? o.subtotal ?? 0), 0),
+    pendingOrdersValue: formatIDR(pendingOrders.reduce((sum, o) => sum + (o.total_cost ?? o.subtotal ?? 0), 0)),
+    totalSuppliers: suppliers?.length || 0,
+    supplierNames: (suppliers || []).map((s) => s.name),
+    expensesThisMonthTotal: formatIDR(expensesThisMonthTotal),
+    expensesByCategoryThisMonth: Object.fromEntries(
+      Object.entries(expensesByCategory).map(([category, amount]) => [category, formatIDR(amount)])
+    ),
   };
 }
 
 async function askGroq(message: string, context: unknown) {
   const systemPrompt = `You are a business assistant embedded in "Wisely", a warehouse/POS management app. Answer the user's question using ONLY the JSON business data below - don't invent numbers that aren't there. If the data doesn't cover what's asked, say so plainly instead of guessing. Keep answers concise and concrete (cite actual numbers/names from the data).
+
+Money values in the data are already formatted as Indonesian Rupiah strings (e.g. "Rp 26.000.000") - copy them exactly as given, don't strip the "Rp", don't re-add commas, don't convert to a different format.
 
 Business data:
 ${JSON.stringify(context, null, 2)}`;

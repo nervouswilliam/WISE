@@ -1,6 +1,6 @@
 import { supabase } from '../supabaseClient';
+
 const getNotifications = async (userId, recent) => {
-    console.log("Fetching notifications for user:", userId);
     const { data, error } = await supabase
         .from('notifications')
         .select()
@@ -34,6 +34,7 @@ const deleteNotification = async (notificationId) => {
         .eq('id', notificationId);
     return { data, error };
 };
+
 export default {
     getNotifications,
     getNotificationList,

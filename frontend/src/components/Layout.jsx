@@ -17,6 +17,7 @@ import {
   Popover,
   Divider,
   CircularProgress,
+  Badge,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
@@ -81,7 +82,18 @@ export default function Layout({ children, user: authUser }) {
     setAnchorEl(null);
   };
 
+  const handleNotifItemClick = async (notif) => {
+    if (notif.read) return;
+    setNotifications((prev) => prev.map((n) => (n.id === notif.id ? { ...n, read: true } : n)));
+    try {
+      await notificationService.markNotificationAsRead(notif.id);
+    } catch (err) {
+      console.error("Failed to mark notification as read:", err);
+    }
+  };
+
   const open = Boolean(anchorEl);
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -95,16 +107,16 @@ export default function Layout({ children, user: authUser }) {
     fetchUser();
   }, []);
 
+  // Notifications are scoped to the business (authUser.id), same as every other RLS-scoped
+  // table in the app - so staff see the same stock/order alerts the owner would, not just
+  // whoever happens to be logged in.
   useEffect(() => {
+    if (!authUser?.id) return;
     const fetchNotifications = async () => {
       try {
-        const response = await authService.whoami();
-        const currentUser = response.user_metadata;
-        setUser(currentUser);
         setLoading(true);
-        console.log("currentUser:", currentUser);
-        const data = await notificationService.getNotifications(currentUser.sub, 5);
-        setNotifications(data.data);
+        const data = await notificationService.getNotifications(authUser.id, 5);
+        setNotifications(data.data || []);
       } catch (err) {
         console.error("Failed to fetch notifications:", err);
       } finally {
@@ -112,7 +124,7 @@ export default function Layout({ children, user: authUser }) {
       }
     };
     fetchNotifications();
-  }, []);
+  }, [authUser?.id]);
 
   const drawer = (
     <Box sx={{ width: drawerWidth }}>
@@ -227,7 +239,9 @@ export default function Layout({ children, user: authUser }) {
 
           {/* 🔔 Notification Icon */}
           <IconButton color="inherit" onClick={handleNotifClick}>
-            <NotificationsIcon />
+            <Badge badgeContent={unreadCount} color="error">
+              <NotificationsIcon />
+            </Badge>
           </IconButton>
 
           {/* Popover for notifications */}
@@ -259,13 +273,26 @@ export default function Layout({ children, user: authUser }) {
                   No new notifications.
                 </Typography>
               ) : (
-                console.log("notifications:", notifications),
                 notifications.map((notif, i) => (
-                  <Box key={i} sx={{ mb: 1 }}>
-                    <Typography variant="body2">{notif.type}</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {new Date(notif.created_at).toLocaleString()}
-                    </Typography>
+                  <Box key={notif.id ?? i}>
+                    <Box
+                      onClick={() => handleNotifItemClick(notif)}
+                      sx={{
+                        mb: 1,
+                        p: 1,
+                        borderRadius: 1,
+                        cursor: notif.read ? "default" : "pointer",
+                        backgroundColor: notif.read ? "transparent" : "action.hover",
+                        "&:hover": { backgroundColor: "action.hover" },
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ fontWeight: notif.read ? 400 : 600 }}>
+                        {notif.message || notif.type}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {new Date(notif.created_at).toLocaleString()}
+                      </Typography>
+                    </Box>
                     {i !== notifications.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>
                 ))

@@ -3,15 +3,16 @@ import {
   Box,
   Typography,
   Divider,
-  CircularProgress,
   List,
   ListItem,
   ListItemText,
+  IconButton,
   Paper,
   Button,
 } from "@mui/material";
 import notificationService from "../services/notificationService";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/loading";
 
@@ -39,16 +40,55 @@ export default function NotificationPage({user}) {
     fetchNotifications();
   }, []);
 
+  const handleMarkAsRead = async (notif) => {
+    if (notif.read) return;
+    setNotifications((prev) => prev.map((n) => (n.id === notif.id ? { ...n, read: true } : n)));
+    try {
+      await notificationService.markNotificationAsRead(notif.id);
+    } catch (err) {
+      console.error("Failed to mark notification as read:", err);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    const unread = notifications.filter((n) => !n.read);
+    if (unread.length === 0) return;
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    try {
+      await Promise.all(unread.map((n) => notificationService.markNotificationAsRead(n.id)));
+    } catch (err) {
+      console.error("Failed to mark all notifications as read:", err);
+    }
+  };
+
+  const handleDelete = async (notif) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== notif.id));
+    try {
+      await notificationService.deleteNotification(notif.id);
+    } catch (err) {
+      console.error("Failed to delete notification:", err);
+    }
+  };
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
   return (
     <Box sx={{ p: 3 }}>
-      <Button
-        variant="contained"
-        startIcon= {<ArrowBackIcon/>}
-        sx={{ backgroundColor: "#6f42c1", marginBottom: 2 }}
-        onClick={handleBackClick}
-        >
-            Back
-        </Button>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1 }}>
+        <Button
+          variant="contained"
+          startIcon= {<ArrowBackIcon/>}
+          sx={{ backgroundColor: "#6f42c1" }}
+          onClick={handleBackClick}
+          >
+              Back
+          </Button>
+        {unreadCount > 0 && (
+          <Button variant="outlined" onClick={handleMarkAllAsRead}>
+            Mark all as read
+          </Button>
+        )}
+      </Box>
 
       {loading ? (
         <Loading />
@@ -61,10 +101,30 @@ export default function NotificationPage({user}) {
           <List>
             {notifications.map((notif, index) => (
               <Box key={notif.id || index}>
-                <ListItem alignItems="flex-start">
+                <ListItem
+                  alignItems="flex-start"
+                  onClick={() => handleMarkAsRead(notif)}
+                  sx={{
+                    cursor: notif.read ? "default" : "pointer",
+                    backgroundColor: notif.read ? "transparent" : "action.hover",
+                    borderRadius: 1,
+                  }}
+                  secondaryAction={
+                    <IconButton
+                      edge="end"
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(notif);
+                      }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  }
+                >
                   <ListItemText
                     primary={
-                      <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: notif.read ? 500 : 700 }}>
                         {notif.type || "Notification"}
                       </Typography>
                     }
