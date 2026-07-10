@@ -5,6 +5,7 @@ import {
   Box,
   Card,
   CardContent,
+  CardActions,
   Button,
   TextField,
   FormControl,
@@ -15,14 +16,21 @@ import {
   IconButton,
   Alert,
   Grid,
+  ToggleButton,
+  ToggleButtonGroup,
+  Avatar,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import GridViewIcon from '@mui/icons-material/GridView';
 import teamService from '../services/teamService';
 import DynamicTable from '../components/DynamicTable';
 import Loading from '../components/loading';
 
 const ROLES = ['manager', 'cashier', 'purchasing'];
+const VIEW_MODE_STORAGE_KEY = 'teamViewMode';
+const PRIMARY_COLOR = '#6f42c1';
 
 function TeamPage({ user }) {
   const [members, setMembers] = useState([]);
@@ -31,6 +39,9 @@ function TeamPage({ user }) {
   const [role, setRole] = useState('cashier');
   const [inviting, setInviting] = useState(false);
   const [error, setError] = useState(null);
+  const [viewMode, setViewMode] = useState(
+    () => localStorage.getItem(VIEW_MODE_STORAGE_KEY) || 'table'
+  );
 
   // Owners always manage the team; managers can too. Cashiers/purchasing can't.
   const canManageTeam = !user.isStaff || user.role === 'manager';
@@ -88,6 +99,12 @@ function TeamPage({ user }) {
       console.error(err);
       alert('Failed to remove team member. Please try again.');
     }
+  };
+
+  const handleViewModeChange = (e, newMode) => {
+    if (!newMode) return;
+    setViewMode(newMode);
+    localStorage.setItem(VIEW_MODE_STORAGE_KEY, newMode);
   };
 
   if (!canManageTeam) {
@@ -154,41 +171,115 @@ function TeamPage({ user }) {
 
       <Card sx={{ boxShadow: 3 }}>
         <CardContent>
-          <DynamicTable
-            columns={[
-              { field: 'email', label: 'Email' },
-              { field: 'role', label: 'Role', render: (v) => v.charAt(0).toUpperCase() + v.slice(1) },
-              {
-                field: 'status',
-                label: 'Status',
-                render: (v) => (
-                  <Chip
-                    size="small"
-                    label={v.charAt(0).toUpperCase() + v.slice(1)}
-                    color={v === 'active' ? 'success' : v === 'pending' ? 'warning' : 'default'}
-                  />
-                ),
-              },
-              { field: 'invited_at', label: 'Invited' },
-            ]}
-            rows={members.map((m) => ({
-              id: m.id,
-              email: m.email,
-              role: m.role,
-              status: m.status,
-              invited_at: new Date(m.invited_at).toLocaleDateString('id-ID'),
-              _raw: m,
-            }))}
-            actions={(row) => (
-              <IconButton size="small" color="error" onClick={() => handleRevoke(row._raw)}>
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            )}
-          />
-          {members.length === 0 && (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: members.length === 0 ? 0 : 2 }}>
+            <ToggleButtonGroup
+              value={viewMode}
+              exclusive
+              onChange={handleViewModeChange}
+              size="small"
+            >
+              <ToggleButton value="table" aria-label="table view">
+                <ViewListIcon fontSize="small" />
+              </ToggleButton>
+              <ToggleButton value="cards" aria-label="card view">
+                <GridViewIcon fontSize="small" />
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+
+          {members.length === 0 ? (
             <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
               No team members yet. Invite someone above to get started.
             </Typography>
+          ) : viewMode === 'table' ? (
+            <DynamicTable
+              columns={[
+                {
+                  field: 'name',
+                  label: 'Name',
+                  render: (v, row) => (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Avatar src={row._raw.avatar_url || undefined} sx={{ width: 28, height: 28, backgroundColor: PRIMARY_COLOR, fontSize: 14 }}>
+                        {(row._raw.name || row._raw.email).charAt(0).toUpperCase()}
+                      </Avatar>
+                      {v}
+                    </Box>
+                  ),
+                },
+                { field: 'email', label: 'Email' },
+                { field: 'role', label: 'Role', render: (v) => v.charAt(0).toUpperCase() + v.slice(1) },
+                {
+                  field: 'status',
+                  label: 'Status',
+                  render: (v) => (
+                    <Chip
+                      size="small"
+                      label={v.charAt(0).toUpperCase() + v.slice(1)}
+                      color={v === 'active' ? 'success' : v === 'pending' ? 'warning' : 'default'}
+                    />
+                  ),
+                },
+                { field: 'invited_at', label: 'Invited' },
+              ]}
+              rows={members.map((m) => ({
+                id: m.id,
+                name: m.name || '—',
+                email: m.email,
+                role: m.role,
+                status: m.status,
+                invited_at: new Date(m.invited_at).toLocaleDateString('id-ID'),
+                _raw: m,
+              }))}
+              actions={(row) => (
+                <IconButton size="small" color="error" onClick={() => handleRevoke(row._raw)}>
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              )}
+            />
+          ) : (
+            <Grid container spacing={2}>
+              {members.map((m) => (
+                <Grid key={m.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                  <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <CardContent sx={{ flexGrow: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
+                        <Avatar src={m.avatar_url || undefined} sx={{ backgroundColor: PRIMARY_COLOR }}>
+                          {(m.name || m.email).charAt(0).toUpperCase()}
+                        </Avatar>
+                        <Box sx={{ minWidth: 0 }}>
+                          <Typography variant="subtitle1" fontWeight={600} noWrap title={m.name || m.email}>
+                            {m.name || m.email}
+                          </Typography>
+                          {m.name && (
+                            <Typography variant="body2" color="text.secondary" noWrap title={m.email}>
+                              {m.email}
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+                      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
+                        <Chip
+                          size="small"
+                          label={m.status.charAt(0).toUpperCase() + m.status.slice(1)}
+                          color={m.status === 'active' ? 'success' : m.status === 'pending' ? 'warning' : 'default'}
+                        />
+                        <Typography variant="body2" color="text.secondary">
+                          {m.role.charAt(0).toUpperCase() + m.role.slice(1)}
+                        </Typography>
+                      </Box>
+                      <Typography variant="caption" color="text.secondary">
+                        Invited {new Date(m.invited_at).toLocaleDateString('id-ID')}
+                      </Typography>
+                    </CardContent>
+                    <CardActions sx={{ px: 2, pb: 2, pt: 0, justifyContent: 'flex-end' }}>
+                      <IconButton size="small" color="error" onClick={() => handleRevoke(m)}>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
           )}
         </CardContent>
       </Card>

@@ -45,7 +45,7 @@ const revokeMember = async (id, ownerAuthId) => {
 
 // Called once per login (see App.jsx). Looks for a pending invite addressed to this
 // person's own verified email and, if found, links it to their auth id.
-const acceptPendingInviteIfAny = async (authId, email) => {
+const acceptPendingInviteIfAny = async (authId, email, name, avatarUrl) => {
   if (!email) return null;
 
   const { data: pending, error: findError } = await supabase
@@ -58,9 +58,18 @@ const acceptPendingInviteIfAny = async (authId, email) => {
 
   if (findError || !pending) return null;
 
+  // team_members has no way to look up a member's name/picture on its own (those live in
+  // their auth metadata, which we can only read as themselves) - so capture them here,
+  // once, while they're accepting their own invite.
   const { data, error } = await supabase
     .from('team_members')
-    .update({ member_user_id: authId, status: 'active', joined_at: new Date().toISOString() })
+    .update({
+      member_user_id: authId,
+      status: 'active',
+      joined_at: new Date().toISOString(),
+      name,
+      avatar_url: avatarUrl,
+    })
     .eq('id', pending.id)
     .select()
     .maybeSingle();
