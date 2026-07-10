@@ -19,9 +19,14 @@ import {
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'; // For WMS/Stock
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale'; // For POS
 import AutoGraphIcon from '@mui/icons-material/AutoGraph'; // For Sales Forecasting
+import SmartToyIcon from '@mui/icons-material/SmartToy'; // For AI Assistant
+import ContactsIcon from '@mui/icons-material/Contacts'; // For CRM
+import GroupsIcon from '@mui/icons-material/Groups'; // For Team & Roles
 import CheckIcon from '@mui/icons-material/Check';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import BoltIcon from '@mui/icons-material/Bolt';
+import GroupIcon from '@mui/icons-material/Group';
 import { useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
 
@@ -50,7 +55,7 @@ const FeatureListItem = ({ text }) => {
     const parts = text.split(':');
     const boldPart = parts[0];
     // Re-join the rest in case the description contained colons
-    const rest = parts.slice(1).join(':'); 
+    const rest = parts.slice(1).join(':');
 
     return (
         <ListItem disablePadding sx={{ py: 0.5 }}>
@@ -66,6 +71,54 @@ const FeatureListItem = ({ text }) => {
         </ListItem>
     );
 };
+
+// One card in the features grid - shared styling so all 6 stay visually consistent.
+const FeatureCard = ({ icon, title, description, bullets, isNew, theme }) => (
+    <Paper
+        elevation={6}
+        sx={{
+            p: { xs: 3, sm: 4 },
+            height: '100%',
+            borderRadius: 3,
+            borderTop: `4px solid ${PRIMARY_COLOR}`,
+            position: 'relative',
+            transition: '0.3s',
+            '&:hover': {
+                transform: 'translateY(-5px)',
+                boxShadow: theme.shadows[12],
+            },
+        }}
+    >
+        {isNew && (
+            <Chip
+                label="New"
+                size="small"
+                sx={{
+                    position: 'absolute',
+                    top: 16,
+                    right: 16,
+                    backgroundColor: PRIMARY_COLOR,
+                    color: 'white',
+                    fontWeight: 700,
+                }}
+            />
+        )}
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            {React.cloneElement(icon, { sx: { color: PRIMARY_COLOR, fontSize: 40, mr: 2 } })}
+            <Typography variant="h5" component="h3" fontWeight={700}>
+                {title}
+            </Typography>
+        </Box>
+        <Typography color="text.secondary" sx={{ mb: 3 }}>
+            {description}
+        </Typography>
+        <List disablePadding>
+            {bullets.map((b) => (
+                <FeatureListItem key={b} text={b} />
+            ))}
+        </List>
+    </Paper>
+);
 
 
 function LandingPage() {
@@ -181,26 +234,96 @@ function LandingPage() {
       </Paper>
 
       {/* 2. Hero Section */}
-      <Box sx={{ py: { xs: 8, md: 16 }, backgroundColor: 'white' }}>
-        <Container maxWidth="lg" sx={{ textAlign: 'center' }}>
-          <Typography 
-            variant="h2" 
-            component="h1" 
-            fontWeight={900} 
-            gutterBottom 
+      <Box sx={{ py: { xs: 8, md: 16 }, backgroundColor: 'white', position: 'relative', overflow: 'hidden' }}>
+        {/* Decorative background glow - purely visual, no content */}
+        <Box
+          aria-hidden
+          sx={{
+            position: 'absolute',
+            top: { xs: -180, md: -260 },
+            right: { xs: -180, md: -160 },
+            width: { xs: 360, md: 560 },
+            height: { xs: 360, md: 560 },
+            borderRadius: '50%',
+            background: `radial-gradient(circle, ${PRIMARY_COLOR}22 0%, ${PRIMARY_COLOR}00 70%)`,
+            pointerEvents: 'none',
+          }}
+        />
+        <Box
+          aria-hidden
+          sx={{
+            position: 'absolute',
+            bottom: { xs: -160, md: -220 },
+            left: { xs: -160, md: -140 },
+            width: { xs: 320, md: 480 },
+            height: { xs: 320, md: 480 },
+            borderRadius: '50%',
+            background: `radial-gradient(circle, ${PRIMARY_COLOR}18 0%, ${PRIMARY_COLOR}00 70%)`,
+            pointerEvents: 'none',
+          }}
+        />
+
+        <Container maxWidth="lg" sx={{ textAlign: 'center', position: 'relative' }}>
+          <Chip
+            icon={<SmartToyIcon sx={{ color: `${PRIMARY_COLOR} !important` }} />}
+            label="Now with an AI business assistant"
+            sx={{
+              mb: 3,
+              backgroundColor: `${PRIMARY_COLOR}14`,
+              color: PRIMARY_COLOR,
+              fontWeight: 700,
+              px: 1,
+              '& .MuiChip-icon': { color: PRIMARY_COLOR },
+            }}
+          />
+          <Typography
+            variant="h2"
+            component="h1"
+            fontWeight={900}
+            gutterBottom
             sx={{ fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4rem' }, mb: 3 }}
           >
-            Manage Stock. Close Sales. 
+            Manage Stock. Close Sales.
             <Box component="span" sx={{ color: PRIMARY_COLOR }}> All in One App.</Box>
           </Typography>
-          <Typography 
-            variant="h5" 
-            color="text.secondary" 
-            sx={{ mt: 2, mb: 5, maxWidth: 800, mx: 'auto', fontSize: { xs: '1.1rem', sm: '1.4rem' } }}
+          <Typography
+            variant="h5"
+            color="text.secondary"
+            sx={{ mt: 2, mb: 4, maxWidth: 800, mx: 'auto', fontSize: { xs: '1.1rem', sm: '1.4rem' } }}
           >
-            Wisely unifies your warehouse management system (WMS) and point of sale (POS) into a single, efficient platform, helping you keep track of every unit and every transaction.
+            Wisely unifies your warehouse management, point of sale, customer relationships, and an AI assistant that knows your business into a single, efficient platform.
           </Typography>
-          
+
+          {/* At-a-glance highlight strip */}
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 1.5, mb: 5 }}>
+            {[
+              { icon: <BoltIcon fontSize="small" />, label: 'Real-time inventory' },
+              { icon: <SmartToyIcon fontSize="small" />, label: 'AI-powered insights' },
+              { icon: <GroupIcon fontSize="small" />, label: 'Built for teams' },
+            ].map((item) => (
+              <Box
+                key={item.label}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.75,
+                  color: 'text.secondary',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  borderRadius: 5,
+                  px: 1.75,
+                  py: 0.5,
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  backgroundColor: '#fff',
+                }}
+              >
+                <Box sx={{ display: 'flex', color: PRIMARY_COLOR }}>{item.icon}</Box>
+                {item.label}
+              </Box>
+            ))}
+          </Box>
+
           {/* Primary CTA Group */}
           <Box ref={heroButtonsRef} sx={{ mt: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
             <Button 
@@ -258,121 +381,104 @@ function LandingPage() {
       {/* 3. Features Section */}
       <Box sx={{ py: { xs: 8, md: 12 } }}>
         <Container maxWidth="lg">
-          <Typography variant="h4" fontWeight={700} sx={{ textAlign: 'center', mb: 8 }}>
-            The Power of Unified Retail Operations
+          <Typography variant="h4" fontWeight={700} sx={{ textAlign: 'center', mb: 1.5 }}>
+            Everything Your Business Needs, in One Place
           </Typography>
-          
-          <Grid container spacing={4}>
-            
-            {/* Feature 1: Stock Management (WMS) */}
-            <Grid item xs={12} md={4}>
-              <Paper 
-                elevation={6} 
-                sx={{ 
-                  p: { xs: 3, sm: 5 }, 
-                  borderRadius: 3, 
-                  borderTop: `4px solid ${PRIMARY_COLOR}`,
-                  transition: '0.3s',
-                  '&:hover': { 
-                      transform: 'translateY(-5px)', 
-                      boxShadow: theme.shadows[12] 
-                  }
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <LocalShippingIcon sx={{ color: PRIMARY_COLOR, fontSize: 40, mr: 2 }} />
-                  <Typography variant="h5" component="h3" fontWeight={700}>
-                    Seamless Stock Management (WMS)
-                  </Typography>
-                </Box>
-                <Typography color="text.secondary" sx={{ mb: 3 }}>
-                  Say goodbye to manual counting and inventory errors. Wisely provides real-time visibility into your warehouse or storage facility, giving you accurate stock levels at a glance.
-                </Typography>
-                <List disablePadding>
-                    <FeatureListItem text="Real-Time Inventory Tracking: Know what you have and where it is, instantly." />
-                    <FeatureListItem text="Low Stock Alerts: Automated notifications ensure you never miss a reorder point." />
-                    <FeatureListItem text="Reporting & Analytics: Generate detailed reports on stock turnover and valuation." />
-                </List>
-              </Paper>
-            </Grid>
-            
-            {/* Feature 2: Point of Sale (POS) */}
-            <Grid item xs={12} md={6}>
-              <Paper 
-                elevation={6} 
-                sx={{ 
-                  p: { xs: 3, sm: 5 }, 
-                  borderRadius: 3, 
-                  borderTop: `4px solid ${PRIMARY_COLOR}`,
-                  transition: '0.3s',
-                  '&:hover': { 
-                      transform: 'translateY(-5px)', 
-                      boxShadow: theme.shadows[12] 
-                  }
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <PointOfSaleIcon sx={{ color: PRIMARY_COLOR, fontSize: 40, mr: 2 }} />
-                  <Typography variant="h5" component="h3" fontWeight={700}>
-                    Quick & Reliable Point of Sale (POS)
-                  </Typography>
-                </Box>
-                <Typography color="text.secondary" sx={{ mb: 3 }}>
-                  Process customer transactions quickly and accurately. Since your POS is linked directly to your WMS, every sale instantly updates your available stock.
-                </Typography>
-                <List disablePadding>
-                    <FeatureListItem text="Instant Stock Deduction: Eliminate manual adjustments after a sale." />
-                    <FeatureListItem text="Multi-Payment Options: Accept all major forms of payment effortlessly." />
-                    <FeatureListItem text="Transaction History: Maintain a flawless, searchable record of all sales." />
-                </List>
-              </Paper>
+          <Typography
+            color="text.secondary"
+            sx={{ textAlign: 'center', mb: 8, maxWidth: 640, mx: 'auto' }}
+          >
+            From the warehouse floor to the checkout counter to your customer relationships -
+            Wisely brings it all together, with an AI assistant that actually knows your data.
+          </Typography>
+
+          <Grid container spacing={4} alignItems="stretch">
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <FeatureCard
+                theme={theme}
+                icon={<LocalShippingIcon />}
+                title="Seamless Stock Management (WMS)"
+                description="Say goodbye to manual counting and inventory errors. Wisely provides real-time visibility into your warehouse, giving you accurate stock levels at a glance."
+                bullets={[
+                  'Real-Time Inventory Tracking: Know what you have and where it is, instantly.',
+                  'Low Stock Alerts: Automated notifications ensure you never miss a reorder point.',
+                  'Reporting & Analytics: Generate detailed reports on stock turnover and valuation.',
+                ]}
+              />
             </Grid>
 
-            {/* Feature 3: Sales Forecasting */}
-            <Grid item xs={12} md={4}>
-              <Paper
-                elevation={6}
-                sx={{
-                  p: { xs: 3, sm: 5 },
-                  borderRadius: 3,
-                  borderTop: `4px solid ${PRIMARY_COLOR}`,
-                  transition: '0.3s',
-                  position: 'relative',
-                  '&:hover': {
-                      transform: 'translateY(-5px)',
-                      boxShadow: theme.shadows[12]
-                  }
-                }}
-              >
-                <Chip
-                  label="New"
-                  size="small"
-                  sx={{
-                    position: 'absolute',
-                    top: 16,
-                    right: 16,
-                    backgroundColor: PRIMARY_COLOR,
-                    color: 'white',
-                    fontWeight: 700,
-                  }}
-                />
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <AutoGraphIcon sx={{ color: PRIMARY_COLOR, fontSize: 40, mr: 2 }} />
-                  <Typography variant="h5" component="h3" fontWeight={700}>
-                    Smart Sales Forecasting
-                  </Typography>
-                </Box>
-                <Typography color="text.secondary" sx={{ mb: 3 }}>
-                  Stop guessing what to restock. Wisely looks at your recent sales trends and projects what's coming next, product by product, so you can plan ahead with confidence.
-                </Typography>
-                <List disablePadding>
-                    <FeatureListItem text="Demand Prediction: See projected revenue and units sold for the days ahead." />
-                    <FeatureListItem text="Per-Product Trends: Spot which items are trending up or down at a glance." />
-                    <FeatureListItem text="Smarter Restocking: Know how many days of stock you have left before you run out." />
-                </List>
-              </Paper>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <FeatureCard
+                theme={theme}
+                icon={<PointOfSaleIcon />}
+                title="Quick & Reliable Point of Sale (POS)"
+                description="Process customer transactions quickly and accurately. Since your POS is linked directly to your WMS, every sale instantly updates your available stock."
+                bullets={[
+                  'Instant Stock Deduction: Eliminate manual adjustments after a sale.',
+                  'Multi-Payment Options: Accept all major forms of payment effortlessly.',
+                  'Transaction History: Maintain a flawless, searchable record of all sales.',
+                ]}
+              />
             </Grid>
 
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <FeatureCard
+                theme={theme}
+                isNew
+                icon={<SmartToyIcon />}
+                title="AI Business Assistant"
+                description="Get instant answers about your stock, sales, and trends - powered by AI and grounded in your real business data, not guesses."
+                bullets={[
+                  'Ask Anything: "What\'s low on stock?" or "How were sales this week?" - just ask.',
+                  'Grounded in Real Data: Every answer is pulled straight from your actual inventory and sales records.',
+                  'Available Everywhere: A floating assistant on every page, ready whenever you need it.',
+                ]}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <FeatureCard
+                theme={theme}
+                isNew
+                icon={<ContactsIcon />}
+                title="Customer Relationship Management"
+                description="Turn one-time buyers into repeat customers. Wisely keeps track of who's buying what, so you can build real relationships, not just transactions."
+                bullets={[
+                  'Customer Profiles: Store contact details and notes for every customer in one place.',
+                  'Purchase History: See exactly what each customer has bought and how much they\'ve spent.',
+                  'Quick Search: Find any customer by name, phone, or email in seconds.',
+                ]}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <FeatureCard
+                theme={theme}
+                isNew
+                icon={<GroupsIcon />}
+                title="Team & Role-Based Access"
+                description="Bring your whole team onboard without giving up control. Invite staff, assign roles, and decide exactly what each person can see and do."
+                bullets={[
+                  'Custom Roles: Cashier, purchasing, or manager - each sees only what\'s relevant to their job.',
+                  'Simple Invites: Add a team member by email - they\'re in as soon as they sign up.',
+                  'Stay in Control: You\'re always the owner; staff work within the access you grant them.',
+                ]}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <FeatureCard
+                theme={theme}
+                icon={<AutoGraphIcon />}
+                title="Smart Sales Forecasting"
+                description="Stop guessing what to restock. Wisely looks at your recent sales trends and projects what's coming next, product by product, so you can plan ahead with confidence."
+                bullets={[
+                  'Demand Prediction: See projected revenue and units sold for the days ahead.',
+                  'Per-Product Trends: Spot which items are trending up or down at a glance.',
+                  'Smarter Restocking: Know how many days of stock you have left before you run out.',
+                ]}
+              />
+            </Grid>
           </Grid>
         </Container>
       </Box>
