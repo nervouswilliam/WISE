@@ -308,7 +308,7 @@ function OrderDetailPage({ user }) {
         </Typography>
 
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <Typography>
               <strong>Supplier:</strong> {orderHeader.supplier_name}
             </Typography>
@@ -321,7 +321,7 @@ function OrderDetailPage({ user }) {
               {orderHeader.expected_arrival || "—"}
             </Typography>
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <Typography>
               <strong>Actual Arrival:</strong>{" "}
               {orderHeader.actual_arrival || "—"}

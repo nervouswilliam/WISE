@@ -230,7 +230,7 @@ function SettingsPage() {
             {/* Profile Fields */}
             <Box component="form" onSubmit={handleSave}>
             <Grid container spacing={3}>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                     fullWidth
                     label="Username"
@@ -239,7 +239,7 @@ function SettingsPage() {
                     onChange={handleChange}
                 />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                     fullWidth
                     label="Email"
@@ -248,7 +248,7 @@ function SettingsPage() {
                     disabled
                 />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth sx={{ minWidth: 160 }}>
                     <InputLabel>Code</InputLabel>
                     <Select
@@ -266,7 +266,7 @@ function SettingsPage() {
                     </Select>
                 </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                     fullWidth
                     label="Phone Number"

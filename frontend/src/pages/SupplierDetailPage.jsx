@@ -89,34 +89,34 @@ function SupplierDetailPage({ user }) {
 
             <Box sx={{ p: 3, border: '1px solid', borderColor: 'grey.300', borderRadius: 2, boxShadow: 1 }}>
                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Typography variant="subtitle2">Name</Typography>
                         <Typography variant="body1">{supplier.name}</Typography>
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Typography variant="subtitle2">Phone Number</Typography>
                         <Typography variant="body1">
                             {supplier.country_code ? `(${supplier.country_code}) ` : ''}{supplier.phone}
                         </Typography>
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Typography variant="subtitle2">Email</Typography>
                         <Typography variant="body1">{supplier.email}</Typography>
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Typography variant="subtitle2">Address</Typography>
                         <Typography variant="body1">{supplier.address}</Typography>
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Typography variant="subtitle2">Notes</Typography>
                         <Typography variant="body1">{supplier.notes}</Typography>
                     </Grid>
 
-                    <Grid item xs={12} sx={{ mt: 3, display: 'flex', gap: 2 }}>
+                    <Grid size={{ xs: 12 }} sx={{ mt: 3, display: 'flex', gap: 2 }}>
                         <Button
                             variant="contained"
                             startIcon={<EditIcon />}

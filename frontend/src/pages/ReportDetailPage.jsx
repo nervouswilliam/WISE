@@ -227,12 +227,12 @@ function ReportDetailPage({ user }) {
       <Card sx={{ mb: 3, boxShadow: 3 }}>
         <CardContent>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography><strong>Transaction ID:</strong> {transaction.transaction_id}</Typography>
               <Typography><strong>User ID:</strong> {transaction.user_id}</Typography>
               <Typography><strong>Payment Method:</strong> {transaction.payment_method}</Typography>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography><strong>Date:</strong> {new Date(transaction.created_at).toLocaleString()}</Typography>
               <Typography><strong>Total Amount:</strong> {formatCurrency(totalAmount)}</Typography>
             </Grid>

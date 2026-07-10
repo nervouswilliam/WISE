@@ -147,7 +147,7 @@ function AddEditSupplierPage({user}) {
                 }}
             >
                 <Grid container spacing={3}>
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextField
                             fullWidth
                             label="Supplier Name"
@@ -158,7 +158,7 @@ function AddEditSupplierPage({user}) {
                         />
                     </Grid>
 
-                    <Grid item xs={4}>
+                    <Grid size={{ xs: 4 }}>
                         <FormControl fullWidth required>
                             <InputLabel>Code</InputLabel>
                             <Select
@@ -176,7 +176,7 @@ function AddEditSupplierPage({user}) {
                         </FormControl>
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextField
                             fullWidth
                             label="Phone Number"
@@ -187,7 +187,7 @@ function AddEditSupplierPage({user}) {
                         />
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextField
                             fullWidth
                             label="Email"
@@ -198,7 +198,7 @@ function AddEditSupplierPage({user}) {
                         />
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextField
                             fullWidth
                             label="Address"
@@ -208,7 +208,7 @@ function AddEditSupplierPage({user}) {
                         />
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextField
                             fullWidth
                             label="Notes"
@@ -218,7 +218,7 @@ function AddEditSupplierPage({user}) {
                         />
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Button
                             type="submit"
                             fullWidth

@@ -248,7 +248,7 @@ function AddEditProductPage({ user }) {
             >
                 <Grid container spacing={3}>
                     {/* Image */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <Typography variant="subtitle1" gutterBottom>
                             Product Image
                         </Typography>
@@ -278,7 +278,7 @@ function AddEditProductPage({ user }) {
                     </Grid>
 
                     {/* Product ID */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <TextField
                             fullWidth
                             label="Product Id"
@@ -291,7 +291,7 @@ function AddEditProductPage({ user }) {
                     </Grid>
 
                     {/* Product Name */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <TextField
                             fullWidth
                             label="Product Name"
@@ -303,7 +303,7 @@ function AddEditProductPage({ user }) {
                     </Grid>
 
                     {/* Price */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <TextField
                             fullWidth
                             label="Price"
@@ -316,7 +316,7 @@ function AddEditProductPage({ user }) {
                     </Grid>
 
                     {/* Selling Price */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <TextField
                             fullWidth
                             label="Selling Price"
@@ -329,7 +329,7 @@ function AddEditProductPage({ user }) {
                     </Grid>
 
                     {/* Stock */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <TextField
                             fullWidth
                             label="Stock"
@@ -344,7 +344,7 @@ function AddEditProductPage({ user }) {
                     </Grid>
 
                     {/* Low Stock */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <TextField
                             fullWidth
                             label="Low Stock"
@@ -357,7 +357,7 @@ function AddEditProductPage({ user }) {
                     </Grid>
 
                     {/* Category */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <Autocomplete
                             fullWidth
                             freeSolo
@@ -390,7 +390,7 @@ function AddEditProductPage({ user }) {
                     </Grid>
 
                     {/* Supplier */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <Select
                         value={product.supplier || "Supplier"}
                         label="Supplier"
@@ -410,7 +410,7 @@ function AddEditProductPage({ user }) {
                     </Grid>
 
                     {/* Reason */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <TextField
                             fullWidth
                             label="Reason"
@@ -424,7 +424,7 @@ function AddEditProductPage({ user }) {
                     </Grid>
 
                     {/* Submit */}
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Button
                             type="submit"
                             fullWidth

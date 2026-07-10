@@ -119,7 +119,7 @@ function ProductDetailPage({user}) {
                     </Button>
                 </Box>
                 {/* Left Side: Product Image */}
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Box
                         component="img"
                         src={product.image_url || 'https://via.placeholder.com/600x400?text=Product+Image'}
@@ -136,7 +136,7 @@ function ProductDetailPage({user}) {
                 </Grid>
 
                 {/* Right Side: Product Information */}
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Box sx={{ p: 2 }}>
                         <Typography variant="h4" component="h1" gutterBottom>
                             {product.name}

@@ -231,7 +231,7 @@ function StatisticPage({ user }) {
 
       <Grid container spacing={isMobile ? 2 : 3}>
         {/* 1️⃣ Sales Trend */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ borderRadius: 3, boxShadow: 2, height: "100%" }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -254,7 +254,7 @@ function StatisticPage({ user }) {
         </Grid>
 
         {/* 2️⃣ Top Products */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ borderRadius: 3, boxShadow: 2, height: "100%" }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>

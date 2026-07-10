@@ -114,7 +114,7 @@ function TeamPage({ user }) {
         <CardContent>
           <Typography variant="h6" gutterBottom>Invite a Team Member</Typography>
           <Grid container spacing={2} sx={{ mt: 0.5 }}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
                 label="Email"
@@ -123,7 +123,7 @@ function TeamPage({ user }) {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </Grid>
-            <Grid item xs={12} sm={3}>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <FormControl fullWidth>
                 <InputLabel>Role</InputLabel>
                 <Select value={role} label="Role" onChange={(e) => setRole(e.target.value)}>
@@ -133,7 +133,7 @@ function TeamPage({ user }) {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={3}>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <Button
                 fullWidth
                 variant="contained"

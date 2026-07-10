@@ -142,7 +142,7 @@ function AddEditCustomerPage({ user }) {
                 }}
             >
                 <Grid container spacing={3}>
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextField
                             fullWidth
                             label="Customer Name"
@@ -153,7 +153,7 @@ function AddEditCustomerPage({ user }) {
                         />
                     </Grid>
 
-                    <Grid item xs={4}>
+                    <Grid size={{ xs: 4 }}>
                         <FormControl fullWidth>
                             <InputLabel>Code</InputLabel>
                             <Select
@@ -171,7 +171,7 @@ function AddEditCustomerPage({ user }) {
                         </FormControl>
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextField
                             fullWidth
                             label="Phone Number"
@@ -181,7 +181,7 @@ function AddEditCustomerPage({ user }) {
                         />
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextField
                             fullWidth
                             label="Email"
@@ -192,7 +192,7 @@ function AddEditCustomerPage({ user }) {
                         />
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextField
                             fullWidth
                             label="Address"
@@ -202,7 +202,7 @@ function AddEditCustomerPage({ user }) {
                         />
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextField
                             fullWidth
                             label="Notes"
@@ -212,7 +212,7 @@ function AddEditCustomerPage({ user }) {
                         />
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Button
                             type="submit"
                             fullWidth

@@ -100,34 +100,34 @@ function CustomerDetailPage({ user }) {
 
             <Box sx={{ p: 3, border: '1px solid', borderColor: 'grey.300', borderRadius: 2, boxShadow: 1, mb: 3 }}>
                 <Grid container spacing={2}>
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Typography variant="subtitle2">Name</Typography>
                         <Typography variant="body1">{customer.name}</Typography>
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                         <Typography variant="subtitle2">Phone Number</Typography>
                         <Typography variant="body1">
                             {customer.country_code ? `(${customer.country_code}) ` : ''}{customer.phone || '-'}
                         </Typography>
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                         <Typography variant="subtitle2">Email</Typography>
                         <Typography variant="body1">{customer.email || '-'}</Typography>
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Typography variant="subtitle2">Address</Typography>
                         <Typography variant="body1">{customer.address || '-'}</Typography>
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Typography variant="subtitle2">Notes</Typography>
                         <Typography variant="body1">{customer.notes || '-'}</Typography>
                     </Grid>
 
-                    <Grid item xs={12} sx={{ mt: 1, display: 'flex', gap: 2 }}>
+                    <Grid size={{ xs: 12 }} sx={{ mt: 1, display: 'flex', gap: 2 }}>
                         <Button
                             variant="contained"
                             startIcon={<EditIcon />}

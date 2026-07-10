@@ -213,7 +213,7 @@ function ExpensePage({ user }) {
         <DialogTitle>{editingId ? 'Edit Expense' : 'Add Expense'}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 0.5 }}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Category</InputLabel>
                 <Select
@@ -227,7 +227,7 @@ function ExpensePage({ user }) {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
                 label="Amount (Rp)"
@@ -236,7 +236,7 @@ function ExpensePage({ user }) {
                 onChange={(e) => setForm({ ...form, amount: e.target.value })}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   label="Date"
@@ -246,7 +246,7 @@ function ExpensePage({ user }) {
                 />
               </LocalizationProvider>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Description (optional)"
