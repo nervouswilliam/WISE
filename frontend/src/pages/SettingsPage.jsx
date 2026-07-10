@@ -167,6 +167,9 @@ function SettingsPage({ user: authUser }) {
         logoUrl: business.logo_url,
       });
       alert("Business profile updated successfully!");
+      // Layout only fetches the business profile once on mount, not on every
+      // navigation, so it won't pick up this change until a fresh page load.
+      window.location.reload();
     } catch (err) {
       console.error("Failed to update business profile:", err);
       setError("Failed to save business profile. Please try again.");
