@@ -68,7 +68,7 @@ function App() {
         // Keep an already-active member's name/picture in sync with whatever they
         // currently have set, in case it changed since they accepted - also a no-op
         // for owners (nothing to match).
-        await teamService.syncOwnProfile(authId, metadata?.name, metadata?.imageUrl);
+        await teamService.syncOwnProfile(metadata?.name, metadata?.imageUrl);
 
         // Then resolve which business this login should actually operate on: their own
         // (owner), or - if they're active staff on someone else's team - that owner's.

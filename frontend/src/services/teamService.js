@@ -85,14 +85,16 @@ const acceptPendingInviteIfAny = async (authId, email, name, avatarUrl) => {
 // team_members.name/avatar_url in sync with whatever they currently have set in their
 // own auth metadata, since acceptPendingInviteIfAny only captures it once (at accept
 // time) and has no way to see later changes made via Settings.
-const syncOwnProfile = async (authId, name, avatarUrl) => {
-  if (!authId) return;
-
-  const { error } = await supabase
-    .from('team_members')
-    .update({ name, avatar_url: avatarUrl })
-    .eq('member_user_id', authId)
-    .eq('status', 'active');
+//
+// This goes through an RPC (see scripts/_add_team_member_profile_sync.sql) rather than a
+// plain table update: the RLS policy on team_members only allows a member to touch their
+// row once, at claim-time, so a direct update against an already-active row silently
+// affects 0 rows instead of erroring.
+const syncOwnProfile = async (name, avatarUrl) => {
+  const { error } = await supabase.rpc('sync_team_member_profile', {
+    new_name: name,
+    new_avatar_url: avatarUrl,
+  });
 
   if (error) {
     console.error('Error syncing profile to team_members:', error);
