@@ -30,12 +30,14 @@ import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import SecurityIcon from "@mui/icons-material/Security";
 import PersonIcon from "@mui/icons-material/Person";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
+import BusinessIcon from "@mui/icons-material/Business";
 import authService from "../services/authService";
 import productService from "../services/productService";
+import businessService from "../services/businessService";
 import Loading from "../components/loading";
 import { useThemeMode } from "../context/ThemeModeContext.jsx";
 
-function SettingsPage() {
+function SettingsPage({ user: authUser }) {
   const { mode, toggleMode } = useThemeMode();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -47,6 +49,13 @@ function SettingsPage() {
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [isChangingEmail, setIsChangingEmail] = useState(false);
   const [newEmail, setNewEmail] = useState("");
+
+  // Branding is an owner-level decision - only the owner (not staff logged in as
+  // themselves) can see/edit it, since it lives on a row keyed by their own auth id.
+  const isOwner = !authUser?.isStaff;
+  const [business, setBusiness] = useState({ business_name: "", logo_url: "" });
+  const [isSavingBusiness, setIsSavingBusiness] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -62,6 +71,15 @@ function SettingsPage() {
     };
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    if (!isOwner || !authUser?.id) return;
+    const fetchBusiness = async () => {
+      const data = await businessService.getBusinessProfile(authUser.id);
+      if (data) setBusiness({ business_name: data.business_name || "", logo_url: data.logo_url || "" });
+    };
+    fetchBusiness();
+  }, [isOwner, authUser?.id]);
 
   const countryCodes = [
     { code: "+62", country: "Indonesia" },
@@ -115,6 +133,45 @@ function SettingsPage() {
       setError("Failed to save changes. Please try again.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleBusinessLogoChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingLogo(true);
+    try {
+      const logoUrl = await productService.addImageUrl(
+        file,
+        "profile_picture",
+        "businessLogo_" + Date.now()
+      );
+      if (logoUrl) {
+        setBusiness((prev) => ({ ...prev, logo_url: logoUrl }));
+      }
+    } catch (err) {
+      console.error("Logo upload failed:", err);
+      setError("Logo upload failed. Please try again.");
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  const handleBusinessSave = async (e) => {
+    e.preventDefault();
+    setIsSavingBusiness(true);
+    try {
+      await businessService.upsertBusinessProfile(authUser.id, {
+        businessName: business.business_name,
+        logoUrl: business.logo_url,
+      });
+      alert("Business profile updated successfully!");
+    } catch (err) {
+      console.error("Failed to update business profile:", err);
+      setError("Failed to save business profile. Please try again.");
+    } finally {
+      setIsSavingBusiness(false);
     }
   };
 
@@ -300,6 +357,82 @@ function SettingsPage() {
         </CardContent>
     </Card>
 
+      {/* Business Profile (owner only - staff can see it in the top bar, but only the
+          owner can change it, since it's keyed by the owner's own auth id) */}
+      {isOwner && (
+        <Card sx={{ mb: 4, boxShadow: 3, borderRadius: 3, p: 3 }}>
+          <CardContent>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <BusinessIcon sx={{ color: "#6f42c1" }} />
+              <Typography variant="h6" fontWeight="bold" color="#6f42c1">
+                Business Profile
+              </Typography>
+            </Stack>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              Shown to you and your team in the top bar.
+            </Typography>
+            <Divider sx={{ my: 2 }} />
+
+            <Box sx={{ textAlign: "center", mb: 3 }}>
+              <Avatar
+                src={business.logo_url || undefined}
+                variant="rounded"
+                sx={{
+                  width: 100,
+                  height: 100,
+                  mb: 2,
+                  mx: "auto",
+                  border: "4px solid #6f42c1",
+                  boxShadow: "0 4px 10px rgba(111, 66, 193, 0.3)",
+                }}
+              >
+                <BusinessIcon sx={{ fontSize: 40 }} />
+              </Avatar>
+              <Button
+                variant="contained"
+                component="label"
+                startIcon={<PhotoCameraIcon />}
+                disabled={uploadingLogo}
+                sx={{
+                  backgroundColor: "#6f42c1",
+                  "&:hover": { backgroundColor: "#5a35a0" },
+                  borderRadius: "20px",
+                  px: 3,
+                }}
+              >
+                {uploadingLogo ? "Uploading..." : "Change Logo"}
+                <input type="file" accept="image/*" hidden onChange={handleBusinessLogoChange} />
+              </Button>
+            </Box>
+
+            <Box component="form" onSubmit={handleBusinessSave}>
+              <TextField
+                fullWidth
+                label="Business Name"
+                value={business.business_name}
+                onChange={(e) => setBusiness((prev) => ({ ...prev, business_name: e.target.value }))}
+                placeholder="e.g. Toko Jaya Makmur"
+              />
+              <CardActions sx={{ justifyContent: "flex-end", mt: 2 }}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  startIcon={<SaveIcon />}
+                  disabled={isSavingBusiness}
+                  sx={{
+                    backgroundColor: "#6f42c1",
+                    "&:hover": { backgroundColor: "#5a35a0" },
+                    borderRadius: "20px",
+                    px: 3,
+                  }}
+                >
+                  {isSavingBusiness ? <CircularProgress size={24} color="inherit" /> : "Save Changes"}
+                </Button>
+              </CardActions>
+            </Box>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Security */}
       <Card sx={{ mb: 4, boxShadow: 3, borderRadius: 3 }}>

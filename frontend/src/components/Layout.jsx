@@ -35,8 +35,10 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import PaidIcon from "@mui/icons-material/Paid";
 import GroupIcon from "@mui/icons-material/Group";
 import PeopleIcon from "@mui/icons-material/People";
+import BusinessIcon from "@mui/icons-material/Business";
 import authService from "../services/authService";
 import notificationService from "../services/notificationService";
+import businessService from "../services/businessService";
 import ChatbotWidget from "./ChatbotWidget.jsx";
 import LocalShipping from '@mui/icons-material/LocalShipping';
 import { useThemeMode } from "../context/ThemeModeContext.jsx";
@@ -62,6 +64,7 @@ const NAV_ITEMS = [
 export default function Layout({ children, user: authUser }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [business, setBusiness] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -126,6 +129,17 @@ export default function Layout({ children, user: authUser }) {
       }
     };
     fetchNotifications();
+  }, [authUser?.id]);
+
+  // authUser.id is already resolved to the business (owner's) id for staff too,
+  // so this shows the same branding regardless of who's logged in.
+  useEffect(() => {
+    if (!authUser?.id) return;
+    const fetchBusiness = async () => {
+      const data = await businessService.getBusinessProfile(authUser.id);
+      setBusiness(data);
+    };
+    fetchBusiness();
   }, [authUser?.id]);
 
   const drawer = (
@@ -316,6 +330,26 @@ export default function Layout({ children, user: authUser }) {
               </Button>
             </Box>
           </Popover>
+
+          {/* Business branding */}
+          {(business?.business_name || business?.logo_url) && (
+            <>
+              <Avatar
+                alt={business.business_name}
+                src={business.logo_url || undefined}
+                variant="rounded"
+                sx={{ width: 32, height: 32, mr: 1, bgcolor: "rgba(255,255,255,0.2)" }}
+              >
+                <BusinessIcon fontSize="small" />
+              </Avatar>
+              {business.business_name && (
+                <Typography variant="body2" sx={{ mr: 2, fontWeight: 600, display: { xs: "none", sm: "block" } }}>
+                  {business.business_name}
+                </Typography>
+              )}
+              <Divider orientation="vertical" flexItem sx={{ borderColor: "rgba(255,255,255,0.3)", my: 1.5 }} />
+            </>
+          )}
 
           {/* Profile info */}
           <Avatar alt={user?.name} src={user?.imageUrl} sx={{ ml: 2, mr: 1 }} />
