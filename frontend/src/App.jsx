@@ -65,6 +65,11 @@ function App() {
         // own verified email - safe to attempt every login, it's a no-op if there isn't one.
         await teamService.acceptPendingInviteIfAny(authId, data.email, metadata?.name, metadata?.imageUrl);
 
+        // Keep an already-active member's name/picture in sync with whatever they
+        // currently have set, in case it changed since they accepted - also a no-op
+        // for owners (nothing to match).
+        await teamService.syncOwnProfile(authId, metadata?.name, metadata?.imageUrl);
+
         // Then resolve which business this login should actually operate on: their own
         // (owner), or - if they're active staff on someone else's team - that owner's.
         // Every existing page/service in the app uses `user.id` as the business scope, so

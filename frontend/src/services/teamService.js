@@ -81,6 +81,24 @@ const acceptPendingInviteIfAny = async (authId, email, name, avatarUrl) => {
   return data;
 };
 
+// Called every login (see App.jsx), for anyone already active staff somewhere. Keeps
+// team_members.name/avatar_url in sync with whatever they currently have set in their
+// own auth metadata, since acceptPendingInviteIfAny only captures it once (at accept
+// time) and has no way to see later changes made via Settings.
+const syncOwnProfile = async (authId, name, avatarUrl) => {
+  if (!authId) return;
+
+  const { error } = await supabase
+    .from('team_members')
+    .update({ name, avatar_url: avatarUrl })
+    .eq('member_user_id', authId)
+    .eq('status', 'active');
+
+  if (error) {
+    console.error('Error syncing profile to team_members:', error);
+  }
+};
+
 // Called once per login. If this person is active staff on someone else's business,
 // returns that owner's auth id + this person's role; otherwise null (they're an owner).
 const getActiveMembership = async (authId) => {
@@ -100,5 +118,6 @@ export default {
   inviteMember,
   revokeMember,
   acceptPendingInviteIfAny,
+  syncOwnProfile,
   getActiveMembership,
 };
