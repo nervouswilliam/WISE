@@ -34,6 +34,7 @@ import BusinessIcon from "@mui/icons-material/Business";
 import authService from "../services/authService";
 import productService from "../services/productService";
 import businessService from "../services/businessService";
+import profileService from "../services/profileService";
 import Loading from "../components/loading";
 import { useThemeMode } from "../context/ThemeModeContext.jsx";
 
@@ -126,6 +127,9 @@ function SettingsPage({ user: authUser }) {
     setIsSaving(true);
     try {
       await authService.updateUser(user);
+      // Also write straight to profiles - the shared source of truth teammates read
+      // from - so this shows up for them immediately, not next time they happen to log in.
+      await profileService.upsertOwnProfile(authUser.authId, { name: user.name, avatarUrl: user.imageUrl });
       alert("Profile updated successfully!");
       window.location.reload();
     } catch (err) {

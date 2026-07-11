@@ -1,4 +1,5 @@
 import { supabase } from '../supabaseClient';
+import profileService from './profileService';
 
 // Team members (staff) linked to an owner's business. See scripts/*team_members*.sql for
 // the table + RLS policies this depends on.
@@ -14,7 +15,18 @@ const getTeamMembers = async (ownerAuthId) => {
     console.error('Error fetching team members:', error);
     return [];
   }
-  return data;
+
+  // Name/picture live in profiles (the single source of truth - see
+  // scripts/_add_profiles_table.sql), keyed by member_user_id, not on team_members itself.
+  const memberIds = data.map((m) => m.member_user_id).filter(Boolean);
+  const profiles = await profileService.getProfiles(memberIds);
+  const profileById = Object.fromEntries(profiles.map((p) => [p.id, p]));
+
+  return data.map((m) => ({
+    ...m,
+    name: profileById[m.member_user_id]?.name || null,
+    avatar_url: profileById[m.member_user_id]?.avatar_url || null,
+  }));
 };
 
 const inviteMember = async (email, role, ownerAuthId) => {
@@ -45,7 +57,7 @@ const revokeMember = async (id, ownerAuthId) => {
 
 // Called once per login (see App.jsx). Looks for a pending invite addressed to this
 // person's own verified email and, if found, links it to their auth id.
-const acceptPendingInviteIfAny = async (authId, email, name, avatarUrl) => {
+const acceptPendingInviteIfAny = async (authId, email) => {
   if (!email) return null;
 
   const { data: pending, error: findError } = await supabase
@@ -58,18 +70,9 @@ const acceptPendingInviteIfAny = async (authId, email, name, avatarUrl) => {
 
   if (findError || !pending) return null;
 
-  // team_members has no way to look up a member's name/picture on its own (those live in
-  // their auth metadata, which we can only read as themselves) - so capture them here,
-  // once, while they're accepting their own invite.
   const { data, error } = await supabase
     .from('team_members')
-    .update({
-      member_user_id: authId,
-      status: 'active',
-      joined_at: new Date().toISOString(),
-      name,
-      avatar_url: avatarUrl,
-    })
+    .update({ member_user_id: authId, status: 'active', joined_at: new Date().toISOString() })
     .eq('id', pending.id)
     .select()
     .maybeSingle();
@@ -79,26 +82,6 @@ const acceptPendingInviteIfAny = async (authId, email, name, avatarUrl) => {
     return null;
   }
   return data;
-};
-
-// Called every login (see App.jsx), for anyone already active staff somewhere. Keeps
-// team_members.name/avatar_url in sync with whatever they currently have set in their
-// own auth metadata, since acceptPendingInviteIfAny only captures it once (at accept
-// time) and has no way to see later changes made via Settings.
-//
-// This goes through an RPC (see scripts/_add_team_member_profile_sync.sql) rather than a
-// plain table update: the RLS policy on team_members only allows a member to touch their
-// row once, at claim-time, so a direct update against an already-active row silently
-// affects 0 rows instead of erroring.
-const syncOwnProfile = async (name, avatarUrl) => {
-  const { error } = await supabase.rpc('sync_team_member_profile', {
-    new_name: name,
-    new_avatar_url: avatarUrl,
-  });
-
-  if (error) {
-    console.error('Error syncing profile to team_members:', error);
-  }
 };
 
 // Called once per login. If this person is active staff on someone else's business,
@@ -120,6 +103,5 @@ export default {
   inviteMember,
   revokeMember,
   acceptPendingInviteIfAny,
-  syncOwnProfile,
   getActiveMembership,
 };
