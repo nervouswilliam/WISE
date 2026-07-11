@@ -398,6 +398,23 @@ const getCategoryId = async(categoryName, user) => {
     return data.id;
 }
 
+// Creates a category with no product attached yet - unlike addProductCategory, which
+// also links it to a specific product in the same call. Used by bulk import, where a
+// category needs to be resolved (found or created) before the product row even exists.
+const createCategory = async(name, userId) => {
+    const { data, error } = await supabase
+        .from('categories')
+        .insert([{ name, user_id: userId }])
+        .select()
+        .single();
+
+    if (error) {
+        console.error("Error creating category:", error);
+        throw error;
+    }
+    return data.id;
+}
+
 const getProductSalesByCategory = async(user) => {
     const { data, error } = await supabase
         .from('view_category_sales')
@@ -424,4 +441,5 @@ export default {
     addProductCategory,
     getProductSalesByCategory,
     getCategoryId,
+    createCategory,
 }

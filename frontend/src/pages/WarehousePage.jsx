@@ -26,6 +26,7 @@ import DynamicTable from "../components/DynamicTable";
 import productService from "../services/productService";
 import { useNavigate } from "react-router-dom";
 import AddIcon from '@mui/icons-material/Add';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { supabase } from "../supabaseClient";
 import Loading from "../components/loading";
 
@@ -85,6 +86,10 @@ function WarehousePage({ user }) {
 
   const handleAddProducts = () => {
     navigate(`/product/add`);
+  };
+
+  const handleImportInventory = () => {
+    navigate(`/product/import`);
   };
 
   const handleViewModeChange = (e, newMode) => {
@@ -200,6 +205,20 @@ function WarehousePage({ user }) {
               <GridViewIcon fontSize="small" />
             </ToggleButton>
           </ToggleButtonGroup>
+
+          {/* Import Inventory Button */}
+          <Button
+            variant="outlined"
+            sx={{
+              borderColor: PRIMARY_COLOR,
+              color: PRIMARY_COLOR,
+              "&:hover": { borderColor: "#5a32a3", backgroundColor: "rgba(111, 66, 193, 0.08)" }
+            }}
+            onClick={handleImportInventory}
+          >
+            <UploadFileIcon sx={{ mr: 1 }} fontSize="small" />
+            Import
+          </Button>
 
           {/* Add Product Button */}
           <Button

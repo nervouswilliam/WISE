@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import DynamicTable from '../components/DynamicTable';
 import transactionService from '../services/transactionService';
 import Loading from '../components/loading';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 function ReportPage({user}) {
     const [period, setPeriod] = useState('all');
@@ -26,6 +27,10 @@ function ReportPage({user}) {
 
     const handlePeriodChange = (e) => {
         setPeriod(e.target.value);
+    };
+
+    const handleImportSalesHistory = () => {
+        navigate('/report/import');
     };
 
     const handleClick = (row) => {
@@ -110,7 +115,19 @@ function ReportPage({user}) {
 
     return (
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2, mb: 3 }}>
+                <Button
+                    variant="outlined"
+                    startIcon={<UploadFileIcon fontSize="small" />}
+                    sx={{
+                        borderColor: '#6f42c1',
+                        color: '#6f42c1',
+                        '&:hover': { borderColor: '#5a32a3', backgroundColor: 'rgba(111, 66, 193, 0.08)' }
+                    }}
+                    onClick={handleImportSalesHistory}
+                >
+                    Import Sales History
+                </Button>
                 <FormControl variant="outlined" sx={{ minWidth: 150 }}>
                     <InputLabel id="period-select-label">Period</InputLabel>
                     <Select

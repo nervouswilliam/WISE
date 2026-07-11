@@ -17,6 +17,7 @@ import DynamicTable from '../components/DynamicTable';
 import orderService from '../services/orderService';
 import Loading from '../components/loading';
 import StatusPill from '../components/StatusPill';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 function OrderPage({user}){
     const [loading, setLoading] = useState(true);
@@ -26,6 +27,10 @@ function OrderPage({user}){
 
     const handleClick = (row) => {
         navigate(`/order/${row.order_id}`);
+    };
+
+    const handleImportRestockHistory = () => {
+        navigate('/order/import');
     };
 
     useEffect(() => {
@@ -87,6 +92,20 @@ function OrderPage({user}){
     ];
     return(
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                <Button
+                    variant="outlined"
+                    startIcon={<UploadFileIcon fontSize="small" />}
+                    sx={{
+                        borderColor: '#6f42c1',
+                        color: '#6f42c1',
+                        '&:hover': { borderColor: '#5a32a3', backgroundColor: 'rgba(111, 66, 193, 0.08)' }
+                    }}
+                    onClick={handleImportRestockHistory}
+                >
+                    Import Restock History
+                </Button>
+            </Box>
             <DynamicTable
                 columns={columns}
                 rows={orders}

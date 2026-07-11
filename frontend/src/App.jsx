@@ -11,6 +11,9 @@ import authService from './services/authService.js';
 import WarehousePage from './pages/WarehousePage.jsx';
 import ProductDetailPage from './pages/ProductDetailPage.jsx';
 import AddEditProductPage from './pages/AddEditProductPage.jsx';
+import ImportInventoryPage from './pages/ImportInventoryPage.jsx';
+import ImportRestockHistoryPage from './pages/ImportRestockHistoryPage.jsx';
+import ImportSalesHistoryPage from './pages/ImportSalesHistoryPage.jsx';
 import SalesPage from './pages/SalesPage.jsx';
 import ReportPage from './pages/ReportPage.jsx';
 import SupplierPage from './pages/SupplierPage.jsx';
@@ -111,10 +114,12 @@ function App() {
       <Route path="/warehouse" element={protect(<WarehousePage user={user}/>)} />
       <Route path="/product/:id" element={protect(<ProductDetailPage user={user}/>)} />
       <Route path="/product/add" element={protect(<AddEditProductPage user={user}/>)} />
+      <Route path="/product/import" element={protect(<ImportInventoryPage user={user}/>)} />
       <Route path="/product/stock-add/:id" element={protect(<AddProductStockPage user={user}/>)} />
       <Route path="/product/edit/:id" element={protect(<AddEditProductPage user={user}/>)} />
       <Route path="/sales" element={protect(<SalesPage user={user}/>)} />
       <Route path="/report" element={protect(<ReportPage user={user}/>)} />
+      <Route path="/report/import" element={protect(<ImportSalesHistoryPage user={user}/>)} />
       <Route path="/report/:id" element={protect(<ReportDetailPage user={user}/>)} />
       <Route path="/supplier" element={protect(<SupplierPage user={user}/>)} />
       <Route path="/supplier/add" element={protect(<AddEditSupplierPage user={user}/>)} />
@@ -127,6 +132,7 @@ function App() {
       <Route path="/settings" element={protect(<SettingsPage user={user}/>)} />
       <Route path="/team" element={protect(<TeamPage user={user}/>)} />
       <Route path="/order" element={protect(<OrderPage user={user}/>)} />
+      <Route path="/order/import" element={protect(<ImportRestockHistoryPage user={user}/>)} />
       <Route path="/order/:id" element={protect(<OrderDetailPage user={user}/>)} />
       <Route path="/notifications" element={protect(<NotificationPage user={user}/>)} />
       <Route path="/expenses" element={protect(<ExpensePage user={user}/>)} />

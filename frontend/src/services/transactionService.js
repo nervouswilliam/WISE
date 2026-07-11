@@ -123,6 +123,37 @@ const addPaymentTransaction = async(paymentData, totalAmount, currentTransaction
     ]);
 }
 
+// transaction_type_id 1 = "sale" (confirmed against live data - no lookup table exists
+// client-side; complete_sale, the RPC behind real checkout, sets this server-side).
+// Used for historical sale backfill: creates the transaction header with a caller-supplied
+// created_at (backdated), plus its one line item. Two separate inserts since there's no
+// client-side transaction wrapping available - if the item insert fails, the now-orphaned
+// header is rolled back so it doesn't show up as a phantom zero-item sale in Reports.
+const addHistoricalSale = async (transactionData, itemData) => {
+    const { data: txData, error: txError } = await supabase
+        .from('transactions')
+        .insert([{ ...transactionData, transaction_type_id: 1 }])
+        .select()
+        .single();
+
+    if (txError) {
+        console.error('Error creating historical transaction:', txError);
+        throw txError;
+    }
+
+    const { error: itemError } = await supabase
+        .from('transaction_items')
+        .insert([{ ...itemData, transaction_id: txData.id }]);
+
+    if (itemError) {
+        console.error('Error creating historical transaction item:', itemError);
+        await supabase.from('transactions').delete().eq('id', txData.id);
+        throw itemError;
+    }
+
+    return txData;
+};
+
 const getTransactionItemsById = async(user, transactionId) => {
     const { data, error } = await supabase
       .from('view_transaction_item')
@@ -171,6 +202,7 @@ export default {
     getTransactionsByPeriod,
     addTransaction,
     addPaymentTransaction,
+    addHistoricalSale,
     getTransactionItemsById,
     getAllTransactionItems,
     getProductSales,
