@@ -84,7 +84,7 @@ function DynamicTable({ columns, rows, actions, rowsPerPageOptions = [5, 10, 25]
                 >
                   {col.label}
                 </Typography>
-                <Typography variant="body2" sx={{ wordBreak: "break-all" }}>
+                <Typography variant="body2" component="div" sx={{ wordBreak: "break-all" }}>
                   {col.render
                     ? col.render(row[col.field], row)
                     : truncate(row[col.field])}

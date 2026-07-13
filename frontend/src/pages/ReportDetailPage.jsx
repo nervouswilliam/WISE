@@ -195,20 +195,22 @@ function ReportDetailPage({ user }) {
       <Box
         sx={{
           display: "flex",
+          flexWrap: "wrap",
           justifyContent: "space-between",
           alignItems: "center",
+          gap: 1,
           mb: 3,
         }}
       >
         <Typography variant="h5" sx={{ fontWeight: "bold" }}>
           Transaction Details
         </Typography>
-        <Box>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
           <Button
             variant="outlined"
             startIcon={<PrintIcon />}
             onClick={handlePrint}
-            sx={{ color: "#6f42c1", borderColor: "#6f42c1", mr: 1 }}
+            sx={{ color: "#6f42c1", borderColor: "#6f42c1" }}
           >
             Print Receipt
           </Button>

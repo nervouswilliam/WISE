@@ -115,7 +115,7 @@ function ReportPage({user}) {
 
     return (
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2, mb: 3 }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center', gap: 2, mb: 3 }}>
                 <Button
                     variant="outlined"
                     startIcon={<UploadFileIcon fontSize="small" />}

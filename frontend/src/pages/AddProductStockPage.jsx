@@ -18,8 +18,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import orderService from "../services/orderService";
-import { useMediaQuery } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 import supplierService from "../services/supplierService";
 
 const AddProductStockPage = ({ user }) => {
@@ -34,8 +32,6 @@ const AddProductStockPage = ({ user }) => {
   const [stockToAdd, setStockToAdd] = useState(suggestedQty || "");
   const [transactionDate, setTransactionDate] = useState(dayjs());
   const [notes, setNotes] = useState("");
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   // Fetch product details
   useEffect(() => {
@@ -186,8 +182,8 @@ const AddProductStockPage = ({ user }) => {
           label="Expected Arrival Date"
           value={transactionDate}
           onChange={(newValue) => setTransactionDate(newValue)}
-          renderInput={(params) => <TextField {...params} fullWidth={false} sx={{ mt: 3, width: isMobile ? 300:1000 }} />}
-          sx={{mt:3}}
+          slotProps={{ textField: { fullWidth: true } }}
+          sx={{ mt: 3 }}
         />
       </LocalizationProvider>
 

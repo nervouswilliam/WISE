@@ -248,7 +248,7 @@ export default function Layout({ children, user: authUser }) {
             <MenuIcon />
           </IconButton>
 
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" noWrap sx={{ flexGrow: 1, minWidth: 0 }}>
             {title}
           </Typography>
 
@@ -278,7 +278,7 @@ export default function Layout({ children, user: authUser }) {
               horizontal: "right",
             }}
           >
-            <Box sx={{ width: 300, p: 2 }}>
+            <Box sx={{ width: 300, maxWidth: 'calc(100vw - 32px)', p: 2 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 1 }}>
                 Notifications
               </Typography>
@@ -331,9 +331,10 @@ export default function Layout({ children, user: authUser }) {
             </Box>
           </Popover>
 
-          {/* Business branding */}
+          {/* Business branding - hidden on mobile entirely, no room and the sidebar
+              already carries the Wisely brand there */}
           {(business?.business_name || business?.logo_url) && (
-            <>
+            <Box sx={{ display: { xs: "none", sm: "flex" }, alignItems: "center" }}>
               <Avatar
                 alt={business.business_name}
                 src={business.logo_url || undefined}
@@ -343,17 +344,18 @@ export default function Layout({ children, user: authUser }) {
                 <BusinessIcon fontSize="small" />
               </Avatar>
               {business.business_name && (
-                <Typography variant="body2" sx={{ mr: 2, fontWeight: 600, display: { xs: "none", sm: "block" } }}>
+                <Typography variant="body2" sx={{ mr: 2, fontWeight: 600 }}>
                   {business.business_name}
                 </Typography>
               )}
               <Divider orientation="vertical" flexItem sx={{ borderColor: "rgba(255,255,255,0.3)", my: 1.5 }} />
-            </>
+            </Box>
           )}
 
-          {/* Profile info */}
-          <Avatar alt={user?.name} src={user?.imageUrl} sx={{ ml: 2, mr: 1 }} />
-          <Box sx={{ mr: 2, lineHeight: 1.2 }}>
+          {/* Profile info - name/role text hidden on mobile, avatar stays as a compact
+              identity indicator */}
+          <Avatar alt={user?.name} src={user?.imageUrl} sx={{ ml: { xs: 1, sm: 2 }, mr: { xs: 0.5, sm: 1 } }} />
+          <Box sx={{ mr: 2, lineHeight: 1.2, display: { xs: "none", sm: "block" } }}>
             <Typography variant="body1">{user?.name}</Typography>
             {authUser?.role && (
               <Typography variant="caption" sx={{ opacity: 0.8, display: "block" }}>
@@ -362,8 +364,9 @@ export default function Layout({ children, user: authUser }) {
             )}
           </Box>
 
-          <Button color="inherit" onClick={handleLogout}>
-            <LogoutIcon sx={{ mr: 1 }} /> Logout
+          <Button color="inherit" onClick={handleLogout} sx={{ minWidth: "auto", px: { xs: 1, sm: 2 } }}>
+            <LogoutIcon sx={{ mr: { xs: 0, sm: 1 } }} />
+            <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>Logout</Box>
           </Button>
         </Toolbar>
       </AppBar>

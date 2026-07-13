@@ -383,7 +383,6 @@ function AddEditProductPage({ user }) {
                                     label="Category"
                                     required
                                     name="category"
-                                    sx={{ mr: 10, width:220 }}
                                 />
                             )}
                         />
@@ -392,15 +391,15 @@ function AddEditProductPage({ user }) {
                     {/* Supplier */}
                     <Grid size={{ xs: 12, md: 6 }}>
                         <Select
+                        fullWidth
                         value={product.supplier || "Supplier"}
                         label="Supplier"
                         onChange={(event) => {setProduct(
                             prevProduct => ({
                                 ...prevProduct,
                                 supplier: event.target.value,
-                            })                            
-                        )}}
-                        sx={{width:220}}>
+                            })
+                        )}}>
                             {supplier.map((s) => (
                                 <MenuItem value={s.name}>
                                     {s.name}

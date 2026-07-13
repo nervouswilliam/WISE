@@ -340,7 +340,7 @@ function OrderDetailPage({ user }) {
         rowsPerPageOptions={[5, 10]}
       />
 
-      <Box display="flex" justifyContent="space-between" mt={2}>
+      <Box display="flex" flexWrap="wrap" justifyContent="space-between" gap={1} mt={2}>
         <Button
           variant="contained"
           color="success"
@@ -350,10 +350,10 @@ function OrderDetailPage({ user }) {
           Receive Remaining
         </Button>
 
-        <Box>
+        <Box display="flex" flexWrap="wrap" gap={1}>
           <Button
             variant="contained"
-            sx={{ backgroundColor: "#6f42c1", mr: 1 }}
+            sx={{ backgroundColor: "#6f42c1" }}
             onClick={handleUpdate}
             disabled={isDisabled}
           >
@@ -369,7 +369,7 @@ function OrderDetailPage({ user }) {
           </Button>
           <Button
             variant="contained"
-            sx={{ backgroundColor: "green", mr: 1 }}
+            sx={{ backgroundColor: "green" }}
             color="success"
             onClick={handlePrint}
           >
