@@ -27,6 +27,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import BoltIcon from '@mui/icons-material/Bolt';
 import GroupIcon from '@mui/icons-material/Group';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
 
@@ -476,6 +477,21 @@ function LandingPage() {
                   'Demand Prediction: See projected revenue and units sold for the days ahead.',
                   'Per-Product Trends: Spot which items are trending up or down at a glance.',
                   'Smarter Restocking: Know how many days of stock you have left before you run out.',
+                ]}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <FeatureCard
+                theme={theme}
+                isNew
+                icon={<UploadFileIcon />}
+                title="Bulk Import & Migration"
+                description="Switching from spreadsheets or another system? Bring your entire inventory and business history into Wisely in minutes - no manual re-entry required."
+                bullets={[
+                  'Inventory Import: Upload your existing product list from Excel - categories and suppliers are created automatically.',
+                  'Historical Records: Import past sales and restocks so your reports are accurate from day one.',
+                  'Safe by Design: Every row is validated and previewed before anything is imported, with duplicates automatically skipped.',
                 ]}
               />
             </Grid>
