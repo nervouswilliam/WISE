@@ -7,9 +7,16 @@ import {
   Paper,
   Link,
 } from "@mui/material";
+import SEO from "../components/SEO";
 
 const PrivacyPolicyPage = () => {
   return (
+    <>
+    <SEO
+      title="Privacy Policy"
+      description="Read Wisely's privacy policy."
+      path="/privacy-policy"
+    />
     <Box sx={{ bgcolor: "#f9f7ff", minHeight: "100vh", py: 6 }}>
       {/* Header Section */}
       <Box
@@ -201,6 +208,7 @@ const PrivacyPolicyPage = () => {
         </Typography>
       </Container>
     </Box>
+    </>
   );
 };
 

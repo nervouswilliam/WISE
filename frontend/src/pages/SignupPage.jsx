@@ -28,6 +28,7 @@ import { styled } from '@mui/system';
 import authService from '../services/authService';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import productService from '../services/productService';
+import SEO from '../components/SEO';
 
 const PRIMARY_COLOR = '#6f42c1'; // Purple - matches LoginPage
 const ACCENT_COLOR = '#f3f4f6'; // Light Gray - matches LoginPage
@@ -122,6 +123,12 @@ function SignupPage() {
     ];
 
     return (
+        <>
+        <SEO
+          title="Sign Up for Free"
+          description="Create your free Wisely account and start managing inventory, sales, and your team in minutes."
+          path="/signup"
+        />
         <Box
             sx={{
                 minHeight: '100vh',
@@ -374,6 +381,7 @@ function SignupPage() {
                 </Box>
             </Paper>
         </Box>
+        </>
     );
 }
 

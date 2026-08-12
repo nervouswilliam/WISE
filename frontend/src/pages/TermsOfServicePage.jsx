@@ -7,9 +7,16 @@ import {
   Paper,
   Link,
 } from "@mui/material";
+import SEO from "../components/SEO";
 
 const TermsOfServicePage = () => {
   return (
+    <>
+    <SEO
+      title="Terms of Service"
+      description="Read Wisely's terms of service."
+      path="/terms-of-service"
+    />
     <Box sx={{ bgcolor: "#f9f7ff", minHeight: "100vh", py: 6 }}>
       {/* Header Section */}
       <Box
@@ -199,6 +206,7 @@ const TermsOfServicePage = () => {
         </Typography>
       </Container>
     </Box>
+    </>
   );
 };
 

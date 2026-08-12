@@ -1,0 +1,19 @@
+User-agent: *
+Disallow: /dashboard
+Disallow: /statistic
+Disallow: /forecast
+Disallow: /warehouse
+Disallow: /product
+Disallow: /sales
+Disallow: /report
+Disallow: /supplier
+Disallow: /customer
+Disallow: /settings
+Disallow: /team
+Disallow: /order
+Disallow: /notifications
+Disallow: /expenses
+Disallow: /reset-password
+Disallow: /login
+
+Sitemap: https://www.wisely.id/sitemap.xml

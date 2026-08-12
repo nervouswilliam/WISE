@@ -13,6 +13,7 @@ import {
 import { MailOutline, LockOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
 import authService from "../services/authService";
 import Loading from "../components/loading";
+import SEO from "../components/SEO";
 
 const PRIMARY_COLOR = '#6f42c1'; // Purple
 const ACCENT_COLOR = '#f3f4f6'; // Light Gray
@@ -47,12 +48,19 @@ function LoginPage() {
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   return (
-    <Box 
+    <>
+    <SEO
+      title="Login"
+      description="Log in to your Wisely account to manage inventory, sales, and your team."
+      path="/login"
+      noIndex
+    />
+    <Box
         sx={{
-            minHeight: '100vh', 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
+            minHeight: '100vh',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
             backgroundColor: ACCENT_COLOR,
             p: 2
         }}
@@ -211,6 +219,7 @@ function LoginPage() {
         </Box>
       </Paper>
     </Box>
+    </>
   );
 }
 

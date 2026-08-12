@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from "react";
+import { Helmet } from 'react-helmet-async';
 
 import LandingPage from './pages/LandingPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
@@ -98,12 +99,27 @@ function App() {
   );
 
   return (
+    <>
+    {/* Site-wide default title - individual pages override via their own <SEO>
+        (see src/components/SEO.jsx). Authenticated app pages don't have one, so this
+        is what their browser tab falls back to.
+        Only <title> goes here, not description/og/twitter meta tags: Helmet resolves
+        <title> conflicts correctly (first/innermost wins, matching document.title),
+        but repeatable <meta> tags don't get deduped the same way, and crawlers use
+        "first occurrence wins" - a generic meta tag declared here would render before,
+        and silently beat, each page's actual SEO-specific meta tags. */}
+    <Helmet>
+      <title>Wisely - Warehouse, POS & CRM Software for Growing Businesses</title>
+    </Helmet>
     <Routes>
-      {/* Default redirect to login if not authenticated */}
-      <Route path="/" element={<Navigate to="/landingPage" />} />
+      {/* Homepage lives at the bare domain root - important for SEO, since a client-side
+          redirect off "/" means search engines don't see homepage content at the URL
+          they weight most heavily. /landingPage now just redirects here for old links,
+          rather than being a second URL serving identical content. */}
+      <Route path="/" element={<LightModeShell><LandingPage /></LightModeShell>} />
+      <Route path="/landingPage" element={<Navigate to="/" replace />} />
 
       {/* Pages */}
-      <Route path="/landingPage" element={<LightModeShell><LandingPage /></LightModeShell>} />
       <Route path="/login" element={<LightModeShell><LoginPage /></LightModeShell>} />
       <Route path="/signup" element={<LightModeShell><SignupPage /></LightModeShell>} />
       <Route path="/terms-of-service" element={<LightModeShell><TermsOfServicePage /></LightModeShell>} />
@@ -142,6 +158,7 @@ function App() {
       {/* Fallback 404 */}
       <Route path="*" element={<LightModeShell><NotFoundPage /></LightModeShell>} />
     </Routes>
+    </>
   );
 }
 

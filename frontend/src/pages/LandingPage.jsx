@@ -30,6 +30,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
+import SEO from '../components/SEO';
 
 // --- Theme and Color Configuration ---
 const PRIMARY_COLOR = '#6f42c1'; // Wisely Purple
@@ -160,6 +161,24 @@ function LandingPage() {
   };
 
   return (
+    <>
+      <SEO
+        title="Warehouse, POS & CRM Software for Growing Businesses"
+        description="Wisely unifies warehouse management, point of sale, CRM, and an AI business assistant into one platform. Real-time inventory, sales forecasting, and team access controls - built for SMEs."
+        path="/"
+      />
+      <script type="application/ld+json">
+        {JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'SoftwareApplication',
+          name: 'Wisely',
+          applicationCategory: 'BusinessApplication',
+          operatingSystem: 'Web',
+          description: 'Warehouse management, point of sale, CRM, and an AI business assistant in one platform for SMEs.',
+          url: 'https://www.wisely.id',
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'IDR' },
+        })}
+      </script>
     <Box sx={{ minHeight: '100vh', backgroundColor: ACCENT_BG }}>
 
       {/* Sticky bar: appears once the hero's own Login/Try Demo buttons scroll out of view */}
@@ -220,7 +239,7 @@ function LandingPage() {
       )}
 
       {/* 1. Navigation Bar */}
-      <Paper elevation={2} square>
+      <Paper component="header" elevation={2} square>
         <Container maxWidth="lg">
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 64, px: { xs: 2, sm: 0 } }}>
             {/* Logo and Branding */}
@@ -289,6 +308,7 @@ function LandingPage() {
           </Typography>
           <Typography
             variant="h5"
+            component="p"
             color="text.secondary"
             sx={{ mt: 2, mb: 4, maxWidth: 800, mx: 'auto', fontSize: { xs: '1.1rem', sm: '1.4rem' } }}
           >
@@ -382,7 +402,7 @@ function LandingPage() {
       {/* 3. Features Section */}
       <Box sx={{ py: { xs: 8, md: 12 } }}>
         <Container maxWidth="lg">
-          <Typography variant="h4" fontWeight={700} sx={{ textAlign: 'center', mb: 1.5 }}>
+          <Typography variant="h4" component="h2" fontWeight={700} sx={{ textAlign: 'center', mb: 1.5 }}>
             Everything Your Business Needs, in One Place
           </Typography>
           <Typography
@@ -513,7 +533,7 @@ function LandingPage() {
           <Typography variant="h3" component="h2" color="white" fontWeight={800} sx={{ mb: 2, fontSize: { xs: '2rem', sm: '3rem' } }}>
             Ready to Optimize Your Business?
           </Typography>
-          <Typography variant="h6" color="white" sx={{ opacity: 0.9, mb: 4 }}>
+          <Typography variant="h6" component="p" color="white" sx={{ opacity: 0.9, mb: 4 }}>
             Join thousands of businesses simplifying their stock and sales with Wisely.
           </Typography>
           <Button 
@@ -540,17 +560,18 @@ function LandingPage() {
       </Box>
 
       {/* 5. Footer */}
-      <Box sx={{ backgroundColor: '#212121', py: 4 }}>
+      <Box component="footer" sx={{ backgroundColor: '#212121', py: 4 }}>
         <Container maxWidth="lg" sx={{ textAlign: 'center' }}>
           <Typography variant="body2" color="#bdbdbd">
-            &copy; 2025 Wisely. All rights reserved. | 
-            <Link href="/privacy-policy" color="inherit" sx={{ ml: 1, '&:hover': { color: 'white' } }}>Privacy Policy</Link> | 
+            &copy; 2025 Wisely. All rights reserved. |
+            <Link href="/privacy-policy" color="inherit" sx={{ ml: 1, '&:hover': { color: 'white' } }}>Privacy Policy</Link> |
             <Link href="/terms-of-service" color="inherit" sx={{ ml: 1, '&:hover': { color: 'white' } }}>Terms of Service</Link>
           </Typography>
         </Container>
       </Box>
 
     </Box>
+    </>
   );
 }
 

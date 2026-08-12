@@ -3,6 +3,7 @@ import { Box, Button, Typography, Stack } from "@mui/material"; // Import Stack 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import HomeIcon from "@mui/icons-material/Home"; // Import Home icon
 import { useNavigate } from "react-router-dom";
+import SEO from "../components/SEO";
 
 export default function App() {
   const navigate = useNavigate();
@@ -38,6 +39,8 @@ export default function App() {
   };
 
   return (
+    <>
+    <SEO title="Page Not Found" description="The page you're looking for doesn't exist." noIndex />
     <Box
       role="main"
       sx={{
@@ -160,5 +163,6 @@ export default function App() {
         </Typography> */}
       </Box>
     </Box>
+    </>
   );
 }
