@@ -1,0 +1,39 @@
+name: Supabase keep-alive ping
+
+# Supabase free-tier projects auto-pause after 7 days with no API activity.
+# This just performs a trivial, read-only GET against the REST API daily to
+# keep the project active - it creates/modifies no data.
+#
+# SUPABASE_ANON_KEY below is the public anon key, not a secret: it's already
+# embedded as-is in the built frontend JS bundle (see frontend/src/supabaseClient.js
+# and frontend/.env.development), so inlining it here exposes nothing new. RLS is
+# what actually protects the data, not keeping this key hidden.
+
+on:
+  schedule:
+    - cron: '0 19 * * *' # daily at 19:00 UTC (03:00 WIB)
+  workflow_dispatch: {} # lets you trigger it manually from the Actions tab too
+
+env:
+  SUPABASE_URL: https://ixhqpsxjjszsdhebanqt.supabase.co
+  SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4aHFwc3hqanN6c2RoZWJhbnF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NjY3NTAsImV4cCI6MjA3MzQ0Mjc1MH0.3gHR7ueWOtBH2xdw19_mcRBZbfj3U7C2RdC7gGsamaU
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          status=$(curl -s -o /dev/null -w "%{http_code}" \
+            "$SUPABASE_URL/rest/v1/products?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+          echo "Supabase responded with HTTP $status"
+          # Any response at all (including RLS-filtered empty results, or even a
+          # 4xx from a bad request) means the project is awake and reachable -
+          # only a connection failure (curl itself erroring, caught below) means
+          # the ping didn't do its job.
+          if [ -z "$status" ]; then
+            echo "No response from Supabase - ping failed"
+            exit 1
+          fi
